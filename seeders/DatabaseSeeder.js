@@ -8,14 +8,14 @@ import RoleSeeder from "./RoleSeeder.js";
 import ModuleSeeder from "./ModuleSeeder.js";
 
 try {
-  await RoleSeeder();
-  await TopicSeeder();
-  await CategorySeeder();
-  await DirectionSeeder();
-  await LogicOperator();
-  await QuestionFieldTypeSeeder();
+  // await RoleSeeder();
+  // await TopicSeeder();
+  // await CategorySeeder();
+  // await DirectionSeeder();
+  // await LogicOperator();
+  // await QuestionFieldTypeSeeder();
   await NotificationModelSeeder();
-  await ModuleSeeder();
+  // await ModuleSeeder();
   process.exit(0);
 } catch (error) {
   console.log("Erreur d'exécution des seeders");

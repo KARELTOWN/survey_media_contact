@@ -1,7 +1,8 @@
 import { body, param } from "express-validator";
 import Direction from "../../models/Direction.js";
 import _ from "lodash";
-import { checkDirectionExist } from "../../services/direction/directionService.js";
+import directionService from "../../services/direction/directionService.js";
+const { checkDirectionExist } = directionService();
 
 export const validateStoreDirection = [
   body("libelle")

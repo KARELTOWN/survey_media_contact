@@ -13,6 +13,12 @@ const NotificationModelSchema = new mongoose.Schema(
     name: {
       type: String,
       required: true,
+    },
+    unique: {
+      type: String,
+      required: true,
+      unique: true,
+      sparse: true,
     }
   },
   {

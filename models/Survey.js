@@ -1,7 +1,7 @@
 import { SchemaTypes } from "mongoose";
 import mongoose from "../config/mongodb.js";
 
-let file_type = ["image", "video"];
+let file_type = ["image", "video", "pdf", "word", "excel", "powerpoint"];
 let logicAction = ["show", "hide"];
 const SurveySchema = new mongoose.Schema(
   {
@@ -11,13 +11,12 @@ const SurveySchema = new mongoose.Schema(
       {
         question_id: {
           type: String,
-          unique: true,
           required: true,
         },
         title: String,
         img: String,
         file_link: String,
-        file_type: file_type,
+        file_type: ["image", "video", "pdf", "word", "excel", "powerpoint"],
         type: {
           type: SchemaTypes.ObjectId,
           required: true,
@@ -53,13 +52,13 @@ const SurveySchema = new mongoose.Schema(
         if: {
           question_id: String,
           operator: {
-            tpye: SchemaTypes.ObjectId,
+            type: SchemaTypes.ObjectId,
             ref: "LogicOperator",
           },
           value: String,
         },
         then: {
-          action: logicAction,
+          action: ["show", "hide"],
           target_question_id: String,
         },
       },

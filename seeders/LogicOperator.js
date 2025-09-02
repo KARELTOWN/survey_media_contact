@@ -1,4 +1,4 @@
-import LogicOpetator from "../models/LogicOpetator.js";
+import LogicOperator from "../models/LogicOperator.js";
 
 async function LogicOperatorSeeder() {
   try {
@@ -8,7 +8,7 @@ async function LogicOperatorSeeder() {
       { libelle: "égale" },
       { libelle: "différent" },
     ];
-    await LogicOpetator.insertMany(data, { ordered: false });
+    await LogicOperator.insertMany(data, { ordered: false });
     console.log("Logic operator insert");
   } catch (error) {
     throw error;

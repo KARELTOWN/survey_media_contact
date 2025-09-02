@@ -1,8 +1,11 @@
 import { matchedData, validationResult } from "express-validator";
-import {
+import directionService from "../../services/direction/directionService.js";
+
+const {
   DirectionModelFilter,
   directionFonctions
-} from "../../services/direction/directionService.js";
+} = directionService()
+
 import Direction from "../../models/Direction.js";
 
 export default function directionController() {
@@ -10,13 +13,13 @@ export default function directionController() {
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
-        res.status(422).json({ errors: errors.array() });
+        return res.status(422).json({ errors: errors.array() });
       }
       const data = matchedData(req);
       let direction = new Direction({ ...data, created_by: req.user._id });
       await direction.save();
 
-      res.status(200).json({
+      return res.status(200).json({
         message: "Direction créé",
         data: {
           direction: {
@@ -45,7 +48,7 @@ export default function directionController() {
         totalPages: Math.ceil(total_direction / limit),
       };
 
-      res.status(200).json({
+      return res.status(200).json({
         message: "Directions récupérées",
         data: data,
       });
@@ -58,7 +61,7 @@ export default function directionController() {
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
-        res.status(422).json({ errors: errors.array() });
+        return res.status(422).json({ errors: errors.array() });
       }
       const data = matchedData(req);
       let direction = await Direction.findByIdAndUpdate(
@@ -71,7 +74,7 @@ export default function directionController() {
         }
       );
 
-      res.status(200).json({
+      return res.status(200).json({
         message: "Direction modifié",
         data: {
           direction: {
@@ -89,7 +92,7 @@ export default function directionController() {
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
-        res.status(422).json({ errors: errors.array() });
+        return res.status(422).json({ errors: errors.array() });
       }
       const data = matchedData(req);
 
@@ -101,7 +104,7 @@ export default function directionController() {
       const result = await DirectionModelFilter(req, query, skip, limit);
       const { total_direction, direction_list } = result;
 
-      res.status(200).json({
+      return res.status(200).json({
         message: "Directions filtrés",
         data: {
           projects: direction_list,
@@ -119,11 +122,11 @@ export default function directionController() {
   const getFonctionsInDirection = async (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      res.status(422).json({ errors: errors.array() });
+      return res.status(422).json({ errors: errors.array() });
     }
     const data = matchedData(req);
     let fonctions = await directionFonctions(data.direction_id)
-    res.status(200).json({
+    return res.status(200).json({
       message: "Get successfully",
       data: fonctions,
     });

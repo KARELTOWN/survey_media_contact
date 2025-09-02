@@ -15,25 +15,13 @@ function queueWorker(queueName) {
   });
 }
 
-const recordChunksQueues = queueWorker("recording_chunk_store");
-const feedbackStoreQueues = queueWorker("feedback");
+const surveyResponseQueues = queueWorker("survey_response");
 const mailingQueues = queueWorker("mailing");
 
-export const storeChunkJob = async (data) => {
-  let queues = [];
-  for (const dt of data.events) {
-    queues.push({
-      name: `recording_chunks_${Date.now()}`,
-      data: { chunk: dt, project: data.project_id },
-    });
-  }
-  await recordChunksQueues.addBulk(queues); // ajout un à un mais performant
-};
-
-export const storeFeedbackJob = async (data) => {
+export const storeSurveyResponse = async (data) => {
   try {
     let attachments = Array.from(data.attachments);
-    await feedbackStoreQueues.add(`feedback_${Date.now()}`, {
+    await surveyResponseQueues.add(`survey_response_${Date.now()}`, {
       file: data.file,
       attachments: attachments,
       feedback: data.feedback,

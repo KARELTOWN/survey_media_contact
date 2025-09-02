@@ -17,8 +17,6 @@ export default function topicService() {
           select: "firstname lastname",
         })
         .sort({ createdAt: -1 })
-        .skip(skip)
-        .limit(limit)
         .exec();
     } else {
       topics = await topic_finder
@@ -28,6 +26,8 @@ export default function topicService() {
           select: "firstname lastname",
         })
         .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
         .exec();
     }
 
@@ -80,6 +80,6 @@ export default function topicService() {
     checkTopicExist,
     topicData,
     TopicModelFilter,
-    topicCategory
+    topicCategory,
   };
 }

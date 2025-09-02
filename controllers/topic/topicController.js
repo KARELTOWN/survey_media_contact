@@ -1,8 +1,10 @@
 import { matchedData, validationResult } from "express-validator";
-import {
+import topicService from "../../services/topic/topicService.js";
+const {
   TopicModelFilter,
   topicCategory,
-} from "../../services/topic/topicService.js";
+} = topicService()
+
 import Topic from "../../models/Topic.js";
 
 export default function topicController() {
@@ -10,13 +12,13 @@ export default function topicController() {
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
-        res.status(422).json({ errors: errors.array() });
+        return res.status(422).json({ errors: errors.array() });
       }
       const data = matchedData(req);
       let topic = new Topicopic({ ...data, created_by: req.user._id });
       await topic.save();
 
-      res.status(200).json({
+      return res.status(200).json({
         message: "Topic créé",
         data: {
           topic: {
@@ -38,14 +40,14 @@ export default function topicController() {
       const result = await TopicModelFilter(req, {}, skip, limit);
       const { total_topic, topic_list } = result;
       data = {
-        projects: topic_list,
+        topics: topic_list,
         total: total_topic,
         page: page,
         limit: limit,
         totalPages: Math.ceil(total_topic / limit),
       };
 
-      res.status(200).json({
+      return res.status(200).json({
         message: "Topics récupérées",
         data: data,
       });
@@ -58,7 +60,7 @@ export default function topicController() {
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
-        res.status(422).json({ errors: errors.array() });
+        return res.status(422).json({ errors: errors.array() });
       }
       const data = matchedData(req);
       let topic = await Topic.findByIdAndUpdate(
@@ -71,7 +73,7 @@ export default function topicController() {
         }
       );
 
-      res.status(200).json({
+      return res.status(200).json({
         message: "Topic modifié",
         data: {
           topic: {
@@ -89,7 +91,7 @@ export default function topicController() {
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
-        res.status(422).json({ errors: errors.array() });
+        return res.status(422).json({ errors: errors.array() });
       }
       const data = matchedData(req);
 
@@ -101,10 +103,10 @@ export default function topicController() {
       const result = await TopicModelFilter(req, query, skip, limit);
       const { total_topic, topic_list } = result;
 
-      res.status(200).json({
+      return res.status(200).json({
         message: "Topics filtrés",
         data: {
-          projects: topic_list,
+          topics: topic_list,
           total: total_topic,
           page: page,
           limit: limit,
@@ -119,11 +121,11 @@ export default function topicController() {
   const getCategoryInTopic = async (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      res.status(422).json({ errors: errors.array() });
+      return res.status(422).json({ errors: errors.array() });
     }
     const data = matchedData(req);
     let topics = await topicCategory(data.topic_id);
-    res.status(200).json({
+    return res.status(200).json({
       message: "Get successfully",
       data: topics,
     });

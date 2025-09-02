@@ -17,7 +17,6 @@ const PasswordResetTokenSchema = new mongoose.Schema(
     },
     expires_at: {
       type: Date,
-      select: false
     },
     used_at: {
       type: Date,

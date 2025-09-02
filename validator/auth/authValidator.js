@@ -141,22 +141,7 @@ export const validateResetPassword = [
     .withMessage(
       "Le MOT DE PASSE n'est pas fort. Il doit contenir au moins : un caractère spécial, un chiffre, une lettre majuscule, une lettre miniscule"
     )
-    .escape()
-    .custom(async (value, { req }) => {
-      const user = await User.findOne({ email: req.params.email })
-        .select("+password")
-        .exec();
-      if (!user) {
-        throw new Error("Compte non trouvé");
-      }
-      const result = await bcrypt.compare(value, user.password);
-      if (result === true) {
-        throw new Error(
-          "Vous ne pouvez pas utiliser votre ancien mot de passe"
-        );
-        return true;
-      }
-    }),
+    .escape(),
   body("confirm_password")
     .notEmpty()
     .withMessage("Le champ MOT DE PASSE ne peut être vide")

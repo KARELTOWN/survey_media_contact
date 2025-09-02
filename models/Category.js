@@ -23,5 +23,5 @@ const CategorySchema = new mongoose.Schema(
 );
 
 CategorySchema.index({ libelle: 1, topic_id: 1 }, { unique: true });
-const Category = mongoose.model("Topic", CategorySchema);
+const Category = mongoose.model("Category", CategorySchema);
 export default Category;

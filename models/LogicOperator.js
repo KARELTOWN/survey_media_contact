@@ -1,4 +1,5 @@
 import mongoose from "../config/mongodb.js";
+import { SchemaTypes } from "mongoose";
 
 const LogicOperatorSchema = new mongoose.Schema(
   {

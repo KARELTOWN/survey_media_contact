@@ -1,7 +1,8 @@
 import { body, param } from "express-validator";
 import Topic from "../../models/Topic.js";
 import _ from "lodash";
-import { checkTopicExist } from "../../services/topic/topicService.js";
+import topicService from "../../services/topic/topicService.js";
+const { checkTopicExist } = topicService();
 
 export const validateStoreTopic = [
   body("libelle")

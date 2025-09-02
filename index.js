@@ -5,11 +5,10 @@ import morgan from "morgan";
 import path from "path";
 import { fileURLToPath } from "url";
 import bodyParser from "body-parser";
-// import initializeElasticsearch from "./config/elasticClient.js";
-// export const { client: elastiClient } = await initializeElasticsearch();
-// import { createAppLog } from "./services/elasticLog.js";
-import { schedule_expired_session } from "./services/schedule.js";
-schedule_expired_session.start();
+import Notification from "./models/Notification.js";
+
+// import { schedule_expired_session } from "./services/schedule.js";
+// schedule_expired_session.start();
 
 import redisConnection from "./config/redis.js";
 import cors from "cors";
@@ -44,10 +43,7 @@ app.use(bodyParser.urlencoded({ extended: true, limit: "50mb" }));
 
 const corsOption = {
   origin: [
-    "https://record.bugreveal.com",
-    "https://app.bugreveal.com",
     "http://localhost:5173",
-    "http://localhost:5175"
   ],
   methods: ["GET", "POST", "DELETE", "PUT", "PATCH"],
   credentials: true,
