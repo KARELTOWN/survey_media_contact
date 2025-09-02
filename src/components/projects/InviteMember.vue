@@ -8,7 +8,7 @@
         </h5>
         <form class="flex flex-col custom-scrollbar max-h-[458px] overflow-y-auto p-2" @submit.prevent="handleSubmit">
           <div class="mt-8 flex items-center gap-4">
-            <div class="w-4/5"> 
+            <div class="w-4/5">
               <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
                 Email
               </label>
@@ -46,7 +46,7 @@
 import { ref, reactive, onMounted, watchEffect, watch } from 'vue'
 import Modal from '@/components/profile/Modal.vue'
 import ManageMember from './ManageMember.vue';
-import { projectStore } from "@/stores/project/projectStore";
+import { projectStore } from "@/stores/survey/surveyStore";
 import { storeToRefs } from "pinia";
 const store = projectStore()
 const { errors, selectProject, projectSuccess } = storeToRefs(store)

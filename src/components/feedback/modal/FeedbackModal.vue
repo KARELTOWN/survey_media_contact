@@ -86,7 +86,7 @@ import { feedbackStore } from '@/stores/feedback/feedbackStore.ts';
 import { storeToRefs } from 'pinia';
 import FeedbackDetail from './FeedbackDetail.vue'
 const storeFeedback = feedbackStore()
-import { projectStore } from '@/stores/project/projectStore';
+import { projectStore } from '@/stores/survey/surveyStore';
 const storeProject = projectStore()
 const { getProjectMember } = storeProject
 import FeedbackFiles from './FeedbackFiles.vue';

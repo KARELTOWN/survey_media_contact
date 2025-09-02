@@ -8,7 +8,7 @@
                     <div>
                         <p class="text-lg font-medium text-gray-900">{{ member.lastname + ' ' + member.firstname }}</p>
                         <p class="hover:underline text-blue-600 text-sm"> <a :href="`mailto:${member.email}`">{{
-                                member.email }}</a></p>
+                            member.email }}</a></p>
                     </div>
                 </div>
                 <button @click="quit(member._id)"
@@ -21,7 +21,7 @@
 </template>
 
 <script setup>
-import { projectStore } from '@/stores/project/projectStore';
+import { projectStore } from '@/stores/survey/surveyStore';
 import { storeToRefs } from 'pinia';
 import Swal from 'sweetalert2';
 import { onMounted } from 'vue';

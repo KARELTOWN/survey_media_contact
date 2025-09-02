@@ -261,7 +261,7 @@
                 <img width="231" height="48" src="/images/logo/auth-logo.png" alt="Logo" />
               </router-link>
               <p class="text-center text-gray-400 dark:text-white/60">
-                                <strong>Découvrez les bugs dans vos applications pour en améliorer la qualité</strong>
+                <strong>Découvrez les bugs dans vos applications pour en améliorer la qualité</strong>
               </p>
             </div>
           </div>
@@ -326,9 +326,12 @@ const handleSubmit = async () => {
     }
     else {
       if (response?.data) {
-        successNotify('Utilisez le code envoyé sur votre adresse Email pour valider votre compte')
-        sessionStorage.setItem('replay_map_user', response.data)
-        router.push({ path: "/confirmation", query: { type: "register" } })
+        successNotify('Utilisez le code envoyé sur votre adresse Email pour vérifier votre compte')
+        sessionStorage.setItem('survey_mc_user', response.data)
+        setTimeout(() => {
+          router.push({ path: "/confirmation", query: { type: "register" } })
+        }, 2000)
+
       }
     }
   } catch (err) {

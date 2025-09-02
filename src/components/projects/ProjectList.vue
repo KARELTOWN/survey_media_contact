@@ -84,7 +84,7 @@ import TaskIcon from '@/icons/TaskIcon.vue';
 import SettingsIcon from '@/icons/SettingsIcon.vue'
 import LogoutIcon from '@/icons/LogoutIcon.vue';
 import UserCircleIcon from '@/icons/UserCircleIcon.vue';
-import { projectStore } from "@/stores/project/projectStore";
+import { projectStore } from "@/stores/survey/surveyStore";
 import { storeToRefs } from "pinia";
 import moment from 'moment';
 import Swal from 'sweetalert2'

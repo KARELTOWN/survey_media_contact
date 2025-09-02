@@ -44,7 +44,7 @@ const storeFeedback = feedbackStore()
 const { feedbackSelect_data, feedbackTypes, feedbackPriority, feedbackDetailForm, feedbackStatus, feedbackSelect } = storeToRefs(storeFeedback)
 const { updateFeedback } = storeFeedback
 
-import { projectStore } from '@/stores/project/projectStore';
+import { projectStore } from '@/stores/survey/surveyStore';
 const { projectMembers } = storeToRefs(projectStore())
 
 const getTypeValue = (value) => {

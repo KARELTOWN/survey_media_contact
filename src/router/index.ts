@@ -15,51 +15,22 @@ const router = createRouter({
         requiredAuth: true,
       },
     },
+    // Enquêtes
     {
-      path: '/projets',
-      name: 'Projets',
-      component: () => import('../views/Pages/Project/Project.vue'),
+      path: '/enquetes',
+      name: 'Surveys',
+      component: () => import('../views/Pages/Enquete/Enquete.vue'),
       meta: {
-        title: 'Projets',
-        requiredAuth: true,
-      },
-    },
-    // Sessions
-    {
-      path: '/sessions',
-      name: 'Sessions',
-      component: () => import('../views/Pages/Session/Session.vue'),
-      meta: {
-        title: 'Sessions',
+        title: 'Enquêtes',
         requiredAuth: true,
       },
     },
     {
-      path: '/session/detail',
-      name: 'Session-detail',
-      component: () => import('../views/Pages/Session/SessionDetail.vue'),
+      path: '/creation-enquete',
+      name: 'Create-Survey',
+      component: () => import('../views/Pages/Enquete/Create.vue'),
       meta: {
-        title: 'Session Detail',
-        requiredAuth: true,
-      },
-    },
-    // Feedback
-    {
-      path: '/feedbacks',
-      name: 'Feedbacks',
-      component: () => import('../views/Pages/Feedback/Feedback.vue'),
-      meta: {
-        title: 'Feedbacks',
-        requiredAuth: true,
-      },
-    },
-    // Evénements
-    {
-      path: '/evenements',
-      name: 'Evenements',
-      component: () => import('../views/Pages/Event/Event.vue'),
-      meta: {
-        title: 'Evénements',
+        title: "Creation d'enquête",
         requiredAuth: true,
       },
     },
@@ -109,19 +80,27 @@ const router = createRouter({
       },
     },
     {
-      path: '/reset-password',
-      name: 'ResetPassword',
-      component: () => import('../views/Auth/ResetPassword.vue'),
+      path: '/forgot-password',
+      name: 'ForgotPassword',
+      component: () => import('../views/Auth/ForgotPassword.vue'),
+      meta: {
+        title: 'ForgotPassword',
+      },
+    },
+    {
+      path: '/desapprouve-reinitialisation',
+      name: 'DesapprouveReinitialisation',
+      component: () => import('../views/Auth/DesapprouveReinitialisation.vue'),
       meta: {
         title: 'ResetPassword',
       },
     },
     {
-      path: '/new-password',
-      name: 'NewPassword',
-      component: () => import('../views/Auth/NewPassword.vue'),
+      path: '/reset-password',
+      name: 'ResetPassword',
+      component: () => import('../views/Auth/ResetPassword.vue'),
       meta: {
-        title: 'NewPassword',
+        title: 'ResetPassword',
       },
     },
   ],

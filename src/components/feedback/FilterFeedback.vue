@@ -57,7 +57,7 @@
 
 <script setup lang="ts">
 
-import { projectStore } from '@/stores/project/projectStore.ts';
+import { projectStore } from '@/stores/survey/surveyStore';
 import { feedbackStore } from '@/stores/feedback/feedbackStore.ts';
 
 import { storeToRefs } from 'pinia';

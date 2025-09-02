@@ -132,7 +132,7 @@
 import { ref, reactive, onMounted, watchEffect, watch } from 'vue'
 import Modal from '@/components/profile/Modal.vue'
 
-import { projectStore } from "@/stores/project/projectStore";
+import { projectStore } from "@/stores/survey/surveyStore";
 import { storeToRefs } from "pinia";
 const store = projectStore()
 const { errors,

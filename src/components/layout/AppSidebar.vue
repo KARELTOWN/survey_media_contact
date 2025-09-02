@@ -181,23 +181,8 @@ const menuGroups = [
       },
       {
         icon: CalenderIcon,
-        name: "Projets",
-        path: "/projets",
-      },
-      {
-        icon: ListIcon,
-        name: "Sessions",
-        path: "/sessions",
-      },
-      {
-        icon: GridIcon,
-        name: "Evénements",
-        path: "/evenements",
-      },
-      {
-        icon: GridIcon,
-        name: "Feedbacks",
-        path: "/feedbacks",
+        name: "Enquêtes",
+        path: "/enquetes",
       },
     ],
   },

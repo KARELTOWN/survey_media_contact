@@ -3,26 +3,27 @@ import { handleAppError, handleCatchError } from '@/utils/handleAppError'
 import { defineStore } from 'pinia'
 import { reactive, ref } from 'vue'
 import { successNotify } from '@/utils/notification'
+import topicValidator from '@/validator/topic'
+const { validateCreate, validateUpdate } = topicValidator()
 
 export const topicStore = defineStore('topic-store', () => {
   const errors = ref({})
   const search_errors = ref({})
-  const projects = ref([])
-  const tracking_code = ref('')
+  const topics = ref([])
   const total = ref(0)
-  const page = ref(0)
-  const limit = ref(0)
+  const page = ref(1)
+  const limit = ref(20)
   const totalPages = ref(0)
-  const projectSuccess = ref(false)
+  const topicSuccess = ref(false)
   const search_form = reactive({
     search: '',
-    start_date: '',
-    end_date: '',
   })
-  let selectProject = ref('')
+
+  let selectTopic = ref(null)
+    let selectCategory = ref(null)
+
   let openModal = ref(false)
-  let openModalInvitation = ref(false)
-  const projectMembers = ref([])
+  const topicCategory = ref([])
 
   const updatePagination = () => {
     total.value += 1
@@ -35,7 +36,7 @@ export const topicStore = defineStore('topic-store', () => {
       const response = await handleAppError(result)
       if (response.status === false) {
         if (response?.data) {
-          projects.value = response.data.projects
+          topics.value = response.data.topics
           total.value = response.data.total
           page.value = response.data.page
           limit.value = response.data.limit
@@ -47,14 +48,14 @@ export const topicStore = defineStore('topic-store', () => {
     }
   }
 
-  const filterProjects = async (data) => {
+  const filterTopics = async (data) => {
     try {
       search_errors.value = {}
-      const result = await fetchPost(`project/filter?limit=${limit.value}&page=${page.value}`, data)
+      const result = await fetchPost(`topic/filter?limit=${limit.value}&page=${page.value}`, data)
       const response = await handleAppError(result)
       if (response.status === false) {
         if (response?.data) {
-          projects.value = response.data.projects
+          topics.value = response.data.topics
           total.value = response.data.total
           page.value = response.data.page
           limit.value = response.data.limit
@@ -70,14 +71,14 @@ export const topicStore = defineStore('topic-store', () => {
     }
   }
 
-  const createProject = async (data) => {
+  const createTopic = async (data) => {
     try {
-      projectSuccess.value = false
+      topicSuccess.value = false
       tracking_code.value = ''
       errors.value = {}
       const schemaProject = validateCreate()
       const data_result = await schemaProject.validate(data, { abortEarly: false })
-      const result = await fetchPost(`project/create`, data_result)
+      const result = await fetchPost(`topic/create`, data_result)
       const response = await handleAppError(result)
       if (response.status === true) {
         if (response.errors) {
@@ -85,11 +86,10 @@ export const topicStore = defineStore('topic-store', () => {
         }
       } else {
         if (response?.data) {
-          projectSuccess.value = true
-          projects.value.unshift(response.data.project)
-          tracking_code.value = response.data.project.tracking_code
+          topicSuccess.value = true
+          topics.value.unshift(response.data.topic)
           updatePagination()
-          successNotify('Projet créé')
+          successNotify('Thématique créé')
         }
       }
     } catch (err) {
@@ -100,13 +100,13 @@ export const topicStore = defineStore('topic-store', () => {
     }
   }
 
-  const updateProject = async (data) => {
+  const updateTopic = async (data) => {
     try {
-      projectSuccess.value = false
+      topicSuccess.value = false
       errors.value = {}
       const schemaProject = validateUpdate()
       const data_result = await schemaProject.validate(data, { abortEarly: false })
-      const result = await fetchPut(`project/update/${data_result.project_id}`, data_result)
+      const result = await fetchPut(`topic/update/${data_result.topic_id}`, data_result)
       const response = await handleAppError(result)
       if (response.status === true) {
         if (response.errors) {
@@ -114,13 +114,10 @@ export const topicStore = defineStore('topic-store', () => {
         }
       } else {
         if (response?.data) {
-          projectSuccess.value = true
-          let project_index = projects.value.findIndex(
-            (item) => item._id === data_result.project_id,
-          )
-          console.log('find index', project_index)
-          projects.value[project_index] = response.data.project
-          successNotify('Projet modifié')
+          topicSuccess.value = true
+          let topic_index = topics.value.findIndex((item) => item._id === data_result.topic_id)
+          topics.value[topic_index] = response.data.topic
+          successNotify('Topic modifié')
         }
       }
     } catch (err) {
@@ -131,53 +128,14 @@ export const topicStore = defineStore('topic-store', () => {
     }
   }
 
-  const inviteUser = async (data) => {
-    try {
-      projectSuccess.value = false
-      errors.value = {}
-      const result = await fetchPost(`project/invite_user`, data)
-      const response = await handleAppError(result)
-      if (response.status === false) {
-        projectSuccess.value = true
-        successNotify('Utilisateur ajouté')
-      } else if (response.status === true) {
-        if (response.errors) {
-          errors.value = response.errors
-        }
-      }
-    } catch (err) {
-      handleCatchError(err)
-    }
-  }
-
-  const getProjectMember = async (project_id) => {
+  const getCategoryInTopic = async (topic) => {
     try {
       search_errors.value = {}
-      const result = await fetchGet(`project/member/${project_id}`)
+      const result = await fetchGet(`topic/category/${topic}`)
       const response = await handleAppError(result)
       if (response.status === false) {
         if (response?.data) {
-          projectMembers.value = response.data
-        }
-      }
-    } catch (err) {
-      handleCatchError(err)
-    }
-  }
-
-  const quitProject = async (data) => {
-    try {
-      projectSuccess.value = false
-      search_errors.value = {}
-      errors.value = {}
-      const result = await fetchPost(`project/quit`, data)
-      const response = await handleAppError(result)
-      if (response.status === false) {
-        projectSuccess.value = true
-        successNotify('Modification réussie')
-      } else if (response.status === true) {
-        if (response.errors) {
-          errors.value = response.errors
+          topicCategory.value = response.data
         }
       }
     } catch (err) {
@@ -186,26 +144,23 @@ export const topicStore = defineStore('topic-store', () => {
   }
 
   return {
-    createProject,
-    updateProject,
-    getProjects,
+    createTopic,
+    updateTopic,
+    getTopics,
     errors,
-    projects,
-    tracking_code,
+    topics,
     total,
     page,
     limit,
     totalPages,
-    projectSuccess,
-    filterProjects,
+    topicSuccess,
+    filterTopics,
     search_errors,
     search_form,
-    selectProject,
+    selectTopic,
+    selectCategory,
     openModal,
-    openModalInvitation,
-    inviteUser,
-    projectMembers,
-    getProjectMember,
-    quitProject,
+    topicCategory,
+    getCategoryInTopic,
   }
 })

@@ -1,0 +1,159 @@
+import { fetchGet, fetchPost, fetchPut } from '@/composables/request'
+import { handleAppError, handleCatchError } from '@/utils/handleAppError'
+import { defineStore } from 'pinia'
+import { reactive, ref } from 'vue'
+// import projectValidator from '@/validator/topic'
+// import { successNotify } from '@/utils/notification'
+// const { validateCreate, validateUpdate } = projectValidator()
+export const surveyStore = defineStore('survey-store', () => {
+  const selectTopic = ref('')
+  const selectCategory = ref('')
+  const logicOpetator = ref([])
+  const questionsFieldType = ref([])
+  // const errors = ref({})
+  // // const search_errors = ref({})
+  // const projects = ref([])
+  // const tracking_code = ref('')
+  // const total = ref(0)
+  // const page = ref(1)
+  // const limit = ref(15)
+  // const totalPages = ref(0)
+  // const projectSuccess = ref(false)
+  // const search_form = reactive({
+  //   search: '',
+  //   start_date: '',
+  //   end_date: '',
+  // })
+  // let selectProject = ref('')
+  // let openModal = ref(false)
+  // let openModalInvitation = ref(false)
+  // const projectMembers = ref([])
+
+  // const updatePagination = () => {
+  //   total.value += 1
+  //   totalPages.value = Math.ceil(total.value / limit.value)
+  // }
+
+  const getSurveyParams = async () => {
+    try {
+      const result = await fetchGet(`survey/params`)
+      const response = await handleAppError(result)
+      if (response.status === false) {
+        if (response?.data) {
+          questionsFieldType.value = response.data.questions_field_types
+          logicOpetator.value = response.data.logic_operators
+        }
+      }
+    } catch (err) {
+      handleCatchError(err)
+    }
+  }
+
+  // const filterProjects = async (data) => {
+  //   try {
+  //     search_errors.value = {}
+  //     const result = await fetchPost(`project/filter?limit=${limit.value}&page=${page.value}`, data)
+  //     const response = await handleAppError(result)
+  //     if (response.status === false) {
+  //       if (response?.data) {
+  //         projects.value = response.data.projects
+  //         total.value = response.data.total
+  //         page.value = response.data.page
+  //         limit.value = response.data.limit
+  //         totalPages.value = response.data.totalPages
+  //       }
+  //     } else {
+  //       if (response.errors) {
+  //         search_errors.value = response.errors
+  //       }
+  //     }
+  //   } catch (err) {
+  //     handleCatchError(err)
+  //   }
+  // }
+
+  // const createProject = async (data) => {
+  //   try {
+  //     projectSuccess.value = false
+  //     tracking_code.value = ''
+  //     errors.value = {}
+  //     const schemaProject = validateCreate()
+  //     const data_result = await schemaProject.validate(data, { abortEarly: false })
+  //     const result = await fetchPost(`project/create`, data_result)
+  //     const response = await handleAppError(result)
+  //     if (response.status === true) {
+  //       if (response.errors) {
+  //         errors.value = response.errors
+  //       }
+  //     } else {
+  //       if (response?.data) {
+  //         projectSuccess.value = true
+  //         projects.value.unshift(response.data.project)
+  //         tracking_code.value = response.data.project.tracking_code
+  //         updatePagination()
+  //         successNotify('Projet créé')
+  //       }
+  //     }
+  //   } catch (err) {
+  //     const result = handleCatchError(err)
+  //     if (result) {
+  //       errors.value = result
+  //     }
+  //   }
+  // }
+
+  // const updateProject = async (data) => {
+  //   try {
+  //     projectSuccess.value = false
+  //     errors.value = {}
+  //     const schemaProject = validateUpdate()
+  //     const data_result = await schemaProject.validate(data, { abortEarly: false })
+  //     const result = await fetchPut(`project/update/${data_result.project_id}`, data_result)
+  //     const response = await handleAppError(result)
+  //     if (response.status === true) {
+  //       if (response.errors) {
+  //         errors.value = response.errors
+  //       }
+  //     } else {
+  //       if (response?.data) {
+  //         projectSuccess.value = true
+  //         let project_index = projects.value.findIndex(
+  //           (item) => item._id === data_result.project_id,
+  //         )
+  //         console.log('find index', project_index)
+  //         projects.value[project_index] = response.data.project
+  //         successNotify('Projet modifié')
+  //       }
+  //     }
+  //   } catch (err) {
+  //     const result = handleCatchError(err)
+  //     if (result) {
+  //       errors.value = result
+  //     }
+  //   }
+  // }
+
+  return {
+    selectTopic,
+    selectCategory,
+    getSurveyParams,
+    logicOpetator, questionsFieldType
+    // createProject,
+    // updateProject,
+    // getProjects,
+    // errors,
+    // projects,
+    // tracking_code,
+    // total,
+    // page,
+    // limit,
+    // totalPages,
+    // projectSuccess,
+    // filterProjects,
+    // search_form,
+    // selectProject,
+    // openModal,
+    // openModalInvitation,
+    // projectMembers,
+  }
+})

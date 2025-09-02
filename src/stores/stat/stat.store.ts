@@ -29,8 +29,8 @@ export const useStatStore = defineStore('stat-store', () => {
   }
 
   return {
-    // getStats,
-    // stat,
+    getStats,
+    stat,
     // mapsCountry,
   }
 })

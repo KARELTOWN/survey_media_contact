@@ -16,6 +16,12 @@ export default function authValidator() {
     })
   }
 
+  const validateEmail = () => {
+    return yup.object({
+      email: yup.string().email('Email invalide').required('Email obligatoire'),
+    })
+  }
+
   const validateRegister = () => {
     return yup.object({
       firstname: yup
@@ -27,6 +33,22 @@ export default function authValidator() {
         .min(1, 'Le prénom doit avoir au moins 1 caractère')
         .required('Email obligatoire'),
       email: yup.string().email('Email invalide').required('Email obligatoire'),
+      password: yup
+        .string()
+        .required('Mot de passe obligatoire')
+        .matches(
+          passwordRegex,
+          'Le mot de passe doit contenir au moins : 1 Majuscule, 1 miniscule, 1 chiffre, 1 caractère spéciale',
+        ),
+      confirm_password: yup
+        .string()
+        .required('Confirmation de Mot de passe obligatoire')
+        .oneOf([yup.ref('password')], 'Les mots de passe ne correspondent pas'),
+    })
+  }
+
+  const validatePassword = () => {
+    return yup.object({
       password: yup
         .string()
         .required('Mot de passe obligatoire')
@@ -55,5 +77,7 @@ export default function authValidator() {
     validateLogin,
     validateRegister,
     validateOTP,
+    validateEmail,
+    validatePassword,
   }
 }

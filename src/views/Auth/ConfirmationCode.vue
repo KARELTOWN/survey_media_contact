@@ -59,7 +59,7 @@
                                 <img width="231" height="48" src="/images/logo/auth-logo.png" alt="Logo" />
                             </router-link>
                             <p class="text-center text-gray-400 dark:text-white/60">
-                                                <strong>Découvrez les bugs dans vos applications pour en améliorer la qualité</strong>
+                                <strong>Découvrez les bugs dans vos applications pour en améliorer la qualité</strong>
                             </p>
                         </div>
                     </div>
@@ -96,7 +96,7 @@ const router = useRouter()
 
 onMounted(() => {
     if (route.query.type == 'register') {
-        const user_id = sessionStorage.getItem('replay_map_user')
+        const user_id = sessionStorage.getItem('survey_mc_user')
         if (user_id) {
             form.user_id = user_id
         }
@@ -162,9 +162,11 @@ const handleSubmit = async () => {
             return
         }
         else {
-            successNotify('Compte validé')
-            sessionStorage.removeItem('replay_map_user')
-            router.push({ path: "/" })
+            successNotify('Compte vérifié. Un administrateur va valider votre compte.')
+            sessionStorage.removeItem('survey_mc_user')
+            setTimeout(() => {
+                router.push({ path: "/" })
+            }, 2000)
         }
     }
     catch (err) {
