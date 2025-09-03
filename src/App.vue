@@ -4,7 +4,7 @@
       <RouterView />
     </SidebarProvider>
   </ThemeProvider>
-  
+
 </template>
 
 <script setup lang="ts">

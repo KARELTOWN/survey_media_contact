@@ -1,5 +1,8 @@
 import { fetchGet, fetchPost, fetchPut } from '@/composables/request'
 import { handleAppError, handleCatchError } from '@/utils/handleAppError'
+import { getLocalStorage, setIndexDBStorage } from '@/utils/storage'
+import { defaultQuestion } from '@/utils/survey'
+import { getUUID } from '@/utils/uuid'
 import { defineStore } from 'pinia'
 import { reactive, ref } from 'vue'
 // import projectValidator from '@/validator/topic'
@@ -10,6 +13,26 @@ export const surveyStore = defineStore('survey-store', () => {
   const selectCategory = ref('')
   const logicOpetator = ref([])
   const questionsFieldType = ref([])
+
+  const questionSelect = reactive({
+    type_field: '',
+    field_params: {},
+  })
+
+  let formSurvey = ref({
+    form_id: getUUID(),
+    title: '',
+    description: '',
+    topic: {},
+    category: {},
+    lastEdit: 0,
+    createdAt: Date.now(),
+    questions: [
+      {
+        ...defaultQuestion, question_id: getUUID()
+      }
+    ],
+  })
   // const errors = ref({})
   // // const search_errors = ref({})
   // const projects = ref([])
@@ -47,6 +70,13 @@ export const surveyStore = defineStore('survey-store', () => {
     } catch (err) {
       handleCatchError(err)
     }
+  }
+
+  const saveFormInstance = async () => {
+    formSurvey.value.topic = getLocalStorage('selectTopic')
+    formSurvey.value.category = getLocalStorage('selectCategory')
+    formSurvey.value.lastEdit = Date.now()
+    await setIndexDBStorage(`survey_form_${formSurvey.value.form_id}`, formSurvey.value)
   }
 
   // const filterProjects = async (data) => {
@@ -137,7 +167,11 @@ export const surveyStore = defineStore('survey-store', () => {
     selectTopic,
     selectCategory,
     getSurveyParams,
-    logicOpetator, questionsFieldType
+    logicOpetator,
+    questionsFieldType,
+    formSurvey,
+    saveFormInstance,
+    questionSelect,
     // createProject,
     // updateProject,
     // getProjects,

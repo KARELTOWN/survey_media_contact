@@ -9,6 +9,7 @@
             v-for="questionType in questionsFieldType">{{ questionType.libelle }}</option>
     </select>
 
+    {{ field_params }}
     <!-- {{ question.type_field }} -->
     <!-- Aperçu -->
     <div class="mt-3">
@@ -26,10 +27,10 @@
                         <input class="w-full border border-gray-200 focus:outline-none text-lg p-2 mb-3"
                             :value="option.value" type="text" :index="index" @change="setOption($event, index)" />
 
-                        <input ref="fileInput" type="file" accept="image/*" class="hidden"
+                        <input type="file" :name="`file_${question.question_id}_${index}`" accept="image/*" class="hidden"
                             @change="handleImageOption($event, index)" />
 
-                        <svg @click="openFileSelector" width="35px" height="35px" viewBox="0 0 24 24" fill="none"
+                        <svg @click="openFileSelector(index)" width="35px" height="35px" viewBox="0 0 24 24" fill="none"
                             xmlns="http://www.w3.org/2000/svg" stroke="#2B7FFF">
                             <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
                             <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
@@ -54,16 +55,27 @@
                         <input v-if="question.type_field == 'select' || question.type_field === 'radio'"
                             class="w-25 border-b border-gray-200 focus:outline-none text-lg p-2 mb-3 w-6 h-6"
                             type="radio" :data-value="index" @change="setDefaultOption($event, index)"
-                            name="default_option">
+                            :name="`default_option_${question.question_id}`">
 
                         <input v-if="question.type_field == 'checkbox'"
                             class="w-25 border-b border-gray-200 focus:outline-none text-lg p-2 mb-3 w-6 h-6"
                             type="checkbox" :data-value="index" @change="setDefaultOption($event, index)"
-                            name="default_option">
+                            :name="`default_option_${question.question_id}`">
                     </div>
                 </div>
-                <div v-if="option.img" class="mt-4 w-50 h-50">
+                     {{ option }}
+
+                <div v-if="option.img" class="mt-4 w-50 h-50 relative">
                     <img :src="option.img" alt="Prévisualisation" class="w-48 h-48 object-cover rounded" />
+                    <button @click="deleteImg(index)"
+                        class="absolute top-2 right-2 bg-white rounded-full p-1 shadow-md hover:bg-red-100 transition">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                            class="w-5 h-5 text-red-500">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
                 </div>
             </div>
         </div>
@@ -89,7 +101,10 @@
 
         <div v-if="question.type_field === 'date'">
             <input disabled type="date" class="w-full border border-gray-200 focus:outline-none text-lg p-2 mb-3" />
+        </div>
 
+        <div v-if="question.type_field === 'number'">
+            <input disabled type="number" class="w-full border border-gray-200 focus:outline-none text-lg p-2 mb-3" />
         </div>
 
 
@@ -107,21 +122,23 @@
         </div>
 
     </div>
-
-    <ActionPanel @copy="copyQuestion" />
-
+    <ActionPanel @copy="copyQuestion" @delete="deleteQuestion" @save="saveQuestion" @setting="editSetting"
+        :have_params="fieldHaveSetting" />
+    <SettingPanel @close="openSetting = false" :open="openSetting" @save="changeSetting" />
 </template>
 
 <script setup lang="ts">
 
 import { surveyStore } from "@/stores/survey/surveyStore";
 import { convertToBase64 } from "@/utils/file";
-import { getUUID } from "@/utils/uuid";
 import { storeToRefs } from "pinia";
-import { reactive, ref, watch, watchEffect } from "vue";
+import { computed, reactive, ref, watch, watchEffect } from "vue";
 const store = surveyStore()
-const { logicOpetator, questionsFieldType } = storeToRefs(store)
+const { logicOpetator, questionsFieldType, questionSelect } = storeToRefs(store)
 import ActionPanel from "./ActionPanel.vue";
+import SettingPanel from "./elements/SettingPanel.vue";
+import { surveyGetFieldFromType, surveyGetFieldParams } from "@/utils/survey";
+
 const props = defineProps({
     question: {
         type: Object,
@@ -129,106 +146,48 @@ const props = defineProps({
     }
 })
 
-let question = reactive(
-    {
-        question_id: getUUID(),
-        title: "",
-        type_field: "text",
-        field_libelle: "Réponse courte",
-    })
+let question = reactive({})
+let field_params = reactive({})
 
-let field_params = reactive({
-    maxlength: 255,
-    disabled: true,
-    value: '',
-    placeholder: "Ecrivez votre réponse ici ..."
+watchEffect(() => {
+    if (props.question && props.question.question_id) {
+        Object.entries(props.question).forEach(([key, value]) => {
+            question[key] = value
+        })
+
+        // Copier toutes les clés de props.question.field_params dans field_params
+        if (props.question.field_params) {
+            Object.entries(props.question.field_params).forEach(([key, value]) => {
+                field_params[key] = value
+            })
+        }
+
+    }
 })
 
-const emit = defineEmits(["data", 'copy', 'delete'])
-
-// watch(question.type, (newType, oldType) => {
-//     questionsFieldType.value.filter((questionType) => {
-//         if (newType == questionType._id) {
-//             question.type_field = questionType
-//         }
-//     })
-// })
+const emit = defineEmits(["data", 'copy', 'delete', 'save'])
 
 const changeField = () => {
-    field_params = {}
-    question.type_field = getFieldFromType[question.field_libelle]
+    Object.keys(field_params).forEach(key => delete field_params[key])
+
+    question.type_field = surveyGetFieldFromType[question.field_libelle]
+
     getFieldParams(question.type_field)
 }
 
 const getFieldParams = (type_field) => {
-    if (type_field == 'radio' || type_field == 'checkbox' || type_field == 'select') {
-        field_params.options = [
-            { value: 'Option 1', img: '', default: false },
-            { value: 'Option 2', img: '', default: false },
-            { value: 'Option 3', img: '', default: false },
-        ]
-    }
+    let params = surveyGetFieldParams(type_field)
 
-    if (type_field == 'file') {
-        field_params.accept = ["image", "video", "pdf", "word", "excel", "powerpoint"],
-            field_params.max_size = 10 // En Mo
-        field_params.multiple = false
-    }
-
-    if (type_field == 'text') {
-        field_params.maxlength = 255
-        field_params.disabled = true
-        field_params.value = ''
-        field_params.placeholder = "Ecrivez votre réponse ici ..."
-    }
-
-    if (type_field == 'textarea') {
-        field_params.rows = 4
-        field_params.cols = 4
-        field_params.value = ''
-        field_params.disabled = true
-        field_params.maxlength = 1000
-        field_params.placeholder = "Ecrivez votre réponse ici ..."
-    }
-
-    if (type_field == 'review') {
-        field_params.rating = 5
-    }
-
-    if (type_field == 'date') {
-        field_params.max_date = null
-        field_params.min_date = null
-    }
-
-    if (type_field == 'hour') {
-        field_params.max_hour = null
-        field_params.min_hour = null
-    }
-
-    if (type_field == 'number') {
-        field_params.max = 1000
-        field_params.min = 0
-    }
-}
-
-const getFieldFromType = {
-    'Réponse courte': 'text',
-    'Paragraphe': 'textarea',
-    'Choix multiple': 'radio',
-    'Case à cocher': 'checkbox',
-    'Liste déroulante': 'select',
-    'Fichier': 'file',
-    'Avis': 'review',
-    'Date': 'date',
-    'Heure': 'hour'
+    // On injecte les nouvelles clés dans l'objet réactif
+    Object.entries(params).forEach(([key, value]) => {
+        field_params[key] = value
+    })
 }
 
 const setOption = (event, index) => {
     field_params.options[index].value = event.target.value
-    console.log('e', field_params.options)
+    console.log('setDefaultOption', field_params.options)
 
-    // field_params.options[index].value = event.target.value
-    // console.log(field_params.options[index])
 }
 
 const setDefaultOption = (event, index) => {
@@ -240,29 +199,38 @@ const setDefaultOption = (event, index) => {
             }
         })
     }
-    console.log(field_params.options)
+    console.log('setDefaultOption', field_params.options)
+
 }
 
 const fileInput = ref(null)
 const imageUrl = ref('')
 
 // Ouvre le sélecteur de fichiers
-const openFileSelector = () => {
-    document.querySelector('input[type="file"]').click()
+const openFileSelector = (index) => {
+    document.querySelector(`input[name='file_${question.question_id}_${index}']`).click()
 }
 
 const acceptedImageTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif']
 
 
 const handleImageOption = async (event, index) => {
-    console.log(event.target.files[0])
     if (acceptedImageTypes.includes(event.target.files[0].type)) {
         const file = event.target.files[0]
         imageUrl.value = await convertToBase64(file)
-        field_params.options[index].img = imageUrl.value
+        field_params.options[index] = {
+            ...field_params.options[index],
+            img: imageUrl.value
+        }
+        console.log(field_params.options)
+
     } else {
         alert('Type de fichier non supporté. Veuillez sélectionner une image (jpg, jpeg, png, gif).')
     }
+}
+
+const deleteImg = (index) => {
+    field_params.options[index].img = ''
 }
 
 const getQuestion = () => {
@@ -278,6 +246,36 @@ const getQuestion = () => {
 const copyQuestion = () => {
     let question = getQuestion()
     emit('copy', question)
+}
+
+const deleteQuestion = () => {
+    let question = getQuestion()
+    emit("delete", question)
+}
+
+const saveQuestion = () => {
+    let question = getQuestion()
+    emit("save", question)
+}
+
+const openSetting = ref(false)
+
+const editSetting = () => {
+    openSetting.value = true
+    questionSelect.value.type_field = question.type_field
+    console.log('field_params', field_params)
+    questionSelect.value.field_params = { ...field_params }
+    console.log('field_params', questionSelect.value)
+
+}
+
+const fieldHaveSetting = computed(() => {
+    return !(['select', 'radio', 'checkbox', 'hour'].includes(question.type_field))
+})
+
+const changeSetting = () => {
+    field_params = questionSelect.value.field_params
+    openSetting.value = false
 }
 
 </script>
