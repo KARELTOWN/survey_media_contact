@@ -44,6 +44,7 @@ export const surveyGetFieldParams = (type_field) => {
   }
 
   if (type_field == 'hour') {
+    field_params.max = ''
   }
 
   if (type_field == 'number') {
@@ -79,17 +80,72 @@ export const defaultQuestion = {
     value: '',
     placeholder: 'Ecrivez votre réponse ici ...',
   },
+  condition: {
+    display: '',
+    compareTo: '',
+    operator: '',
+    target: '',
+  },
 }
 
 export const defaultTitleAndDesription = {
   question_id: getUUID(),
   category: 'title_description',
   title: '',
-  description: ''
+  description: '',
+  condition: {
+    display: '',
+    compareTo: '',
+    operator: '',
+    target: '',
+  },
 }
 
 export const defaultImage = {
   question_id: getUUID(),
-    category: 'image',
+  category: 'image',
   img: '',
+  condition: {
+    display: '',
+    compareTo: '',
+    operator: '',
+    target: '',
+  },
 }
+
+export const allConditonOperators = [
+  {
+    libelle: 'inférieur ou égale à',
+    value: '<=',
+  },
+  {
+    libelle: 'supérieur ou égale à',
+    value: '>=',
+  },
+  {
+    libelle: 'inférieur à',
+    value: '<',
+  },
+  {
+    libelle: 'supérieur à',
+    value: '>',
+  },
+  {
+    libelle: 'égale à',
+    value: '=',
+  },
+  {
+    libelle: 'différent de',
+    value: '!=',
+  },
+  {
+    libelle: 'vide',
+    value: 'vide',
+  },
+  {
+    libelle: 'rempli',
+    value: 'rempli',
+  },
+]
+
+export const fieldExluseFromComparaison = ['file', 'hour']

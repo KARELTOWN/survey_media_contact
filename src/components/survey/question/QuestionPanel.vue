@@ -1,5 +1,6 @@
 <template>
     <!-- Texte de la question -->
+    {{ question }}
     <input v-model="question.title" type="text" placeholder="Titre de la question"
         class="w-full border-b border-gray-200 focus:outline-none text-lg p-2 mb-3" />
 
@@ -9,7 +10,7 @@
             v-for="questionType in questionsFieldType">{{ questionType.libelle }}</option>
     </select>
 
-    {{ question }}
+    {{ field_params }}
     <!-- {{ question.type_field }} -->
     <!-- Aperçu -->
     <div class="mt-3">
@@ -123,8 +124,9 @@
 
     </div>
     <ActionPanel @copy="copyQuestion" @delete="deleteQuestion" @save="saveQuestion" @setting="editSetting"
-        :have_params="fieldHaveSetting" @required="requiredQuestion" />
+        @condition="setCondition" :have_params="fieldHaveSetting" @required="requiredQuestion" :required="true" />
     <SettingPanel @close="openSetting = false" :open="openSetting" @save="changeSetting" />
+    <ConditionPanel @save="saveCondition" :open="openCondition" @close="openCondition = false" />
 </template>
 
 <script setup lang="ts">
@@ -132,12 +134,13 @@
 import { surveyStore } from "@/stores/survey/surveyStore";
 import { convertToBase64 } from "@/utils/file";
 import { storeToRefs } from "pinia";
-import { computed, reactive, ref, watch, watchEffect } from "vue";
+import { computed, onMounted, reactive, ref, watch, watchEffect } from "vue";
 const store = surveyStore()
 const { logicOpetator, questionsFieldType, questionSelect } = storeToRefs(store)
-import ActionPanel from "./QuestionActionPanel.vue";
+import ActionPanel from "@/components/survey/ActionPanel.vue";
 import SettingPanel from "./questionSettingPanel/SettingPanel.vue";
 import { surveyGetFieldFromType, surveyGetFieldParams } from "@/utils/survey";
+import ConditionPanel from "./condition/ConditionPanel.vue";
 import _ from 'lodash'
 const props = defineProps({
     question: {
@@ -149,29 +152,43 @@ const props = defineProps({
 let question = reactive({})
 let field_params = reactive({})
 
-watchEffect(() => {
-    if (props.question && props.question.question_id) {
-        Object.entries(props.question).forEach(([key, value]) => {
-            question[key] = value
-        })
 
-        // Copier toutes les clés de props.question.field_params dans field_params
-        if (props.question.field_params) {
-            Object.entries(props.question.field_params).forEach(([key, value]) => {
-                field_params[key] = value
-            })
-        }
+onMounted(() => {
+  if (props.question && props.question.question_id) {
+    Object.entries(props.question).forEach(([key, value]) => {
+      question[key] = value
+    })
 
+    if (props.question.field_params) {
+      Object.entries(props.question.field_params).forEach(([key, value]) => {
+        field_params[key] = value
+      })
     }
+  }
 })
+
+
+// watchEffect(() => {
+//     if (props.question && props.question.question_id) {
+//         Object.entries(props.question).forEach(([key, value]) => {
+//             question[key] = value
+//         })
+
+//         // Copier toutes les clés de props.question.field_params dans field_params
+//         if (props.question.field_params) {
+//             Object.entries(props.question.field_params).forEach(([key, value]) => {
+//                 field_params[key] = value
+//             })
+//         }
+
+//     }
+// })
 
 const emit = defineEmits(["data", 'copy', 'delete', 'save'])
 
 const changeField = () => {
     Object.keys(field_params).forEach(key => delete field_params[key])
-
     question.type_field = surveyGetFieldFromType[question.field_libelle]
-
     getFieldParams(question.type_field)
 }
 
@@ -238,8 +255,11 @@ const getQuestion = () => {
         question_id: question.question_id,
         title: question.title,
         type_field: question.type_field,
+        category: question.category,
         field_libelle: question.field_libelle,
-        field_params
+        condition: question.condition,
+        field_params,
+        required: question.required,
     }
 }
 
@@ -257,12 +277,13 @@ const requiredQuestion = (value) => {
     question.required = value
 }
 
-
-setTimeout(() => {
-    saveQuestion()
-}, 5000)
+watch(question,
+  () => saveQuestion(),
+  { deep: true }
+)
 
 const saveQuestion = () => {
+    console.log('saveQuestion')
     let question = getQuestion()
     emit("save", question)
 }
@@ -272,11 +293,20 @@ const openSetting = ref(false)
 const editSetting = () => {
     openSetting.value = true
     questionSelect.value.type_field = question.type_field
-    console.log('field_params', field_params)
     questionSelect.value.field_params = { ...field_params }
-    console.log('field_params', questionSelect.value)
-
 }
+
+const openCondition = ref(false)
+
+const setCondition = () => {
+    openCondition.value = true
+    questionSelect.value.category = question.category
+    questionSelect.value.question_id = question.question_id
+    questionSelect.value.type_field = question.type_field
+    questionSelect.value.field_params = { ...field_params }
+}
+
+
 
 const fieldHaveSetting = computed(() => {
     return !(['select', 'radio', 'checkbox', 'hour'].includes(question.type_field))
@@ -284,7 +314,14 @@ const fieldHaveSetting = computed(() => {
 
 const changeSetting = () => {
     field_params = questionSelect.value.field_params
+    question.field_params = {...field_params}
     openSetting.value = false
+}
+
+const saveCondition = () => {
+    console.log("saveCondition")
+    question.condition = questionSelect.value.condition
+    openCondition.value = false
 }
 
 </script>

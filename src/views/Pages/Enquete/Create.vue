@@ -26,9 +26,13 @@
                                 </svg>
                             </div>
                         </h1>
-                        <button @click="nextPage" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                        <button v-if="currentPage < pages - 1" @click="nextPage" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
                             :disabled="disabledNext">
                             Suivant
+                        </button>
+                        <button v-if="currentPage === pages - 1" @click="save" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                            >
+                            Enregistrer
                         </button>
                     </div>
 
@@ -43,6 +47,10 @@
 
                     <div v-if="currentPage === 2">
                         <SurveyForm />
+                    </div>
+
+                    <div v-if="currentPage === 3">
+                        
                     </div>
                 </div>
             </ComponentCard>
@@ -69,12 +77,13 @@ const { selectCategory, selectTopic } = storeToRefs(store)
 const {saveFormInstance} = store
 // Etat de la page courante
 const currentPage = ref(0);
-const pages = ref(3)
+const pages = ref(4)
 
 const pageTitle = [
     "Thématique",
     "Catégorie",
-    "Questions"
+    "Questions",
+    "Prévisualisation",
 ]
 
 onMounted(() => {

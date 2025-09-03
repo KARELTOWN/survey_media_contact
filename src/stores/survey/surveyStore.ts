@@ -17,6 +17,14 @@ export const surveyStore = defineStore('survey-store', () => {
   const questionSelect = reactive({
     type_field: '',
     field_params: {},
+    question_id: '',
+    category: '',
+    condition: {
+      display: '',
+      compareTo: '',
+       operator: '',
+       target: ''
+    },
   })
 
   let formSurvey = ref({
