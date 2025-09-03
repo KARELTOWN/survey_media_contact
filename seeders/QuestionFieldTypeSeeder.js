@@ -12,6 +12,7 @@ async function QuestionFieldTypeSeeder() {
       { libelle: "Avis" },
       { libelle: "Date" },
       { libelle: "Heure" },
+      { libelle: "Chiffre" },
     ];
     await QuestionFieldType.insertMany(data, { ordered: false });
     console.log("Question Field Type insert");
