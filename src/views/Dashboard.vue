@@ -26,22 +26,22 @@
 
 <script>
 import AdminLayout from '../components/layout/AdminLayout.vue'
-import EcommerceMetrics from '../components/ecommerce/EcommerceMetrics.vue'
-import MonthlyTarget from '../components/ecommerce/MonthlySale.vue'
-import MonthlySale from '../components/ecommerce/MonthlyTarget.vue'
-import CustomerDemographic from '../components/ecommerce/CustomerDemographic.vue'
-import StatisticsChart from '../components/ecommerce/StatisticsChart.vue'
-import RecentOrders from '../components/ecommerce/RecentOrders.vue'
+import EcommerceMetrics from '../components/graphic/EcommerceMetrics.vue'
+import MonthlyTarget from '../components/graphic/MonthlySale.vue'
+import MonthlySale from '../components/graphic/MonthlyTarget.vue'
+import CustomerDemographic from '../components/graphic/CustomerDemographic.vue'
+import StatisticsChart from '../components/graphic/StatisticsChart.vue'
+import RecentOrders from '../components/graphic/RecentOrders.vue'
 export default {
   components: {
     AdminLayout,
-    EcommerceMetrics,
-    MonthlyTarget,
-    MonthlySale,
-    CustomerDemographic,
-    StatisticsChart,
-    RecentOrders,
+    // EcommerceMetrics,
+    // MonthlyTarget,
+    // MonthlySale,
+    // CustomerDemographic,
+    // StatisticsChart,
+    // RecentOrders,
   },
-  name: 'Ecommerce',
+  name: 'Dashboard',
 }
 </script>

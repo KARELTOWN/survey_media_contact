@@ -1,5 +1,5 @@
 import { fetchGet } from '@/composables/request'
-import { getManyCountryCoords } from '@/utils/country'
+// import { getManyCountryCoords } from '@/utils/country'
 import { handleAppError, handleCatchError } from '@/utils/handleAppError'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'

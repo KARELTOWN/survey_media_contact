@@ -9,7 +9,7 @@
             v-for="questionType in questionsFieldType">{{ questionType.libelle }}</option>
     </select>
 
-    {{ field_params }}
+    {{ question }}
     <!-- {{ question.type_field }} -->
     <!-- Aperçu -->
     <div class="mt-3">
@@ -27,8 +27,8 @@
                         <input class="w-full border border-gray-200 focus:outline-none text-lg p-2 mb-3"
                             :value="option.value" type="text" :index="index" @change="setOption($event, index)" />
 
-                        <input type="file" :name="`file_${question.question_id}_${index}`" accept="image/*" class="hidden"
-                            @change="handleImageOption($event, index)" />
+                        <input type="file" :name="`file_${question.question_id}_${index}`" accept="image/*"
+                            class="hidden" @change="handleImageOption($event, index)" />
 
                         <svg @click="openFileSelector(index)" width="35px" height="35px" viewBox="0 0 24 24" fill="none"
                             xmlns="http://www.w3.org/2000/svg" stroke="#2B7FFF">
@@ -63,7 +63,7 @@
                             :name="`default_option_${question.question_id}`">
                     </div>
                 </div>
-                     {{ option }}
+                {{ option }}
 
                 <div v-if="option.img" class="mt-4 w-50 h-50 relative">
                     <img :src="option.img" alt="Prévisualisation" class="w-48 h-48 object-cover rounded" />
@@ -123,7 +123,7 @@
 
     </div>
     <ActionPanel @copy="copyQuestion" @delete="deleteQuestion" @save="saveQuestion" @setting="editSetting"
-        :have_params="fieldHaveSetting" />
+        :have_params="fieldHaveSetting" @required="requiredQuestion" />
     <SettingPanel @close="openSetting = false" :open="openSetting" @save="changeSetting" />
 </template>
 
@@ -135,10 +135,10 @@ import { storeToRefs } from "pinia";
 import { computed, reactive, ref, watch, watchEffect } from "vue";
 const store = surveyStore()
 const { logicOpetator, questionsFieldType, questionSelect } = storeToRefs(store)
-import ActionPanel from "./ActionPanel.vue";
-import SettingPanel from "./elements/SettingPanel.vue";
+import ActionPanel from "./QuestionActionPanel.vue";
+import SettingPanel from "./questionSettingPanel/SettingPanel.vue";
 import { surveyGetFieldFromType, surveyGetFieldParams } from "@/utils/survey";
-
+import _ from 'lodash'
 const props = defineProps({
     question: {
         type: Object,
@@ -252,6 +252,15 @@ const deleteQuestion = () => {
     let question = getQuestion()
     emit("delete", question)
 }
+
+const requiredQuestion = (value) => {
+    question.required = value
+}
+
+
+setTimeout(() => {
+    saveQuestion()
+}, 5000)
 
 const saveQuestion = () => {
     let question = getQuestion()

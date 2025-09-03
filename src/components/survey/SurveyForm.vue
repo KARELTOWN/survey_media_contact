@@ -8,17 +8,45 @@
         <textarea v-model="formSurvey.description" placeholder="Description de l'enquête"
             class="w-full border border-gray-300 rounded-lg p-3 mb-6 focus:outline-none"></textarea>
 
+
         <!-- Questions -->
-        <div v-for="(question, index) in formSurvey.questions" :key="index"
-            class="mb-6 p-4 border rounded-lg shadow-sm bg-white">
-            <QuestionPanel @data="getData" @copy="copyQuestion" @delete="deleteQuestion" @save="saveQuestion"
-                :question="question" />
-        </div>
+
+        <draggable v-model="formSurvey.questions" @change="onDragChange"
+            :group="{ name: 'survey_questions', pull: true, put: true }" class="min-h-[100px] py-2">
+            <div v-for="(question, index) in formSurvey.questions" :key="question.question_id"
+                class="mb-6 p-4 border rounded-lg shadow-sm bg-white cursor-grab">
+                <QuestionPanel @data="getData" @copy="copyQuestion" @delete="deleteQuestion" @save="saveQuestion"
+                    :question="question" />
+            </div>
+        </draggable>
+
 
         <!-- Bouton ajouter une question -->
-        <button @click="addQuestion" class="bg-blue-600 text-white px-4 py-2 rounded-lg shadow hover:bg-blue-700">
-            Ajouter une question
+        <button @click="open = !open" class="bg-blue-600 text-white px-4 py-2 rounded-lg shadow hover:bg-blue-700">
+            Ajouter
         </button>
+
+        <div class="relative">
+<!-- Menu dropdown -->
+        <div v-if="open" class="absolute mt-1 w-56 rounded-lg shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10">
+            <div class="py-1">
+                <button @click="addQuestionZone(); open = false"
+                    class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                    Ajouter une question
+                </button>
+                <button @click="addTitleAndDescriptionZone(); open = false"
+                    class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                    Ajouter un title & description
+                </button>
+                <button @click="addImageZone(); open = false"
+                    class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                    Ajouter une image
+                </button>
+            </div>
+        </div>
+        </div>
+        
+
     </div>
 </template>
 
@@ -29,9 +57,11 @@ import { surveyStore } from "@/stores/survey/surveyStore";
 const store = surveyStore()
 import QuestionPanel from "./QuestionPanel.vue";
 import { storeToRefs } from "pinia";
-import { defaultQuestion } from "@/utils/survey";
+import { defaultImage, defaultQuestion, defaultTitleAndDesription } from "@/utils/survey";
 const { getSurveyParams, saveFormInstance } = store
 const { formSurvey } = storeToRefs(store)
+import { VueDraggableNext as draggable } from 'vue-draggable-next';
+const open = ref(false)
 
 onMounted(async () => {
     await getSurveyParams()
@@ -42,8 +72,16 @@ const getData = (data) => {
 
 }
 
-const addQuestion = () => {
-    formSurvey.value.questions.push({...defaultQuestion, question_id: getUUID()});
+const addQuestionZone = () => {
+    formSurvey.value.questions.push({ ...defaultQuestion, question_id: getUUID() });
+};
+
+const addTitleAndDescriptionZone = () => {
+    formSurvey.value.questions.push({ ...defaultTitleAndDesription, question_id: getUUID() });
+};
+
+const addImageZone = () => {
+    formSurvey.value.questions.push({ ...defaultImage, question_id: getUUID() });
 };
 
 const copyQuestion = (question) => {
@@ -66,9 +104,17 @@ const saveQuestion = (question) => {
     saveFormInstance()
 }
 
-const openSetting = () => {
-    console.log("Ouvrir les paramètres pour la question :", toRaw(question));
-}
+async function onDragChange(event) {
+    if (event.moved) {
+        // let movedQuestion = event.moved.element
+        // const columnIndex = _.findIndex(feedbacks.value, (col) =>
+        //     _.some(col.feedbacks, { _id: movedFeedback._id })
+        // )
 
+        // const targetColumn = feedbacks.value[columnIndex]
+        // let newStatus = targetColumn.status._id
+        // await updateFeedback(movedFeedback._id, { status: newStatus }, false)
+    }
+}
 
 </script>

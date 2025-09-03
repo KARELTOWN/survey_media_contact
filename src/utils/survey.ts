@@ -13,7 +13,7 @@ export const surveyGetFieldParams = (type_field) => {
   }
 
   if (type_field == 'file') {
-    field_params.accept = survey_allowed_upload_types
+    field_params.accept = []
     field_params.max_size = 10 // En Mo
     field_params.multiple = false
   }
@@ -68,13 +68,28 @@ export const surveyGetFieldFromType = {
 
 export const defaultQuestion = {
   question_id: getUUID(),
+  category: 'question',
   title: '',
   type_field: 'text',
   field_libelle: 'Réponse courte',
+  required: false,
   field_params: {
     maxlength: 255,
     disabled: true,
     value: '',
     placeholder: 'Ecrivez votre réponse ici ...',
   },
+}
+
+export const defaultTitleAndDesription = {
+  question_id: getUUID(),
+  category: 'title_description',
+  title: '',
+  description: ''
+}
+
+export const defaultImage = {
+  question_id: getUUID(),
+    category: 'image',
+  img: '',
 }

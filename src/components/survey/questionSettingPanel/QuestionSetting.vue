@@ -27,15 +27,17 @@
 
 <script setup>
 import { surveyStore } from "@/stores/survey/surveyStore";
-import FileInputSetting from "../setting/FileInputSetting.vue";
+import FileInputSetting from "../questionSettingInput/FileInputSetting.vue";
 import { storeToRefs } from "pinia";
-import TextareaInputSetting from "../setting/TextareaInputSetting.vue";
-import TextInputSetting from "../setting/TextareaInputSetting.vue";
-import ReviewInputSetting from "../setting/ReviewInputSetting.vue";
-import NumberInputSetting from "../setting/NumberInputSetting.vue";
-import DateInputSetting from "../setting/DateInputSetting.vue";
-
+import TextareaInputSetting from "../questionSettingInput/TextareaInputSetting.vue";
+import TextInputSetting from "../questionSettingInput/TextareaInputSetting.vue";
+import ReviewInputSetting from "../questionSettingInput/ReviewInputSetting.vue";
+import NumberInputSetting from "../questionSettingInput/NumberInputSetting.vue";
+import DateInputSetting from "../questionSettingInput/DateInputSetting.vue";
+import { watch } from "vue";
 const emit = defineEmits(["save"])
 const store = surveyStore()
 const { questionSelect } = storeToRefs(store)
+
+
 </script>

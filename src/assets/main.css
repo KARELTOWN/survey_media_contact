@@ -814,3 +814,19 @@ svg:hover {
     cursor: pointer;
     stroke: #1A5FCC !important;
 }
+
+
+
+
+input[type="radio"] {
+    accent-color: #2B7FFF; /* change la couleur des radios modernes */
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+}
+input[type="checkbox"] {
+    accent-color: #2B7FFF; /* change la couleur des radios modernes */
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+}

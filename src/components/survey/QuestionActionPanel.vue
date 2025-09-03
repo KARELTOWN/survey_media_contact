@@ -1,5 +1,9 @@
 <template>
     <div class="flex justify-end gap-2">
+        <div class="flex gap-2 items-center">
+            <SwitchInput v-model="switchValue" /> 
+            <label for="Obligatoire">Obligatoire</label>
+        </div>
         <div>
             <svg @click="$emit('copy')" viewBox="0 0 24 24" title="Dupliquer" fill="none"
                 xmlns="http://www.w3.org/2000/svg" stroke="#2B7FFF">
@@ -54,7 +58,19 @@
 </template>
 
 <script setup>
+import { ref, watch } from 'vue';
+import SwitchInput from '@/components/forms/FormElements/SwitchInput.vue'
+
 const props = defineProps({
     have_params: Boolean
+});
+const switchValue  = ref(false)
+
+const emit = defineEmits(['required'])
+
+watch(()=>switchValue.value, (newValue)=> {
+    console.log("newValue", newValue)
+    emit('required', newValue)
 })
+
 </script>
