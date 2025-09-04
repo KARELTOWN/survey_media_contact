@@ -8,24 +8,18 @@ const AnswerSchema = new mongoose.Schema(
       ref: "Survey",
       required: true,
     },
-    responses: [
-      {
-        answer_id: String,
-        type: String,
-        file: String,
-        file_type: String,
-        options_select: [
-          {
-            label: String,
-            value: String,
-          },
-        ],
-        review: Number,
-        text_content: String,
-      },
-    ],
+    questions: {
+      type: SchemaTypes.ObjectId,
+      ref: "Question",
+      required: true,
+    },
+    responses: {
+      type: SchemaTypes.Mixed,
+      required: true,
+    },
     metadata: {
       type: Object,
+      required: true,
     },
     created_by: {
       //uniquement si la personne à un compte sur survey MC

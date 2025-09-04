@@ -6,13 +6,15 @@ const {
 } = surveyService()
 
 import Survey from "../../models/Survey.js";
+import { surveyFields, surveyOperators } from "../../utils/survey.js";
 
 export default function surveyController() {
 
   const getSurveyParams = async (req, res, next) => {
     try {
-      const logic_operators = await getLogicOperators()
-      const questions_field_types = await getQuestionFieldTypes()
+
+      const questions_field_types = surveyFields
+      const logic_operators = surveyOperators
 
       return res.status(200).json({
         message: "Paramètres récupérés",
