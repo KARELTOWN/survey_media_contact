@@ -190,6 +190,7 @@ import { handleCatchError, handleLoginError } from '@/utils/handleAppError'
 import { errorNotify, successNotify } from '@/utils/notification'
 import { useRouter } from 'vue-router'
 import setCookie from '@/composables/cookie'
+import { setLocalStorage } from '@/utils/storage'
 //validator YUP
 const schemaLogin = validateLogin()
 const router = useRouter()
@@ -223,11 +224,9 @@ const handleSubmit = async () => {
     else {
       if (response?.data) {
         successNotify("Connexion réussie")
-        localStorage.setItem('replay_map_token', JSON.stringify(response.data))
-        setCookie('bugreveal_app_user', response.data.data)
+        setLocalStorage('survey_mc_token', response.data)
         router.push({ path: "/" })
       }
-
     }
 
   }

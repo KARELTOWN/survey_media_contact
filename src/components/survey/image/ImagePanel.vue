@@ -1,8 +1,5 @@
 <template>
 
-
-    {{ question }}
-
     <input type="file" :name="`file_${question.question_id}`" accept="image/*" class="hidden"
         @change="handleImageOption($event)" />
 

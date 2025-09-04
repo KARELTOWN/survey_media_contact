@@ -1,6 +1,6 @@
 <template>
     <div class="flex justify-end gap-2">
-        <div class="flex gap-2 items-center" v-if="props.required === true">
+        <div class="flex gap-2 items-center" v-if="props.have_required === true">
             <SwitchInput v-model="switchValue" />
             <label for="Obligatoire">Obligatoire</label>
         </div>
@@ -71,13 +71,21 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
+import { onMounted, ref, watch, watchEffect } from 'vue';
 import SwitchInput from '@/components/forms/FormElements/SwitchInput.vue'
 
 const props = defineProps({
     have_params: Boolean,
-    required: Boolean
+    have_required: Boolean,
+    required: Boolean,
 });
+
+watchEffect(() => {
+    if (props.required && props.required !== undefined) {
+        switchValue.value = props.required
+    }
+})
+
 const switchValue = ref(false)
 
 const emit = defineEmits(['required', 'condition', 'setting', 'delete', 'copy'])

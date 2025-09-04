@@ -26,12 +26,12 @@
                                 </svg>
                             </div>
                         </h1>
-                        <button v-if="currentPage < pages - 1" @click="nextPage" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                            :disabled="disabledNext">
+                        <button v-if="currentPage < pages - 1" @click="nextPage"
+                            class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600" :disabled="disabledNext">
                             Suivant
                         </button>
-                        <button v-if="currentPage === pages - 1" @click="save" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                            >
+                        <button v-if="currentPage === pages - 1" @click="save"
+                            class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
                             Enregistrer
                         </button>
                     </div>
@@ -50,7 +50,7 @@
                     </div>
 
                     <div v-if="currentPage === 3">
-                        
+                        <PreviewPanel />
                     </div>
                 </div>
             </ComponentCard>
@@ -73,11 +73,12 @@ import SurveyForm from "@/components/survey/SurveyForm.vue";
 import { getLocalStorage, setLocalStorage } from "@/utils/storage";
 import { successNotify } from "@/utils/notification";
 const store = surveyStore()
-const { selectCategory, selectTopic } = storeToRefs(store)
-const {saveFormInstance} = store
+const { selectCategory, selectTopic, formSurvey } = storeToRefs(store)
+const { saveFormInstance } = store
 // Etat de la page courante
 const currentPage = ref(0);
 const pages = ref(4)
+import PreviewPanel from "@/components/survey/preview/PreviewPanel.vue";
 
 const pageTitle = [
     "Thématique",
@@ -112,12 +113,17 @@ const prevPage = () => {
     if (currentPage.value > 0) currentPage.value--;
 };
 
+const questionHaveNotTitle = computed(()=> {
+    let result = formSurvey.value.questions.findIndex((question) => !question.title)
+    return result
+}) 
+
 const disabledNext = computed(() => {
-    return (currentPage.value === pages.value - 1 || (currentPage.value === 0 && !selectTopic.value) || (currentPage.value === 1 && !selectCategory.value))
+    return (currentPage.value === pages.value - 1 || (currentPage.value === 0 && !selectTopic.value) || (currentPage.value === 1 && !selectCategory.value) || (currentPage.value === 2 && (!formSurvey.value.title)) || (currentPage.value === 2 && questionHaveNotTitle.value !== -1 ))
 })
 
 const saveForm = async () => {
-    saveFormInstance().then(()=> {
+    saveFormInstance().then(() => {
         successNotify('Sauvegardé en local')
     }).catch((error) => {
         console.error('Erreur lors de la sauvegarde :', error);

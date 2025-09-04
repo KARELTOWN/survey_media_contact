@@ -1,5 +1,4 @@
 <template>
-    {{ questionSelect.field_params }}
 
     <div v-if="questionSelect.type_field == 'file'">
         <FileInputSetting />
@@ -7,9 +6,11 @@
     <div v-if="questionSelect.type_field == 'textarea'">
         <TextareaInputSetting />
     </div>
+
     <div v-if="questionSelect.type_field == 'text'">
         <TextInputSetting />
     </div>
+    
     <div v-if="questionSelect.type_field == 'review'">
         <ReviewInputSetting />
     </div>
@@ -30,7 +31,7 @@ import { surveyStore } from "@/stores/survey/surveyStore";
 import FileInputSetting from "../questionSettingInput/FileInputSetting.vue";
 import { storeToRefs } from "pinia";
 import TextareaInputSetting from "../questionSettingInput/TextareaInputSetting.vue";
-import TextInputSetting from "../questionSettingInput/TextareaInputSetting.vue";
+import TextInputSetting from "../questionSettingInput/TextInputSetting.vue";
 import ReviewInputSetting from "../questionSettingInput/ReviewInputSetting.vue";
 import NumberInputSetting from "../questionSettingInput/NumberInputSetting.vue";
 import DateInputSetting from "../questionSettingInput/DateInputSetting.vue";

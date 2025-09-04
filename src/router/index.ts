@@ -109,9 +109,9 @@ const router = createRouter({
 export default router
 
 router.beforeEach((to, from, next) => {
-  document.title = `${to.meta.title} | Replay MAP`
-  const replay_map_token = localStorage.getItem('replay_map_token')
-  const data = replay_map_token !== null ? JSON.parse(replay_map_token) : null
+  document.title = `${to.meta.title} | SURVEY MC`
+  const survey_mc_token = localStorage.getItem('survey_mc_token')
+  const data = survey_mc_token !== null ? JSON.parse(survey_mc_token) : null
 
   const token = data?.token
 

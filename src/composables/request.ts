@@ -1,7 +1,7 @@
 export const api: string = import.meta.env.VITE_API_URL
 export const getToken = () => {
-  const replay_map_token = localStorage.getItem('replay_map_token')
-  const data = replay_map_token !== null ? JSON.parse(replay_map_token) : null
+  const survey_mc_token = localStorage.getItem('survey_mc_token')
+  const data = survey_mc_token !== null ? JSON.parse(survey_mc_token) : null
   return data?.token
 }
 interface BodyData {
@@ -11,7 +11,7 @@ interface BodyData {
 export async function customFetch(path: string, options: RequestInit): Promise<Response> {
   const response = await fetch(`${api}/${path}`, options)
   if (response.status === 401) {
-    localStorage.removeItem('replay_map_token')
+    localStorage.removeItem('survey_mc_token')
     window.location.href = '/signin'
   }
 

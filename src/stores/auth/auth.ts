@@ -1,6 +1,7 @@
 import { fetchGet } from '@/composables/request'
 import { handleAppError } from '@/utils/handleAppError'
 import { successNotify } from '@/utils/notification'
+import { removeLocalStorage } from '@/utils/storage'
 import { defineStore } from 'pinia'
 import { useRouter } from 'vue-router'
 
@@ -11,7 +12,10 @@ export const authStore = defineStore('auth', () => {
     const result = await fetchGet('auth/deconnect')
     const response = await handleAppError(result)
     if (response.status === false) {
-      localStorage.removeItem('replay_map_token')
+      removeLocalStorage('survey_mc_token')
+      removeLocalStorage('selectTopic')
+      removeLocalStorage('selectCategory')
+
       successNotify('Vous êtes déconnecté"')
       router.push({ path: '/signin' })
     }

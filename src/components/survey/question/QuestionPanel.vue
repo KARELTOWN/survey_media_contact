@@ -1,6 +1,6 @@
 <template>
-    <!-- Texte de la question -->
     {{ question }}
+    <!-- Texte de la question -->
     <input v-model="question.title" type="text" placeholder="Titre de la question"
         class="w-full border-b border-gray-200 focus:outline-none text-lg p-2 mb-3" />
 
@@ -10,7 +10,6 @@
             v-for="questionType in questionsFieldType">{{ questionType.libelle }}</option>
     </select>
 
-    {{ field_params }}
     <!-- {{ question.type_field }} -->
     <!-- Aperçu -->
     <div class="mt-3">
@@ -31,7 +30,7 @@
                         <input type="file" :name="`file_${question.question_id}_${index}`" accept="image/*"
                             class="hidden" @change="handleImageOption($event, index)" />
 
-                        <svg @click="openFileSelector(index)" width="35px" height="35px" viewBox="0 0 24 24" fill="none"
+                        <svg @click="openFileSelector(index)" v-if="question.type_field !== 'select'" width="35px" height="35px" viewBox="0 0 24 24" fill="none"
                             xmlns="http://www.w3.org/2000/svg" stroke="#2B7FFF">
                             <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
                             <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
@@ -64,8 +63,8 @@
                             :name="`default_option_${question.question_id}`">
                     </div>
                 </div>
-                {{ option }}
 
+                
                 <div v-if="option.img" class="mt-4 w-50 h-50 relative">
                     <img :src="option.img" alt="Prévisualisation" class="w-48 h-48 object-cover rounded" />
                     <button @click="deleteImg(index)"
@@ -124,7 +123,7 @@
 
     </div>
     <ActionPanel @copy="copyQuestion" @delete="deleteQuestion" @save="saveQuestion" @setting="editSetting"
-        @condition="setCondition" :have_params="fieldHaveSetting" @required="requiredQuestion" :required="true" />
+        @condition="setCondition" :have_params="fieldHaveSetting" @required="requiredQuestion" :have_required="true" :required="question.required" />
     <SettingPanel @close="openSetting = false" :open="openSetting" @save="changeSetting" />
     <ConditionPanel @save="saveCondition" :open="openCondition" @close="openCondition = false" />
 </template>
@@ -136,7 +135,7 @@ import { convertToBase64 } from "@/utils/file";
 import { storeToRefs } from "pinia";
 import { computed, onMounted, reactive, ref, watch, watchEffect } from "vue";
 const store = surveyStore()
-const { logicOpetator, questionsFieldType, questionSelect } = storeToRefs(store)
+const { questionsFieldType, questionSelect } = storeToRefs(store)
 import ActionPanel from "@/components/survey/ActionPanel.vue";
 import SettingPanel from "./questionSettingPanel/SettingPanel.vue";
 import { surveyGetFieldFromType, surveyGetFieldParams } from "@/utils/survey";
@@ -239,8 +238,6 @@ const handleImageOption = async (event, index) => {
             ...field_params.options[index],
             img: imageUrl.value
         }
-        console.log(field_params.options)
-
     } else {
         alert('Type de fichier non supporté. Veuillez sélectionner une image (jpg, jpeg, png, gif).')
     }
@@ -278,7 +275,10 @@ const requiredQuestion = (value) => {
 }
 
 watch(question,
-  () => saveQuestion(),
+  () => {
+    console.log('question', question)
+    saveQuestion()
+  },
   { deep: true }
 )
 
@@ -304,12 +304,12 @@ const setCondition = () => {
     questionSelect.value.question_id = question.question_id
     questionSelect.value.type_field = question.type_field
     questionSelect.value.field_params = { ...field_params }
+    questionSelect.value.condition = {...question.condition}
 }
 
 
-
 const fieldHaveSetting = computed(() => {
-    return !(['select', 'radio', 'checkbox', 'hour'].includes(question.type_field))
+    return !(['select', 'radio', 'checkbox', 'hour','date'].includes(question.type_field))
 })
 
 const changeSetting = () => {
@@ -319,8 +319,9 @@ const changeSetting = () => {
 }
 
 const saveCondition = () => {
-    console.log("saveCondition")
-    question.condition = questionSelect.value.condition
+    console.log('savecondition')
+    let conditions = questionSelect.value.condition
+    question.condition = {...conditions}
     openCondition.value = false
 }
 

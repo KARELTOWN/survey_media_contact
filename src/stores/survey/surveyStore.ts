@@ -11,8 +11,8 @@ import { reactive, ref } from 'vue'
 export const surveyStore = defineStore('survey-store', () => {
   const selectTopic = ref('')
   const selectCategory = ref('')
-  const logicOpetator = ref([])
   const questionsFieldType = ref([])
+  const logicOperators = ref([])
 
   const questionSelect = reactive({
     type_field: '',
@@ -72,7 +72,7 @@ export const surveyStore = defineStore('survey-store', () => {
       if (response.status === false) {
         if (response?.data) {
           questionsFieldType.value = response.data.questions_field_types
-          logicOpetator.value = response.data.logic_operators
+          logicOperators.value = response.data.logic_operators
         }
       }
     } catch (err) {
@@ -175,11 +175,11 @@ export const surveyStore = defineStore('survey-store', () => {
     selectTopic,
     selectCategory,
     getSurveyParams,
-    logicOpetator,
     questionsFieldType,
     formSurvey,
     saveFormInstance,
     questionSelect,
+    logicOperators
     // createProject,
     // updateProject,
     // getProjects,

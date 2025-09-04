@@ -3,7 +3,6 @@
         class="w-full border-b border-gray-200 focus:outline-none text-lg p-2 mb-3" />
     <textarea name="" id="" class="w-full border-b border-gray-200 focus:outline-none text-lg p-2 mb-3" v-model="question.description" rows="4"
         placeholder="Ecrivez votre description ici..."></textarea>
-    {{ question }}
     <ActionPanel @copy="copyQuestion" @delete="deleteQuestion" @save="saveQuestion" :have_params="fieldHaveSetting" :required="false"  @condition="setCondition"/>
         <ConditionPanel @save="saveCondition" :open="openCondition" @close="openCondition = false" />
 
