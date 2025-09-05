@@ -6,7 +6,12 @@ export const formatTimestampToDate = (data) => {
     }
     return ''
 }
-
+export const formatTO_DMY = (data) => {
+    if (data) {
+        return moment(data).format('DD-MM-YYYY')
+    }
+    return ''
+}
 export const flatpickrConfig = {
   dateFormat: 'Y-m-d',
   altInput: true,

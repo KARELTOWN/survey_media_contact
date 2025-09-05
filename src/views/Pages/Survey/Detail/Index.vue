@@ -7,7 +7,7 @@
                     <!-- Tabs -->
                     <div class="flex border-b">
                         <button @click="activeTab = 'preview'" :class="tabClass('preview')">Prévisualisation</button>
-                        <button @click="activeTab = 'responses'" :class="tabClass('responses')">Réponses</button>
+                        <button @click="activeTab = 'responses'" :class="tabClass('responses')">Réponses  </button>
                         <button @click="activeTab = 'statistics'" :class="tabClass('statistics')">Statistiques</button>
 
                     </div>
@@ -46,11 +46,12 @@ import { storeToRefs } from 'pinia';
 import { onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import Responses from './Responses.vue';
+const loading = ref(false)
 
 const route = useRoute()
 const store = surveyStore()
 const { showSurvey } = store
-const { formSurvey } = storeToRefs(store)
+const { formSurvey, responsesToSurvey } = storeToRefs(store)
 onMounted(async () => {
     if (route.params.id) {
         await showSurvey(route.params.id)

@@ -6,7 +6,7 @@ import { onMounted, ref, watch, watchEffect } from "vue"
 import { surveyStore } from "@/stores/survey/surveyStore";
 import { storeToRefs } from "pinia";
 import { errorNotify, infoNotify, successNotify } from "@/utils/notification";
-import { convertToBase64, convertToTempURL } from "@/utils/file";
+import { convertToBase64, convertToTempURL, getFileCategory } from "@/utils/file";
 import { useRoute, useRouter } from "vue-router";
 import SurveyFormHeader from "../header/SurveyFormHeader.vue";
 import { defaultFileImg } from "@/utils/survey";
@@ -28,18 +28,7 @@ const filesSize = ref([])
 const filesList = ref([])
 const filesAcceptTypes = ref([])
 
-function getFileCategory(file) {
-  const type = file.type
 
-  if (type.startsWith("image/")) return "image"
-  if (type.startsWith("video/")) return "video"
-  if (type === "application/pdf") return "pdf"
-  if (type.includes("word")) return "word"
-  if (type.includes("excel")) return "excel"
-  if (type.includes("presentation")) return "powerpoint"
-
-  return "other"
-}
 
 function isFileSizeAllowed(file, maxMB = 10) {
   const maxBytes = maxMB * 1024 * 1024
