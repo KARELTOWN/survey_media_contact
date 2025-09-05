@@ -3,7 +3,7 @@
         <PageBreadcrumb :pageTitle="currentPageTitle" />
         <div class="space-y-5 sm:space-y-6">
             <ComponentCard title="Nouvelle enquête">
-                <div class="p-6">
+                <div class="p-6" v-if="surveySuccess === false">
                     <!-- Navigation -->
                     <div class="flex justify-between mb-4">
                         <button @click="prevPage" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
@@ -50,8 +50,13 @@
                     </div>
 
                     <div v-if="currentPage === 3">
-                        <PreviewPanel />
+                        <PreviewPanel :preview="true"/>
                     </div>
+                </div>
+                <div class="p-6" v-else>
+                    <SuccessComponent title="Formulaire d'enquête créé avec succès"
+                        message="Si dessous partagez le lien du formulaire sur vos réseaux sociaux préférés"
+                        :link="link" path="/enquetes" />
                 </div>
             </ComponentCard>
         </div>
@@ -70,15 +75,18 @@ const currentPageTitle = ref("Nouvelle enquête")
 import { surveyStore } from "@/stores/survey/surveyStore";
 import { storeToRefs } from "pinia";
 import SurveyForm from "@/components/survey/SurveyForm.vue";
-import { getLocalStorage, setLocalStorage } from "@/utils/storage";
-import { successNotify } from "@/utils/notification";
+import SuccessComponent from '@/components/ui/SuccessComponent.vue'
+import { getIndexDBStorage, getLocalStorage, setLocalStorage } from "@/utils/storage";
+import { errorNotify, successNotify } from "@/utils/notification";
+import validator from 'validator'
 const store = surveyStore()
-const { selectCategory, selectTopic, formSurvey } = storeToRefs(store)
+const { selectCategory, selectTopic, formSurvey, surveySuccess, surveyID } = storeToRefs(store)
 const { saveFormInstance } = store
 // Etat de la page courante
 const currentPage = ref(0);
 const pages = ref(4)
 import PreviewPanel from "@/components/survey/preview/PreviewPanel.vue";
+import { useRoute, useRouter } from "vue-router";
 
 const pageTitle = [
     "Thématique",
@@ -87,7 +95,29 @@ const pageTitle = [
     "Prévisualisation",
 ]
 
-onMounted(() => {
+const route = useRoute()
+const router = useRouter()
+
+const getSurveyDataStore = async () => {
+    const storeData = await getIndexDBStorage(`survey_form_${formSurvey.value.form_id}`)
+    return storeData
+}
+onMounted(async () => {
+    surveySuccess.value = false
+    if (validator.isUUID(route.params.id)) {
+        formSurvey.value.form_id = route.params.id
+        let storeData = await getSurveyDataStore()
+        if (storeData) {
+            formSurvey.value = { ...storeData }
+        }
+    }
+    else {
+        errorNotify("Impossible de créer l'enquête. Paramètre invalide")
+        setTimeout(() => {
+            router.push({ path: '/enquetes' })
+        }, 1000)
+        return
+    }
     const topicExist = getLocalStorage('selectTopic')
     if (topicExist) {
         selectTopic.value = { ...topicExist }
@@ -113,13 +143,13 @@ const prevPage = () => {
     if (currentPage.value > 0) currentPage.value--;
 };
 
-const questionHaveNotTitle = computed(()=> {
-    let result = formSurvey.value.questions.findIndex((question) => !question.title)
+const questionHaveNotTitle = computed(() => {
+    let result = formSurvey.value.questions.findIndex((question) => (question.category !== 'image' && !question.title))
     return result
-}) 
+})
 
 const disabledNext = computed(() => {
-    return (currentPage.value === pages.value - 1 || (currentPage.value === 0 && !selectTopic.value) || (currentPage.value === 1 && !selectCategory.value) || (currentPage.value === 2 && (!formSurvey.value.title)) || (currentPage.value === 2 && questionHaveNotTitle.value !== -1 ))
+    return (currentPage.value === pages.value - 1 || (currentPage.value === 0 && !selectTopic.value) || (currentPage.value === 1 && !selectCategory.value) || (currentPage.value === 2 && (!formSurvey.value.title)) || (currentPage.value === 2 && questionHaveNotTitle.value !== -1) || (formSurvey.value.questions.length == 0))
 })
 
 const saveForm = async () => {
@@ -128,6 +158,14 @@ const saveForm = async () => {
     }).catch((error) => {
         console.error('Erreur lors de la sauvegarde :', error);
     })
+}
+
+const link = ref('')
+const save = async () => {
+    await store.createSurvey()
+    if (surveySuccess.value === true) {
+        link.value = `${import.meta.env.VITE_FRONT_URL}/forms/${surveyID.value}`
+    }
 }
 
 </script>

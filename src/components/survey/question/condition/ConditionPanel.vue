@@ -68,9 +68,9 @@ import Modal from '@/components/profile/Modal.vue'
 const emit = defineEmits(["save", "close"])
 
 const store = surveyStore()
-const { questionSelect, formSurvey } = storeToRefs(store)
+const { questionSelect, formSurvey, logicOperators } = storeToRefs(store)
 import SimpleSelect from "@/components/forms/FormElements/SimpleSelect.vue";
-import { allConditonOperators, fieldExluseFromComparaison } from "@/utils/survey";
+import { fieldExluseFromComparaison } from "@/utils/survey";
 
 
 const props = defineProps({
@@ -175,30 +175,30 @@ const getQuestion = (value) => {
         if (q.category == 'question') {
             if (q.type_field == 'radio' || q.type_field == 'checkbox' || q.type_field == 'select') {
                 compareToOptions.value = q.field_params.options
-                operators = allConditonOperators.filter((e) => {
+                operators = logicOperators.value.filter((e) => {
                     return (e.value === '=' || e.value === '!=')
                 })
             }
             else if (q.type_field == 'number') {
                 compareToNumber.value = true
-                operators = allConditonOperators.filter((e) => {
+                operators = logicOperators.value.filter((e) => {
                     return (e.value === '=' || e.value === '!=' || e.value === '<' || e.value === '>' || e.value === '<=' || e.value === '>=')
                 })
             } else if (q.type_field == 'review') {
                 compareToNumber.value = true
-                operators = allConditonOperators.filter((e) => {
+                operators = logicOperators.value.filter((e) => {
                     return (e.value === '=' || e.value === '!=' || e.value === '<' || e.value === '>' || e.value === '<=' || e.value === '>=')
                 })
             }
             else if (q.type_field == 'date') {
                 compareToDate.value = true
-                operators = allConditonOperators.filter((e) => {
+                operators = logicOperators.value.filter((e) => {
                     return (e.value === '=' || e.value === '!=' || e.value === '<' || e.value === '>' || e.value === '<=' || e.value === '>=')
                 })
             }
             else if (q.type_field == 'text' || q.type_field == 'textarea') {
                 questionSelect.value.condition.compareTo = ''
-                operators = allConditonOperators.filter((e) => {
+                operators = logicOperators.value.filter((e) => {
                     return (e.value === 'vide' || e.value === 'rempli')
                 })
             }

@@ -1,10 +1,12 @@
 <template>
+
     <input v-model="question.title" type="text" placeholder="Ecrivez votre titre ici..."
         class="w-full border-b border-gray-200 focus:outline-none text-lg p-2 mb-3" />
-    <textarea name="" id="" class="w-full border-b border-gray-200 focus:outline-none text-lg p-2 mb-3" v-model="question.description" rows="4"
-        placeholder="Ecrivez votre description ici..."></textarea>
-    <ActionPanel @copy="copyQuestion" @delete="deleteQuestion" @save="saveQuestion" :have_params="fieldHaveSetting" :required="false"  @condition="setCondition"/>
-        <ConditionPanel @save="saveCondition" :open="openCondition" @close="openCondition = false" />
+    <textarea name="" id="" class="w-full border-b border-gray-200 focus:outline-none text-lg p-2 mb-3"
+        v-model="question.description" rows="4" placeholder="Ecrivez votre description ici..."></textarea>
+    <ActionPanel @copy="copyQuestion" @delete="deleteQuestion" @save="saveQuestion" :have_params="fieldHaveSetting"
+        :required="false" @condition="setCondition" />
+    <ConditionPanel @save="saveCondition" :open="openCondition" @close="openCondition = false" />
 
 </template>
 
@@ -30,11 +32,12 @@ let question = reactive({})
 
 
 onMounted(() => {
-  if (props.question && props.question.question_id) {
-    Object.entries(props.question).forEach(([key, value]) => {
-      question[key] = value
-    })
-  }
+    if (props.question && props.question.question_id) {
+        Object.entries(props.question).forEach(([key, value]) => {
+            question[key] = value
+        })
+        console.log('props.question description', props.question)
+    }
 })
 
 const emit = defineEmits(["data", 'copy', 'delete', 'save'])
@@ -44,6 +47,7 @@ const getQuestion = () => {
         question_id: question.question_id,
         title: question.title,
         category: question.category,
+        condition: question.condition,
         description: question.description
     }
 }
@@ -61,8 +65,8 @@ const deleteQuestion = () => {
 
 
 watch(question,
-  () => saveQuestion(),
-  { deep: true }
+    () => saveQuestion(),
+    { deep: true }
 )
 
 
@@ -80,6 +84,7 @@ const setCondition = () => {
     openCondition.value = true
     questionSelect.value.category = question.category
     questionSelect.value.question_id = question.question_id
+    questionSelect.value.condition = { ...question.condition }
 }
 
 const saveCondition = () => {

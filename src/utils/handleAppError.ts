@@ -52,6 +52,7 @@ export const handleAppError = async (response: Response): Promise<object> => {
 export const handleCatchError = (err) => {
   if (err) {
     if (err instanceof ValidationError) {
+      errorNotify('Erreur de validation')
       const errors = []
       err.inner.forEach((e) => {
         errors[e.path] = e.message

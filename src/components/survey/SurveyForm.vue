@@ -10,7 +10,6 @@
 
 
         <!-- Questions -->
-
         <draggable v-model="formSurvey.questions" @change="onDragChange"
             :group="{ name: 'survey_questions', pull: true, put: true }" class="min-h-[100px] py-2">
             <div v-for="(question, index) in formSurvey.questions" :key="question.question_id"
@@ -86,6 +85,7 @@ const addTitleAndDescriptionZone = () => {
 };
 
 const addImageZone = () => {
+    console.log('{ ...defaultImage, question_id: getUUID() }', { ...defaultImage, question_id: getUUID() })
     formSurvey.value.questions.push({ ...defaultImage, question_id: getUUID() });
 };
 

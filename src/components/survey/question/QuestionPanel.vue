@@ -1,5 +1,4 @@
 <template>
-    {{ question }}
     <!-- Texte de la question -->
     <input v-model="question.title" type="text" placeholder="Titre de la question"
         class="w-full border-b border-gray-200 focus:outline-none text-lg p-2 mb-3" />
@@ -10,7 +9,6 @@
             v-for="questionType in questionsFieldType">{{ questionType.libelle }}</option>
     </select>
 
-    <!-- {{ question.type_field }} -->
     <!-- Aperçu -->
     <div class="mt-3">
         <div
@@ -30,8 +28,9 @@
                         <input type="file" :name="`file_${question.question_id}_${index}`" accept="image/*"
                             class="hidden" @change="handleImageOption($event, index)" />
 
-                        <svg @click="openFileSelector(index)" v-if="question.type_field !== 'select'" width="35px" height="35px" viewBox="0 0 24 24" fill="none"
-                            xmlns="http://www.w3.org/2000/svg" stroke="#2B7FFF">
+                        <svg @click="openFileSelector(index)" v-if="question.type_field !== 'select'" width="35px"
+                            height="35px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
+                            stroke="#2B7FFF">
                             <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
                             <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
                             <g id="SVGRepo_iconCarrier">
@@ -64,7 +63,7 @@
                     </div>
                 </div>
 
-                
+
                 <div v-if="option.img" class="mt-4 w-50 h-50 relative">
                     <img :src="option.img" alt="Prévisualisation" class="w-48 h-48 object-cover rounded" />
                     <button @click="deleteImg(index)"
@@ -123,7 +122,8 @@
 
     </div>
     <ActionPanel @copy="copyQuestion" @delete="deleteQuestion" @save="saveQuestion" @setting="editSetting"
-        @condition="setCondition" :have_params="fieldHaveSetting" @required="requiredQuestion" :have_required="true" :required="question.required" />
+        @condition="setCondition" :have_params="fieldHaveSetting" @required="requiredQuestion" :have_required="true"
+        :required="question.required" />
     <SettingPanel @close="openSetting = false" :open="openSetting" @save="changeSetting" />
     <ConditionPanel @save="saveCondition" :open="openCondition" @close="openCondition = false" />
 </template>
@@ -153,17 +153,19 @@ let field_params = reactive({})
 
 
 onMounted(() => {
-  if (props.question && props.question.question_id) {
-    Object.entries(props.question).forEach(([key, value]) => {
-      question[key] = value
-    })
+    if (props.question && props.question.question_id) {
+        console.log('props.question panel', props.question)
 
-    if (props.question.field_params) {
-      Object.entries(props.question.field_params).forEach(([key, value]) => {
-        field_params[key] = value
-      })
+        Object.entries(props.question).forEach(([key, value]) => {
+            question[key] = value
+        })
+
+        if (props.question.field_params) {
+            Object.entries(props.question.field_params).forEach(([key, value]) => {
+                field_params[key] = value
+            })
+        }
     }
-  }
 })
 
 
@@ -187,7 +189,7 @@ const emit = defineEmits(["data", 'copy', 'delete', 'save'])
 
 const changeField = () => {
     Object.keys(field_params).forEach(key => delete field_params[key])
-    question.type_field = surveyGetFieldFromType[question.field_libelle]
+    question.type_field = surveyGetFieldFromType(question.field_libelle)
     getFieldParams(question.type_field)
 }
 
@@ -202,7 +204,6 @@ const getFieldParams = (type_field) => {
 
 const setOption = (event, index) => {
     field_params.options[index].value = event.target.value
-    console.log('setDefaultOption', field_params.options)
 
 }
 
@@ -215,7 +216,6 @@ const setDefaultOption = (event, index) => {
             }
         })
     }
-    console.log('setDefaultOption', field_params.options)
 
 }
 
@@ -275,15 +275,13 @@ const requiredQuestion = (value) => {
 }
 
 watch(question,
-  () => {
-    console.log('question', question)
-    saveQuestion()
-  },
-  { deep: true }
+    () => {
+        saveQuestion()
+    },
+    { deep: true }
 )
 
 const saveQuestion = () => {
-    console.log('saveQuestion')
     let question = getQuestion()
     emit("save", question)
 }
@@ -304,24 +302,23 @@ const setCondition = () => {
     questionSelect.value.question_id = question.question_id
     questionSelect.value.type_field = question.type_field
     questionSelect.value.field_params = { ...field_params }
-    questionSelect.value.condition = {...question.condition}
+    questionSelect.value.condition = { ...question.condition }
 }
 
 
 const fieldHaveSetting = computed(() => {
-    return !(['select', 'radio', 'checkbox', 'hour','date'].includes(question.type_field))
+    return !(['select', 'radio', 'checkbox', 'hour', 'date'].includes(question.type_field))
 })
 
 const changeSetting = () => {
     field_params = questionSelect.value.field_params
-    question.field_params = {...field_params}
+    question.field_params = { ...field_params }
     openSetting.value = false
 }
 
 const saveCondition = () => {
-    console.log('savecondition')
     let conditions = questionSelect.value.condition
-    question.condition = {...conditions}
+    question.condition = { ...conditions }
     openCondition.value = false
 }
 

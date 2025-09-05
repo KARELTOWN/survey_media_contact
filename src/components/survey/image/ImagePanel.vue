@@ -1,5 +1,4 @@
 <template>
-
     <input type="file" :name="`file_${question.question_id}`" accept="image/*" class="hidden"
         @change="handleImageOption($event)" />
 
@@ -38,15 +37,14 @@
     </div>
 
     <ActionPanel @copy="copyQuestion" @delete="deleteQuestion" @save="saveQuestion" @setting="editSetting"
-        :have_params="fieldHaveSetting" :required="false" @condition="setCondition"/>
-        <ConditionPanel @save="saveCondition" :open="openCondition" @close="openCondition = false" />
-
+        :have_params="fieldHaveSetting" :required="false" @condition="setCondition" />
+    <ConditionPanel @save="saveCondition" :open="openCondition" @close="openCondition = false" />
 </template>
 
 <script setup lang="ts">
 
 import { surveyStore } from "@/stores/survey/surveyStore";
-import { convertToBase64 } from "@/utils/file";
+import { convertToBase64, convertToTempURL } from "@/utils/file";
 import { onMounted, reactive, ref, watch, watchEffect } from "vue";
 const store = surveyStore()
 
@@ -67,11 +65,12 @@ const props = defineProps({
 let question = reactive({})
 
 onMounted(() => {
-  if (props.question && props.question.question_id) {
-    Object.entries(props.question).forEach(([key, value]) => {
-      question[key] = value
-    })
-  }
+    if (props.question && props.question.question_id) {
+        console.log('props.question image', props.question)
+        Object.entries(props.question).forEach(([key, value]) => {
+            question[key] = value
+        })
+    }
 })
 
 const emit = defineEmits(["data", 'copy', 'delete', 'save'])
@@ -105,7 +104,8 @@ const getQuestion = () => {
     return {
         question_id: question.question_id,
         category: question.category,
-        img: question.img
+        img: question.img,
+        condition: question.condition
     }
 }
 
@@ -121,8 +121,8 @@ const deleteQuestion = () => {
 
 
 watch(question,
-  () => saveQuestion(),
-  { deep: true }
+    () => saveQuestion(),
+    { deep: true }
 )
 
 const saveQuestion = () => {
@@ -136,10 +136,10 @@ const setCondition = () => {
     openCondition.value = true
     questionSelect.value.category = question.category
     questionSelect.value.question_id = question.question_id
+    questionSelect.value.condition = question.condition
 }
 
 const saveCondition = () => {
-    console.log("saveCondition")
     question.condition = questionSelect.value.condition
     openCondition.value = false
 }

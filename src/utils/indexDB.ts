@@ -97,34 +97,26 @@ export default function indexDBTransaction() {
     })
   }
 
-  const deleteEventByKeys = (table, keys) => {
+  const deleteEventByKey = (table, key) => {
     return new Promise((resolve, reject) => {
-      if (!Array.isArray(keys) || keys.length === 0) {
+      if (!key) {
         return resolve('Nothing to delete') // rien à supprimer
       }
 
       const transaction = db.transaction(table, 'readwrite')
       const store = transaction.objectStore(table)
 
-      let completed = 0
-      let hasError = false
-
-      keys.forEach((key) => {
         const request = store.delete(key)
 
         request.onsuccess = () => {
-          completed++
-          if (completed === keys.length && !hasError) {
             resolve('Events delete')
-          }
         }
 
         request.onerror = () => {
-          hasError = true
           reject(request.error)
         }
-      })
+      
     })
   }
-  return { initDB, deleteEventByKeys, getEvents, saveEvents, getAllEvents }
+  return { initDB, deleteEventByKey, getEvents, saveEvents, getAllEvents }
 }

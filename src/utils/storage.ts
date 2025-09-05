@@ -1,6 +1,6 @@
 import indexDBTransaction from '@/utils/indexDB'
 import { toRaw } from 'vue'
-const { getEvents, saveEvents } = indexDBTransaction()
+const { getEvents, saveEvents, deleteEventByKey } = indexDBTransaction()
 
 export const setLocalStorage = (key: string, value: any) => {
   localStorage.setItem(key, JSON.stringify(value))
@@ -25,5 +25,14 @@ export const getIndexDBStorage = async (key: string) => {
     return await getEvents('survey_mc_forms', key)
   } catch (err) {
     console.error('IndexedDB get failed ❌', err)
+  }
+}
+
+
+export const deleteIndexDBStorage = async (key: string) => {
+  try {
+    return await deleteEventByKey('survey_mc_forms', key)
+  } catch (err) {
+    console.error('IndexedDB delete failed ❌', err)
   }
 }

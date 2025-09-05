@@ -2,13 +2,26 @@
     <pre>{{ formSurvey }}</pre>
 </template> -->
 <script setup>
-import { onMounted, ref, watch } from "vue"
+import { onMounted, ref, watch, watchEffect } from "vue"
 import { surveyStore } from "@/stores/survey/surveyStore";
 import { storeToRefs } from "pinia";
 import { errorNotify, infoNotify, successNotify } from "@/utils/notification";
-import { convertToBase64 } from "@/utils/file";
+import { convertToBase64, convertToTempURL } from "@/utils/file";
+import { useRoute, useRouter } from "vue-router";
+import SurveyFormHeader from "../header/SurveyFormHeader.vue";
+import { defaultFileImg } from "@/utils/survey";
+import { getSurveyCookie, setSurveyCookie } from "@/composables/cookie";
+import { flatpickrConfig, flatpickrTimeOnlyConfig } from "@/utils/format";
+
+const previewMode = ref(false)
+
+const props = defineProps({
+  preview: Boolean
+})
 const store = surveyStore()
-const { formSurvey } = storeToRefs(store)
+const { formSurvey, liveFormSurvey, surveySuccess } = storeToRefs(store)
+
+const { getSurveyForm, saveSurveyResponse } = store
 
 const filesAcceptInputAttributes = ref([])
 const filesSize = ref([])
@@ -38,14 +51,25 @@ const handleFile = async (event, question_id) => {
   // event.target.files
   filesList.value[question_id] = []
   let files = event.target.files
+  answers.value[question_id] = []
   for (const e of files) {
     console.log('files', e)
 
     let type = getFileCategory(e)
     if (filesAcceptTypes.value[question_id].includes(type)) {
       if (isFileSizeAllowed(e, filesSize.value[question_id])) {
-        let file = await convertToBase64(e)
-        filesList.value[question_id].push(file)
+        let file = ''
+        let img = ''
+        if (type == "image") {
+          file = await convertToBase64(e)
+          img = file
+        }
+        else {
+          file = await convertToBase64(e)
+          img = defaultFileImg
+        }
+        filesList.value[question_id].push({ name: e.name, img: img })
+        answers.value[question_id].push(file)
       }
       else {
         infoNotify("La taille du fichier" + e.name + "est trop grande")
@@ -63,36 +87,8 @@ const handleFile = async (event, question_id) => {
 
 const deleteFile = (index, question_id) => {
   filesList.value[question_id].splice(index, 1)
+  answers.value[question_id].splice(index, 1)
 }
-
-onMounted(() => {
-  formSurvey.value.questions.forEach(q => {
-    if ((q.type_field === 'radio') && q.field_params?.options) {
-      const defaultOpt = q.field_params.options.find(o => o.default === true)
-      if (defaultOpt) {
-        answers.value[q.question_id] = defaultOpt.value
-      }
-    }
-    else if ((q.type_field === 'checkbox') && q.field_params?.options) {
-      answers.value[q.question_id] = q.field_params.options
-        .filter(opt => opt.default === true)
-        .map(opt => opt.value)
-    }
-    else if ((q.type_field === 'file')) {
-      filesAcceptTypes.value[q.question_id] = q.field_params?.accept.length > 0 ? q.field_params?.accept : ['image']
-      const correspondant = {
-        'image': 'image/*',
-        'video': 'video/*',
-        'pdf': 'application/pdf',
-        'word': 'application/msword, application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-        'excel': 'application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        'powerpoint': 'application/vnd.ms-powerpoint, application/vnd.openxmlformats-officedocument.presentationml.presentation'
-      }
-      filesSize.value[q.question_id] = q.field_params.max_size
-      filesAcceptInputAttributes.value[q.question_id] = filesAcceptTypes.value[q.question_id].map(type => correspondant[type]).filter(Boolean).join(',')
-    }
-  })
-})
 
 // Réponses de l’utilisateur (lié à v-model sur chaque champ)
 const answers = ref([])
@@ -231,16 +227,106 @@ const validateForm = () => {
     }
   }
 
-  if (isValid === true) {
+  if (isValid === true && previewMode.value === true) {
     successNotify("Formulaire soumis. Merci pour votre participation")
+  }
+  return isValid
+}
+
+const router = useRouter()
+
+
+const saveForm = async () => {
+  const isValid = validateForm()
+  if (isValid === true) {
+    if (previewMode.value === true) {
+      return
+    }
+    else if (previewMode.value === false && publish.value === true) {
+      await saveSurveyResponse(answers.value, route.params.id)
+      if (surveySuccess.value === true) {
+        setSurveyCookie(route.params.id)
+        router.push({ name: 'Response-Send' })
+      }
+    }
   }
 }
 
+const previewModeData = () => {
+  formSurvey.value.questions.forEach(q => {
+    if ((q.type_field === 'radio') && q.field_params?.options) {
+      const defaultOpt = q.field_params.options.find(o => o.default === true)
+      if (defaultOpt) {
+        answers.value[q.question_id] = defaultOpt.value
+      }
+    }
+    else if ((q.type_field === 'checkbox') && q.field_params?.options) {
+      answers.value[q.question_id] = q.field_params.options
+        .filter(opt => opt.default === true)
+        .map(opt => opt.value)
+    }
+    else if ((q.type_field === 'select') && q.field_params?.options) {
+      const defaultOpt = q.field_params.options.find(o => o.default === true)
+      if (defaultOpt) {
+        answers.value[q.question_id] = defaultOpt.value
+      }
+    }
+    else if ((q.type_field === 'file')) {
+      filesAcceptTypes.value[q.question_id] = q.field_params?.accept.length > 0 ? q.field_params?.accept : ['image']
+      const correspondant = {
+        'image': 'image/*',
+        'video': 'video/*',
+        'pdf': 'application/pdf',
+        'word': 'application/msword, application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'excel': 'application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'powerpoint': 'application/vnd.ms-powerpoint, application/vnd.openxmlformats-officedocument.presentationml.presentation'
+      }
+      filesSize.value[q.question_id] = q.field_params.max_size
+      filesAcceptInputAttributes.value[q.question_id] = filesAcceptTypes.value[q.question_id].map(type => correspondant[type]).filter(Boolean).join(',')
+    }
+  })
+}
+
+const route = useRoute()
+
+const publish = ref(false)
+
+const cookieExist = ref(false)
+
+watchEffect(async () => {
+  if (props.preview === true) {
+    previewMode.value = true
+    previewModeData()
+  }
+  else if (props.preview === false) {
+    previewMode.value = false
+    formSurvey.value = {}
+    cookieExist.value = getSurveyCookie(route.params.id)
+    if (cookieExist.value === true) {
+      return
+    }
+    formSurvey.value = {}
+    await getSurveyForm(route.params.id)
+    if (liveFormSurvey.value?.publish === false) {
+      publish.value = false
+      return
+    }
+    else {
+      publish.value = true
+    }
+    formSurvey.value = liveFormSurvey.value
+    previewModeData()
+  }
+})
 
 </script>
 
 <template>
-  <div class="max-w-3xl mx-auto p-6 bg-gray-50 rounded-xl shadow-md">
+  <div v-if="previewMode === false">
+    <SurveyFormHeader />
+  </div>
+  <div class="max-w-3xl mx-auto p-6 bg-gray-50 rounded-xl shadow-md"
+    v-if="(previewMode === true) || (previewMode === false && cookieExist === false && publish === true)">
     <!-- ✅ En-tête du formulaire -->
     <h1 class="text-2xl font-bold mb-2">{{ formSurvey.title }}</h1>
     <p class="text-gray-600 mb-6">{{ formSurvey.description }}</p>
@@ -248,12 +334,11 @@ const validateForm = () => {
     <!-- ✅ Liste des questions -->
     <div v-for="question in formSurvey.questions" :key="question.question_id" class="mb-6">
       <!-- Titre / label -->
-      {{ question }}
+
       <label v-if="question.title" class="block font-semibold mb-2">
         {{ question.title }}
         <span v-if="question.required" class="text-red-500">*</span>
       </label>
-      {{ answers[question.question_id] }}
 
       <!-- Champs dynamiques selon le type -->
       <!-- Texte court -->
@@ -291,7 +376,7 @@ const validateForm = () => {
       </div>
 
       <div v-else-if="question.type_field === 'select' && displayField(question.condition)" class="space-y-2">
-        <select name="" id=""
+        <select name="" id="" v-model="answers[question.question_id]"
           class="text-gray-800 dark:text-white/90 dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 pr-11 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800">
           <option :value="opt.value" :selected="opt.default" v-for="(opt, i) in question.field_params?.options"
             :key="i">{{ opt.value }}</option>
@@ -309,7 +394,8 @@ const validateForm = () => {
           <div v-if="filesList[question.question_id]?.length > 0"
             class="grid grid-cols-1 lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-1">
             <div v-for="(file, fIndex) in filesList[question.question_id]" :key="fIndex" class="mt-4 relative">
-              <img :src="file" alt="Prévisualisation" class="w-48 h-48 object-cover rounded" />
+              <img :src="file.img" alt="Prévisualisation" class="w-48 h-48 object-cover rounded" />
+              <div class="text-muted font-bold">{{ file.name }}</div>
               <button @click="deleteFile(fIndex, question.question_id)"
                 class="absolute top-2 right-2 bg-white rounded-full p-1 shadow-md hover:bg-red-100 transition">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -324,12 +410,14 @@ const validateForm = () => {
       </div>
 
       <!-- Date -->
-      <input v-else-if="question.type_field === 'date' && displayField(question.condition)" type="date"
-        v-model="answers[question.question_id]" class="border rounded-lg p-2" />
-
+      <flat-pickr v-else-if="question.type_field === 'date' && displayField(question.condition)"
+        v-model="answers[question.question_id]" :config="flatpickrConfig" placeholder="Date"
+        class="dark:bg-dark-900 h-11 appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 pl-4 pr-11 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800" />
       <!-- Heure -->
-      <input v-else-if="question.type_field === 'hour' && displayField(question.condition)" type="time"
-        v-model="answers[question.question_id]" class="border rounded-lg p-2" />
+      <flat-pickr v-else-if="question.type_field === 'hour' && displayField(question.condition)"
+        v-model="answers[question.question_id]" :config="flatpickrTimeOnlyConfig"
+        class="dark:bg-dark-900 h-11 appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 pl-4 pr-11 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
+        placeholder="Heure" />
 
       <!-- Nombre -->
       <input v-else-if="question.type_field === 'number' && displayField(question.condition)" type="number"
@@ -338,7 +426,7 @@ const validateForm = () => {
 
       <!-- Avis / rating -->
       <div v-else-if="question.type_field === 'review' && displayField(question.condition)" class="flex space-x-2">
-        <button v-for="n in question.field_params?.rating || 5" :key="n" class="text-2xl"
+        <button v-for="n in parseInt(question.field_params?.rating)" :key="n" class="text-2xl"
           :class="answers[question.question_id] >= n ? 'text-yellow-400' : 'text-gray-300'"
           @click="answers[question.question_id] = n">
           ★
@@ -362,8 +450,15 @@ const validateForm = () => {
     </div>
 
     <!-- ✅ Bouton de soumission -->
-    <button @click="validateForm" class="mt-6 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">
+    <button @click="saveForm" class="mt-6 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">
       Soumettre
     </button>
   </div>
+  <!-- <div v-if="publish === false">
+    <h2 class="text-2xl font-bold mb-2">Vous ne pouvez pas accéder à ce formulaire</h2>
+  </div> -->
+  <div v-if="cookieExist === true" class="text-center mt-6">
+    <h2 class="text-xl font-bold mb-2">Vous avez déjà soumis cette enquête</h2>
+  </div>
+
 </template>

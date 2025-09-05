@@ -1,69 +1,54 @@
 import { fetchGet, fetchPost, fetchPut } from '@/composables/request'
 import { handleAppError, handleCatchError } from '@/utils/handleAppError'
-import { getLocalStorage, setIndexDBStorage } from '@/utils/storage'
+import { successNotify } from '@/utils/notification'
+import { deleteIndexDBStorage, getLocalStorage, setIndexDBStorage } from '@/utils/storage'
 import { defaultQuestion } from '@/utils/survey'
 import { getUUID } from '@/utils/uuid'
 import { defineStore } from 'pinia'
 import { reactive, ref } from 'vue'
-// import projectValidator from '@/validator/topic'
-// import { successNotify } from '@/utils/notification'
-// const { validateCreate, validateUpdate } = projectValidator()
 export const surveyStore = defineStore('survey-store', () => {
   const selectTopic = ref('')
   const selectCategory = ref('')
   const questionsFieldType = ref([])
   const logicOperators = ref([])
-
+  const surveySuccess = ref(false)
+  const surveyID = ref('')
+  const surveysList = ref('')
+  const responsesToSurvey = ref([])
   const questionSelect = reactive({
     type_field: '',
     field_params: {},
     question_id: '',
     category: '',
     condition: {
-      display: '',
+      display: 'show',
       compareTo: '',
-       operator: '',
-       target: ''
+      operator: '',
+      target: '',
     },
   })
 
+  const liveFormSurvey = ref({})
+
+  const errors = ref({})
+
   let formSurvey = ref({
-    form_id: getUUID(),
+    form_id: '',
     title: '',
     description: '',
     topic: {},
     category: {},
+    topic_id: '',
+    category_id: '',
     lastEdit: 0,
     createdAt: Date.now(),
     questions: [
       {
-        ...defaultQuestion, question_id: getUUID()
-      }
+        ...defaultQuestion,
+        question_id: getUUID(),
+      },
     ],
   })
-  // const errors = ref({})
-  // // const search_errors = ref({})
-  // const projects = ref([])
-  // const tracking_code = ref('')
-  // const total = ref(0)
-  // const page = ref(1)
-  // const limit = ref(15)
-  // const totalPages = ref(0)
-  // const projectSuccess = ref(false)
-  // const search_form = reactive({
-  //   search: '',
-  //   start_date: '',
-  //   end_date: '',
-  // })
-  // let selectProject = ref('')
-  // let openModal = ref(false)
-  // let openModalInvitation = ref(false)
-  // const projectMembers = ref([])
-
-  // const updatePagination = () => {
-  //   total.value += 1
-  //   totalPages.value = Math.ceil(total.value / limit.value)
-  // }
 
   const getSurveyParams = async () => {
     try {
@@ -80,6 +65,50 @@ export const surveyStore = defineStore('survey-store', () => {
     }
   }
 
+  const showSurvey = async (survey_id) => {
+    try {
+      const result = await fetchGet(`survey/show/${survey_id}`)
+      const response = await handleAppError(result)
+      if (response.status === false) {
+        if (response?.data) {
+          formSurvey.value = response.data
+        }
+      }
+    } catch (err) {
+      handleCatchError(err)
+    }
+  }
+
+
+   const getSurveys = async () => {
+    try {
+      const result = await fetchGet(`survey/get`)
+      const response = await handleAppError(result)
+      if (response.status === false) {
+        if (response?.data) {
+          surveysList.value = response.data
+        }
+      }
+    } catch (err) {
+      handleCatchError(err)
+    }
+  }
+  
+
+  const getSurveyForm = async (id) => {
+    try {
+      const result = await fetchGet(`survey/form/${id}`)
+      const response = await handleAppError(result)
+      if (response.status === false) {
+        if (response?.data) {
+          liveFormSurvey.value = response.data
+        }
+      }
+    } catch (err) {
+      handleCatchError(err)
+    }
+  }
+
   const saveFormInstance = async () => {
     formSurvey.value.topic = getLocalStorage('selectTopic')
     formSurvey.value.category = getLocalStorage('selectCategory')
@@ -87,89 +116,111 @@ export const surveyStore = defineStore('survey-store', () => {
     await setIndexDBStorage(`survey_form_${formSurvey.value.form_id}`, formSurvey.value)
   }
 
-  // const filterProjects = async (data) => {
-  //   try {
-  //     search_errors.value = {}
-  //     const result = await fetchPost(`project/filter?limit=${limit.value}&page=${page.value}`, data)
-  //     const response = await handleAppError(result)
-  //     if (response.status === false) {
-  //       if (response?.data) {
-  //         projects.value = response.data.projects
-  //         total.value = response.data.total
-  //         page.value = response.data.page
-  //         limit.value = response.data.limit
-  //         totalPages.value = response.data.totalPages
-  //       }
-  //     } else {
-  //       if (response.errors) {
-  //         search_errors.value = response.errors
-  //       }
-  //     }
-  //   } catch (err) {
-  //     handleCatchError(err)
-  //   }
-  // }
+  const createSurvey = async () => {
+    try {
+      surveyID.value = ''
+      surveySuccess.value = false
+      errors.value = {}
+      formSurvey.value.questions.forEach((question) => {
+        if (question.condition.display == '') {
+          question.condition.display = 'show'
+        }
+      })
+      const data = {
+        ...formSurvey.value,
+        topic: '',
+        category: '',
+        topic_id: formSurvey.value.topic?._id,
+        category_id: formSurvey.value.category?._id,
+      }
 
-  // const createProject = async (data) => {
-  //   try {
-  //     projectSuccess.value = false
-  //     tracking_code.value = ''
-  //     errors.value = {}
-  //     const schemaProject = validateCreate()
-  //     const data_result = await schemaProject.validate(data, { abortEarly: false })
-  //     const result = await fetchPost(`project/create`, data_result)
-  //     const response = await handleAppError(result)
-  //     if (response.status === true) {
-  //       if (response.errors) {
-  //         errors.value = response.errors
-  //       }
-  //     } else {
-  //       if (response?.data) {
-  //         projectSuccess.value = true
-  //         projects.value.unshift(response.data.project)
-  //         tracking_code.value = response.data.project.tracking_code
-  //         updatePagination()
-  //         successNotify('Projet créé')
-  //       }
-  //     }
-  //   } catch (err) {
-  //     const result = handleCatchError(err)
-  //     if (result) {
-  //       errors.value = result
-  //     }
-  //   }
-  // }
+      const result = await fetchPost(`survey/create`, data)
 
-  // const updateProject = async (data) => {
-  //   try {
-  //     projectSuccess.value = false
-  //     errors.value = {}
-  //     const schemaProject = validateUpdate()
-  //     const data_result = await schemaProject.validate(data, { abortEarly: false })
-  //     const result = await fetchPut(`project/update/${data_result.project_id}`, data_result)
-  //     const response = await handleAppError(result)
-  //     if (response.status === true) {
-  //       if (response.errors) {
-  //         errors.value = response.errors
-  //       }
-  //     } else {
-  //       if (response?.data) {
-  //         projectSuccess.value = true
-  //         let project_index = projects.value.findIndex(
-  //           (item) => item._id === data_result.project_id,
-  //         )
-  //         console.log('find index', project_index)
-  //         projects.value[project_index] = response.data.project
-  //         successNotify('Projet modifié')
-  //       }
-  //     }
-  //   } catch (err) {
-  //     const result = handleCatchError(err)
-  //     if (result) {
-  //       errors.value = result
-  //     }
-  //   }
-  // }
+      const response = await handleAppError(result)
+      if (response.status === true) {
+        if (response.errors) {
+          errors.value = response.errors
+        }
+      } else {
+        if (response?.data) {
+          surveySuccess.value = true
+          surveyID.value = response?.data
+          successNotify("Questionnaire d'enquête créé")
+          await deleteIndexDBStorage(`survey_form_${data.form_id}`)
+        }
+      }
+    } catch (err) {
+      const result = handleCatchError(err)
+      if (result) {
+        errors.value = result
+      }
+    }
+  }
+
+  const saveSurveyResponse = async (answers, survey_id) => {
+    try {
+      surveySuccess.value = false
+      errors.value = {}
+      let responses = []
+
+      Object.entries(answers).forEach(([key, value]) => {
+        responses.push({ question: key, response: value })
+      })
+
+      let metadata = {
+        user_agent: navigator.userAgent,
+      }
+
+      const result = await fetchPut(`survey/responses/${survey_id}`, {
+        responses: responses,
+        metadata: metadata,
+      })
+
+      const response = await handleAppError(result)
+      if (response.status === true) {
+        if (response.errors) {
+          errors.value = response.errors
+        }
+      } else {
+        surveySuccess.value = true
+        successNotify('Vos réponses ont été envoyées')
+      }
+    } catch (err) {
+      const result = handleCatchError(err)
+      if (result) {
+        errors.value = result
+      }
+    }
+  }
+
+
+  const getSurveyResponses = async (survey_id) => {
+    try {
+      surveySuccess.value = false
+      errors.value = {}
+
+      const result = await fetchGet(`survey/detail/responses/${survey_id}`)
+
+      const response = await handleAppError(result)
+      if (response.status === true) {
+        if (response.errors) {
+          errors.value = response.errors
+        }
+      } else {
+        if (response?.data) {
+          surveySuccess.value = true
+          responsesToSurvey.value = response.data
+        }
+      }
+    } catch (err) {
+      const result = handleCatchError(err)
+      if (result) {
+        errors.value = result
+      }
+    }
+  }
+
+
 
   return {
     selectTopic,
@@ -179,23 +230,15 @@ export const surveyStore = defineStore('survey-store', () => {
     formSurvey,
     saveFormInstance,
     questionSelect,
-    logicOperators
-    // createProject,
-    // updateProject,
-    // getProjects,
-    // errors,
-    // projects,
-    // tracking_code,
-    // total,
-    // page,
-    // limit,
-    // totalPages,
-    // projectSuccess,
-    // filterProjects,
-    // search_form,
-    // selectProject,
-    // openModal,
-    // openModalInvitation,
-    // projectMembers,
+    logicOperators,
+    createSurvey,
+    surveySuccess,
+    surveyID,
+    liveFormSurvey,
+    getSurveyForm,
+    saveSurveyResponse,
+    surveysList, getSurveys,
+    showSurvey, responsesToSurvey,
+    getSurveyResponses
   }
 })

@@ -19,21 +19,49 @@ const router = createRouter({
     {
       path: '/enquetes',
       name: 'Surveys',
-      component: () => import('../views/Pages/Enquete/Enquete.vue'),
+      component: () => import('../views/Pages/Survey/Survey.vue'),
       meta: {
         title: 'Enquêtes',
         requiredAuth: true,
       },
     },
     {
-      path: '/creation-enquete',
+      path: '/creation-enquete/:id',
       name: 'Create-Survey',
-      component: () => import('../views/Pages/Enquete/Create.vue'),
+      component: () => import('../views/Pages/Survey/Create.vue'),
       meta: {
         title: "Creation d'enquête",
         requiredAuth: true,
       },
     },
+    {
+      path: '/forms/:id',
+      name: 'Survey-Form',
+      component: () => import('../views/Pages/Survey/Form.vue'),
+      meta: {
+        title: 'Formulaire',
+      },
+    },
+
+    {
+      path: '/formulaire-envoye',
+      name: 'Response-Send',
+      component: () => import('../views/Pages/Survey/ResponseSend.vue'),
+      meta: {
+        title: 'Formulaire envoyé',
+      },
+    },
+    {
+      path: '/enquete/:id',
+      name: 'Survey-Detail',
+      component: () => import('../views/Pages/Survey/Detail/Index.vue'),
+      meta: {
+        title: 'Détail enquête',
+        requiredAuth: true,
+      },
+    },
+    
+
     // Profile
     {
       path: '/profile',
@@ -109,16 +137,21 @@ const router = createRouter({
 export default router
 
 router.beforeEach((to, from, next) => {
+  console.log('toffff', to)
   document.title = `${to.meta.title} | SURVEY MC`
   const survey_mc_token = localStorage.getItem('survey_mc_token')
   const data = survey_mc_token !== null ? JSON.parse(survey_mc_token) : null
 
   const token = data?.token
 
-  if (to.meta.requiredAuth && !token) {
-    return next('/signin')
-  } else if (!to.meta.requiredAuth && token) {
-    return next('/')
+  if (to.name === 'Survey-Form') {
+    return next()
+  } else {
+    if (to.meta.requiredAuth && !token) {
+      return next('/signin')
+    } else if (!to.meta.requiredAuth && token) {
+      return next('/')
+    }
+    return next()
   }
-  return next()
 })

@@ -43,7 +43,7 @@
                                 <img width="231" height="48" src="/images/logo/auth-logo.png" alt="Logo" />
                             </router-link>
                             <p class="text-center text-gray-400 dark:text-white/60">
-                                <strong>Découvrez les bugs dans vos applications pour en améliorer la qualité</strong>
+                                <strong>Enquêtez en toute simplicité</strong>
                             </p>
                         </div>
                     </div>
