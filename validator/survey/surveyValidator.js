@@ -243,7 +243,7 @@ export const surveyResponseValidator = [
     .isUUID()
     .withMessage("Une chaine de caractères est attendue")
     .custom(async (question, { req, path }) => {
-      let exist = await Question.exists({ question_id: question });
+      let exist = await Question.exists({ _id: question });
       if (!exist) {
         throw new Error("La question n'existe pas");
       }

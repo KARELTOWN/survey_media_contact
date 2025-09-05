@@ -4,16 +4,18 @@ import ConditionTemplateSchema from "./SurveyElementSchema/ConditionTemplateSche
 import FieldParamsTemplateSchema from "./SurveyElementSchema/FieldParamsTemplateSchema.js";
 
 const QuestionSchema = new mongoose.Schema({
+  _id: {
+    type: String,
+    unique: true,
+    required: true
+  },
   survey_id: {
     type: SchemaTypes.ObjectId,
     ref: "Survey",
     required: true,
   },
   img: { type: String, required: false },
-  question_id: {
-    type: String,
-    required: true,
-  },
+
   title: {
     type: String,
     validate: {

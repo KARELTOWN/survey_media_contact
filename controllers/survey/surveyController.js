@@ -7,6 +7,7 @@ import { surveyFields, surveyOperators } from "../../utils/survey.js";
 import Question from "../../models/Question.js";
 import Answer from "../../models/Answer.js";
 import { v4 } from "uuid";
+import mongoose from "../../config/mongodb.js";
 
 export default function surveyController() {
   const getSurveyParams = async (req, res, next) => {
@@ -72,6 +73,7 @@ export default function surveyController() {
 
       let questions = data.questions.map((q) => ({
         ...q,
+        _id: q.question_id,
         survey_id: survey._id,
       }));
 
@@ -105,11 +107,7 @@ export default function surveyController() {
       let user_id = v4();
       if (Array.isArray(result.responses) && result.responses.length > 0) {
         for (const data of result.responses) {
-          let question_id = await Question.findOne({
-            question_id: data.question,
-          })
-            .select("_id")
-            .exec();
+          let question_id = data.question;
 
           if (
             (Array.isArray(data.response) && data.response.length > 0) ||
@@ -141,14 +139,14 @@ export default function surveyController() {
       const responses = await Answer.aggregate([
         {
           $match: {
-            survey_id: data.survey_id,
+            survey_id: new mongoose.Types.ObjectId(data.survey_id),
           },
         },
         {
           $lookup: {
             from: "questions",
             localField: "question_id",
-            foreignField: "question_id",
+            foreignField: "_id",
             as: "question",
           },
         },
@@ -163,6 +161,8 @@ export default function surveyController() {
                 question_id: "$question_id",
                 question_label: "$question.title",
                 response: "$response",
+                createdAt: "$createdAt",
+                question_type_field: "$question.type_field",
               },
             },
             total: { $sum: 1 },
