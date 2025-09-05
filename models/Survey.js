@@ -14,34 +14,26 @@ const SurveySchema = new mongoose.Schema(
     },
     description: {
       type: String,
-      required: true,
+      required: false,
     },
-    topic: {
+    topic_id: {
       type: SchemaTypes.ObjectId,
       ref: "Topic",
       required: true,
     },
-    category: {
+    category_id: {
       type: SchemaTypes.ObjectId,
       ref: "Category",
-      required: true,
-    },
-    start_at: {
-      type: Date,
       required: true,
     },
     lastEdit: {
       type: Date,
       required: true,
     },
-    questions: {
-      type: SchemaTypes.ObjectId,
-      ref: 'Question',
-      required: true,
-    },
     publish: {
       type: Boolean,
       required: true,
+      default: true,
     },
     created_by: {
       type: SchemaTypes.ObjectId,

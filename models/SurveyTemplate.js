@@ -1,6 +1,6 @@
 import { SchemaTypes } from "mongoose";
 import mongoose from "../config/mongodb.js";
-import { QuestionTemplateSchema } from "./Question.js";
+import QuestionTemplateSchema from "./SurveyElementSchema/QuestionTemplateSchema.js";
 
 const SurveyTemplateSchema = new mongoose.Schema(
   {
@@ -15,14 +15,14 @@ const SurveyTemplateSchema = new mongoose.Schema(
     },
     description: {
       type: String,
-      required: true,
+      required: false,
     },
-    topic: {
+    topic_id: {
       type: SchemaTypes.ObjectId,
       ref: "Topic",
       required: true,
     },
-    category: {
+    category_id: {
       type: SchemaTypes.ObjectId,
       ref: "Category",
       required: true,

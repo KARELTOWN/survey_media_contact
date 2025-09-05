@@ -1,12 +1,11 @@
-import { SchemaTypes } from "mongoose";
-import mongoose from "../config/mongodb.js";
+import mongoose from "../../config/mongodb.js";
 
 const ConditionTemplateSchema = new mongoose.Schema(
   {
     display: {
       type: String,
       enum: ["hide", "show"],
-      required: true, // si obligatoire
+      default: 'show'
     },
     compareTo: {
       type: String,
@@ -14,7 +13,6 @@ const ConditionTemplateSchema = new mongoose.Schema(
     },
     operator: {
       type: String,
-      enum: ["=", "!=", ">", "<", ">=", "<=", "vide", "rempli"], 
       required: false,
     },
     target: {

@@ -8,12 +8,12 @@ const AnswerSchema = new mongoose.Schema(
       ref: "Survey",
       required: true,
     },
-    questions: {
+    question_id: {
       type: SchemaTypes.ObjectId,
       ref: "Question",
       required: true,
     },
-    responses: {
+    response: {
       type: SchemaTypes.Mixed,
       required: true,
     },
@@ -22,9 +22,8 @@ const AnswerSchema = new mongoose.Schema(
       required: true,
     },
     created_by: {
-      //uniquement si la personne à un compte sur survey MC
-      type: SchemaTypes.ObjectId,
-      ref: "User",
+      type: String,
+      required: true,
     },
   },
   {

@@ -45,6 +45,10 @@ const UserSchema = new mongoose.Schema(
       ref: "Role",
       required: true,
     },
+    direction_id: {
+      type: SchemaTypes.ObjectId,
+      ref: "Direction",
+    },
     fonction_id: {
       type: SchemaTypes.ObjectId,
       ref: "Fonction",

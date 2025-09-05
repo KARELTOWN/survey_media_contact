@@ -1,19 +1,14 @@
 import { SchemaTypes } from "mongoose";
-import mongoose from "../config/mongodb.js";
-import ConditionTemplateSchema from "./SurveyElementSchema/ConditionTemplateSchema.js";
-import FieldParamsTemplateSchema from "./SurveyElementSchema/FieldParamsTemplateSchema.js";
+import ConditionTemplateSchema from "./ConditionTemplateSchema.js";
+import FieldParamsTemplateSchema from "./FieldParamsTemplateSchema.js";
+import mongoose from "../../config/mongodb.js";
 
-const QuestionSchema = new mongoose.Schema({
-  survey_id: {
-    type: SchemaTypes.ObjectId,
-    ref: "Survey",
-    required: true,
-  },
-  img: { type: String, required: false },
+const QuestionTemplateSchema = new mongoose.Schema({
   question_id: {
     type: String,
     required: true,
   },
+  img: { type: String, required: false },
   title: {
     type: String,
     validate: {
@@ -64,5 +59,4 @@ const QuestionSchema = new mongoose.Schema({
   },
 });
 
-const Question = mongoose.model("Question", QuestionSchema);
-export default Question;
+export default QuestionTemplateSchema;

@@ -6,21 +6,21 @@ const FieldParamsTemplateSchema = new mongoose.Schema({
     required: false,
   },
   accept: {
-    type: Array,
+    type: [String],
     enum: ["video", "excel", "image", "word", "pdf", "powerpoint"],
-    required: false
+    required: false,
   },
   max_size: {
     type: Number,
-    required: false
+    required: false,
   },
-  multiple: {type: Boolean, required: false},
+  multiple: { type: Boolean, required: false },
   options: [OptionSchema],
-  rows: {type: Number, required: false},
-  cols:  {type: Number, required: false},
-  value:  {type: String, required: false},
-  maxlength:  {type: Number, required: false},
-  placeholder: {type: String, required: false},
+  rows: { type: Number, required: false },
+  cols: { type: Number, required: false },
+  value: { type: String, required: false },
+  maxlength: { type: Number, required: false },
+  placeholder: { type: String, required: false },
 });
 
 export default FieldParamsTemplateSchema;

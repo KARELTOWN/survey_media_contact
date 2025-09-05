@@ -14,6 +14,6 @@ router.use("/auth/", AuthRouter);
 router.use("/direction/", isauthentificate, blacklist, DirectionRouter);
 router.use("/topic/", isauthentificate, blacklist, TopicRouter);
 router.use("/user/", isauthentificate, blacklist, UserRouter);
-router.use("/survey/", isauthentificate, blacklist, SurveyRouter);
+router.use("/survey/", SurveyRouter);
 
 export default router;

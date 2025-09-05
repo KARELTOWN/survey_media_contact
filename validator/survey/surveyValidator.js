@@ -1,11 +1,33 @@
-import { body, check, validationResult } from "express-validator";
+import { body, check, param, validationResult } from "express-validator";
 import Topic from "../../models/Topic.js";
 import Category from "../../models/Category.js";
-import QuestionFieldType from "../../models/QuestionFieldType.js";
-import { surveyOperators } from "../../utils/survey.js";
+import { surveyFields, surveyOperators } from "../../utils/survey.js";
+import SurveyTemplate from "../../models/SurveyTemplate.js";
+import Question from "../../models/Question.js";
 /**
  * Validator pour SurveyTemplate
  */
+
+export const validateSurveyId = [
+  param("survey_id")
+    .notEmpty()
+    .withMessage("L'identifiant du formulaire est obligatoire")
+    .custom(async (value) => {
+      const exist = await SurveyTemplate.exists({ _id: value });
+      if (!exist) {
+        throw new Error("Ce formulaire n'existe pas");
+      }
+      return true;
+    }),
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({ errors: errors.array() });
+    }
+    next();
+  },
+];
+
 export const surveyValidator = [
   // Champs principaux du survey
   body("form_id")
@@ -21,43 +43,47 @@ export const surveyValidator = [
     .withMessage("title doit être une chaîne de caractères"),
 
   body("description")
-    .exists({ checkFalsy: true })
-    .withMessage("description est requis")
+    .optional()
     .isString()
     .withMessage("description doit être une chaîne de caractères"),
 
-  body("topic")
+  body("topic_id")
     .exists({ checkFalsy: true })
     .withMessage("topic est requis")
     .isMongoId()
     .withMessage("topic doit être un ObjectId valide")
     .custom(async (value) => {
-      let topic = await Topic.exists({ libelle: value });
+      let topic = await Topic.exists({ _id: value });
       if (!topic) {
         throw new Error("La thématique n'existe pas");
       }
+      return true;
     }),
 
-  body("category")
+  body("category_id")
     .exists({ checkFalsy: true })
     .withMessage("category est requis")
     .isMongoId()
     .withMessage("category doit être un ObjectId valide")
     .custom(async (value, { req }) => {
       let topic = await Category.exists({
-        libelle: value,
-        topic_id: req.body.topic,
+        _id: value,
+        topic_id: req.body.topic_id,
       });
       if (!topic) {
         throw new Error("La thématique n'existe pas");
       }
+      return true;
     }),
 
   body("lastEdit")
     .exists({ checkFalsy: true })
     .withMessage("lastEdit est requis")
-    .isDate()
-    .withMessage("lastEdit doit être une date valide"),
+    .custom((value) => {
+      if (!Number.isInteger(value))
+        throw new Error("Date en timestamp attendu");
+      return true;
+    }),
 
   // Validation des questions imbriquées
   body("questions")
@@ -71,16 +97,35 @@ export const surveyValidator = [
     .isUUID()
     .withMessage("question_id doit être une chaîne de caractères"),
 
-  body("questions.*.title")
-    .exists({ checkFalsy: true })
-    .withMessage("Le titre de la question est requis")
-    .isString()
-    .withMessage("title doit être une chaîne de caractères"),
-
-  body("questions.*.type_field")
+  body("questions.*.img")
     .optional()
     .isString()
-    .withMessage("type_field doit être une chaîne"),
+    .withMessage("Une chaine de caractère est attendue"),
+
+  body("questions.*.description")
+    .optional()
+    .isString()
+    .withMessage("Une chaine de caractère est attendue"),
+
+  body("questions.*.title").custom((value, { req, path }) => {
+    // Récupérer l’index de la question
+    const match = path.match(/questions\.(\d+)\./);
+    const index = match ? parseInt(match[1], 10) : null;
+
+    if (index === null) return true; // sécurité
+
+    const question = req.body.questions[index];
+    console.log(index, question.category);
+    if (question.category !== "image") {
+      if (!value || typeof value !== "string" || value.trim() === "") {
+        throw new Error(
+          "title est requis et doit être une chaîne si category n'est pas 'image'"
+        );
+      }
+    }
+
+    return true;
+  }),
 
   body("questions.*.category")
     .exists({ checkFalsy: true })
@@ -88,16 +133,33 @@ export const surveyValidator = [
     .isString()
     .withMessage("category doit être une chaîne"),
 
+  body("questions.*.type_field")
+    .optional()
+    .isString()
+    .withMessage("type_field doit être une chaîne"),
+
   body("questions.*.field_libelle")
     .optional()
     .isString()
     .withMessage("field_libelle doit être une chaîne")
-    .custom(async (value, { req }) => {
-      let field = await QuestionFieldType.exists({
-        libelle: value,
-      });
-      if (!field) {
-        throw new Error("Le champ " + req.body.field_libelle + "est inconnu");
+    .custom(async (value, { req, path }) => {
+      // path = questions.0.field_libelle par ex.
+      // On peut extraire l'index du tableau
+      const match = path.match(/questions\[(\d+)\]\.field_libelle/);
+      const index = match ? parseInt(match[1], 10) : null;
+
+      if (index !== null) {
+        const type_field = req.body.questions[index].type_field;
+        const field = surveyFields.find(
+          (e) => e.libelle === value && e.field === type_field
+        );
+        if (!field) {
+          throw new Error(
+            `Le champ "${value}" est inconnu ou ne correspond pas au type_field "${type_field}"`
+          );
+        }
+      } else {
+        throw new Error(`Validation impossible pour le champ "${value}"`);
       }
     }),
 
@@ -108,13 +170,9 @@ export const surveyValidator = [
       if (condition.display && !["hide", "show"].includes(condition.display)) {
         throw new Error('display doit être "hide" ou "show"');
       }
-      if (
-        condition.operator &&
-        !surveyOperators.includes(
-          condition.operator
-        )
-      ) {
-        throw new Error("operator invalide");
+      let operatorMath = surveyOperators.map((e) => e.value);
+      if (condition.operator && !operatorMath.includes(condition.operator)) {
+        throw new Error("Opérateur de condition invalide");
       }
       return true;
     }),
@@ -145,13 +203,59 @@ export const surveyValidator = [
     }),
 
   // Required
-  body("questions.*.required")
-    .exists()
-    .withMessage("Le champ required est obligatoire")
-    .isBoolean()
-    .withMessage("required doit être un booléen"),
+  body("questions.*.required").custom((value, { req, path }) => {
+    // Récupère l'index de la question dans "questions"
+    const match = path.match(/questions\[(\d+)\]\.field_libelle/);
+    const index = match ? parseInt(match[1], 10) : null;
 
-  // Middleware pour récupérer les erreurs
+    if (index === null) return true; // sécurité
+
+    const question = req.body.questions[index];
+
+    // Si category !== "image", required doit exister et être booléen
+    if (question.category !== "image") {
+      if (value === undefined) {
+        throw new Error(
+          "Le champ required est obligatoire si category n'est pas 'image'"
+        );
+      }
+      if (typeof value !== "boolean") {
+        throw new Error("required doit être un booléen");
+      }
+    }
+
+    return true;
+  }),
+
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({ errors: errors.array() });
+    }
+    next();
+  },
+];
+
+export const surveyResponseValidator = [
+  body("responses.*.question")
+    .notEmpty()
+    .withMessage("La question est obligatoire")
+    .isUUID()
+    .withMessage("Une chaine de caractères est attendue")
+    .custom(async (question, { req, path }) => {
+      let exist = await Question.exists({ question_id: question });
+      if (!exist) {
+        throw new Error("La question n'existe pas");
+      }
+      return true;
+    }),
+
+  body("responses.*.response")
+    .notEmpty()
+    .withMessage("La réponse est obligatoire"),
+
+  body("metadata").optional(),
+
   (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
