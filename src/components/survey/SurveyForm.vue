@@ -85,7 +85,6 @@ const addTitleAndDescriptionZone = () => {
 };
 
 const addImageZone = () => {
-    console.log('{ ...defaultImage, question_id: getUUID() }', { ...defaultImage, question_id: getUUID() })
     formSurvey.value.questions.push({ ...defaultImage, question_id: getUUID() });
 };
 
@@ -105,7 +104,6 @@ const saveQuestion = (question) => {
     if (index !== -1) {
         // On met à jour la question avec les nouvelles données
         formSurvey.value.questions[index] = { ...question };
-        console.log("formSurvey.value.questions[index]", formSurvey.value.questions[index])
     } else {
         // Si jamais elle n'existe pas (cas rare, mais sécurité)
         formSurvey.value.questions.push(question);
@@ -113,7 +111,11 @@ const saveQuestion = (question) => {
 }
 
 setTimeout(() => {
-    saveFormInstance()
+    saveFormInstance().then(() => {
+        console.log('Sauvergarde local effectuée', formSurvey)
+    }).catch((err) => {
+        console.log("Erreur de sauvegarde en local", err)
+    })
 }, 5000)
 
 async function onDragChange(event) {

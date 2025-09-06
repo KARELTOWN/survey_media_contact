@@ -7,14 +7,13 @@ import { getUUID } from '@/utils/uuid'
 import { defineStore } from 'pinia'
 import { reactive, ref } from 'vue'
 export const surveyStore = defineStore('survey-store', () => {
-  const selectTopic = ref('')
-  const selectCategory = ref('')
   const questionsFieldType = ref([])
   const logicOperators = ref([])
   const surveySuccess = ref(false)
   const surveyID = ref('')
   const surveysList = ref('')
   const responsesToSurvey = ref([])
+  const statistics = ref({})
   const questionSelect = reactive({
     type_field: '',
     field_params: {},
@@ -31,6 +30,26 @@ export const surveyStore = defineStore('survey-store', () => {
   const liveFormSurvey = ref({})
 
   const errors = ref({})
+
+  function getInitialFormSurvey() {
+    return {
+      form_id: '',
+      title: '',
+      description: '',
+      topic: {},
+      category: {},
+      topic_id: '',
+      category_id: '',
+      lastEdit: 0,
+      createdAt: Date.now(),
+      questions: [
+        {
+          ...defaultQuestion,
+          question_id: getUUID(),
+        },
+      ],
+    }
+  }
 
   let formSurvey = ref({
     form_id: '',
@@ -79,8 +98,7 @@ export const surveyStore = defineStore('survey-store', () => {
     }
   }
 
-
-   const getSurveys = async () => {
+  const getSurveys = async () => {
     try {
       const result = await fetchGet(`survey/get`)
       const response = await handleAppError(result)
@@ -93,7 +111,6 @@ export const surveyStore = defineStore('survey-store', () => {
       handleCatchError(err)
     }
   }
-  
 
   const getSurveyForm = async (id) => {
     try {
@@ -110,9 +127,8 @@ export const surveyStore = defineStore('survey-store', () => {
   }
 
   const saveFormInstance = async () => {
-    formSurvey.value.topic = getLocalStorage('selectTopic')
-    formSurvey.value.category = getLocalStorage('selectCategory')
     formSurvey.value.lastEdit = Date.now()
+    console.log('Données à sauvegarder', formSurvey.value)
     await setIndexDBStorage(`survey_form_${formSurvey.value.form_id}`, formSurvey.value)
   }
 
@@ -193,7 +209,6 @@ export const surveyStore = defineStore('survey-store', () => {
     }
   }
 
-
   const getSurveyResponses = async (survey_id) => {
     try {
       surveySuccess.value = false
@@ -220,11 +235,39 @@ export const surveyStore = defineStore('survey-store', () => {
     }
   }
 
+    const getSurveyStatistics = async (survey_id) => {
+    try {
+      surveySuccess.value = false
+      errors.value = {}
 
+      const result = await fetchGet(`survey/statistics/${survey_id}`)
+
+      const response = await handleAppError(result)
+      if (response.status === true) {
+        if (response.errors) {
+          errors.value = response.errors
+        }
+      } else {
+        if (response?.data) {
+          surveySuccess.value = true
+          statistics.value = response.data
+        }
+      }
+    } catch (err) {
+      const result = handleCatchError(err)
+      if (result) {
+        errors.value = result
+      }
+    }
+  }
+
+  
+  const surveyFormLink = (surveyID)=> {
+    return `${import.meta.env.VITE_FRONT_URL}/forms/${surveyID}`
+  }
 
   return {
-    selectTopic,
-    selectCategory,
+    surveyFormLink,
     getSurveyParams,
     questionsFieldType,
     formSurvey,
@@ -237,8 +280,13 @@ export const surveyStore = defineStore('survey-store', () => {
     liveFormSurvey,
     getSurveyForm,
     saveSurveyResponse,
-    surveysList, getSurveys,
-    showSurvey, responsesToSurvey,
-    getSurveyResponses
+    surveysList,
+    getSurveys,
+    showSurvey,
+    responsesToSurvey,
+    getSurveyResponses,
+    getInitialFormSurvey,
+    getSurveyStatistics,
+    statistics
   }
 })

@@ -35,6 +35,24 @@ const router = createRouter({
       },
     },
     {
+      path: '/brouillons',
+      name: 'Draft-Survey',
+      component: () => import('../views/Pages/Survey/DraftSurvey.vue'),
+      meta: {
+        title: 'Enquêtes brouillons',
+        requiredAuth: true,
+      },
+    },
+    {
+      path: '/continue-enquete/:id',
+      name: 'Continue-Survey',
+      component: () => import('../views/Pages/Survey/ContinueSurvey.vue'),
+      meta: {
+        title: "Poursuite d'enquête",
+        requiredAuth: true,
+      },
+    },
+    {
       path: '/forms/:id',
       name: 'Survey-Form',
       component: () => import('../views/Pages/Survey/Form.vue'),
@@ -60,7 +78,16 @@ const router = createRouter({
         requiredAuth: true,
       },
     },
-    
+
+    {
+      path: '/utilisateurs',
+      name: 'Utilisateurs',
+      component: () => import('../views/Pages/User/User.vue'),
+      meta: {
+        title: 'Liste des utilisateurs',
+        requiredAuth: true,
+      },
+    },
 
     // Profile
     {
@@ -137,7 +164,6 @@ const router = createRouter({
 export default router
 
 router.beforeEach((to, from, next) => {
-  console.log('toffff', to)
   document.title = `${to.meta.title} | SURVEY MC`
   const survey_mc_token = localStorage.getItem('survey_mc_token')
   const data = survey_mc_token !== null ? JSON.parse(survey_mc_token) : null

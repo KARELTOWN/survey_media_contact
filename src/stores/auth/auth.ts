@@ -13,8 +13,6 @@ export const authStore = defineStore('auth', () => {
     const response = await handleAppError(result)
     if (response.status === false) {
       removeLocalStorage('survey_mc_token')
-      removeLocalStorage('selectTopic')
-      removeLocalStorage('selectCategory')
 
       successNotify('Vous êtes déconnecté"')
       router.push({ path: '/signin' })

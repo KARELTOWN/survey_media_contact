@@ -36,7 +36,6 @@ onMounted(() => {
         Object.entries(props.question).forEach(([key, value]) => {
             question[key] = value
         })
-        console.log('props.question description', props.question)
     }
 })
 

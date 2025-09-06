@@ -45,12 +45,6 @@
                     Facebook
                 </a>
 
-                <!-- Instagram (pas d’API direct, on met un lien profil ou copy) -->
-                <a href="https://www.instagram.com/" target="_blank"
-                    class="flex items-center justify-center bg-pink-500 text-white py-2 rounded-xl hover:bg-pink-600 transition">
-                    Instagram
-                </a>
-
                 <!-- Email -->
                 <a :href="mailShare"
                     class="flex items-center justify-center bg-red-500 text-white py-2 rounded-xl hover:bg-red-600 transition">
@@ -86,12 +80,12 @@ const linkedinShare = ref('')
 const whatsappShare = ref('')
 const facebookShare = ref('')
 const mailShare = ref('')
-
 watchEffect(() => {
     if (props.link && props.link !== undefined) {
         const surveyUrl = encodeURIComponent(props.link)
+        console.log('surveyUrl', surveyUrl)
         // Génération des liens de partage
-        linkedinShare.value = `https://www.linkedin.com/sharing/share-offsite/?url=${surveyUrl}`
+        linkedinShare.value = `https://www.linkedin.com/shareArticle?mini=true&url=${surveyUrl}`
         whatsappShare.value = `https://api.whatsapp.com/send?text=Participez à mon enquête : ${surveyUrl}`
         facebookShare.value = `https://www.facebook.com/sharer/sharer.php?u=${surveyUrl}`
         mailShare.value = `mailto:?subject=Nouvelle enquête&body=Participez à mon enquête : ${surveyUrl}`
@@ -102,6 +96,7 @@ const copyLink = () => {
     copyInClipInBoard(props.link)
     infoNotify('Lien copié')
 }
+
 
 // Retour à l’accueil
 const goBack = () => {

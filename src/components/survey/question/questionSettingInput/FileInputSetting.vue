@@ -54,9 +54,6 @@ const { questionSelect } = storeToRefs(store)
 const accept = ref([])
 const multiple = ref(false)
 
-watch(() => multiple.value, (newValue, oldValue) => {
-    console.log('multiple', newValue)
-})
 // questionSelect.field_params.accept
 // questionSelect.field_params.multiple
 </script>

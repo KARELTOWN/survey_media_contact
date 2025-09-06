@@ -50,7 +50,7 @@
                     </div>
 
                     <div v-if="currentPage === 3">
-                        <PreviewPanel :preview="true"/>
+                        <PreviewPanel :preview="true" />
                     </div>
                 </div>
                 <div class="p-6" v-else>
@@ -73,15 +73,18 @@ import CategoryList from "@/components/topics/CategoryList.vue";
 import { computed, onMounted, ref } from "vue";
 const currentPageTitle = ref("Nouvelle enquête")
 import { surveyStore } from "@/stores/survey/surveyStore";
+import { topicStore } from "@/stores/topic/topicStore";
 import { storeToRefs } from "pinia";
 import SurveyForm from "@/components/survey/SurveyForm.vue";
 import SuccessComponent from '@/components/ui/SuccessComponent.vue'
 import { getIndexDBStorage, getLocalStorage, setLocalStorage } from "@/utils/storage";
 import { errorNotify, successNotify } from "@/utils/notification";
 import validator from 'validator'
+const storeTopic = topicStore()
+const { selectTopic, selectCategory } = storeToRefs(storeTopic)
 const store = surveyStore()
-const { selectCategory, selectTopic, formSurvey, surveySuccess, surveyID } = storeToRefs(store)
-const { saveFormInstance } = store
+const { formSurvey, surveySuccess, surveyID } = storeToRefs(store)
+const { saveFormInstance, getInitialFormSurvey, surveyFormLink } = store
 // Etat de la page courante
 const currentPage = ref(0);
 const pages = ref(4)
@@ -110,6 +113,10 @@ onMounted(async () => {
         if (storeData) {
             formSurvey.value = { ...storeData }
         }
+        else {
+            let initialFormSurvey = getInitialFormSurvey()
+            formSurvey.value = { ...initialFormSurvey, form_id: route.params.id }
+        }
     }
     else {
         errorNotify("Impossible de créer l'enquête. Paramètre invalide")
@@ -118,22 +125,18 @@ onMounted(async () => {
         }, 1000)
         return
     }
-    const topicExist = getLocalStorage('selectTopic')
-    if (topicExist) {
-        selectTopic.value = { ...topicExist }
-    }
+
 })
 
 const getTopicSelect = (select) => {
     selectTopic.value = { ...select }
-    setLocalStorage('selectTopic', selectTopic.value)
+    formSurvey.value.topic = select
 }
-
-
 
 const getCategorySelect = (select) => {
     selectCategory.value = select
-    setLocalStorage('selectCategory', selectCategory.value)
+    formSurvey.value.category = select
+
 }
 
 const nextPage = () => {
@@ -164,7 +167,7 @@ const link = ref('')
 const save = async () => {
     await store.createSurvey()
     if (surveySuccess.value === true) {
-        link.value = `${import.meta.env.VITE_FRONT_URL}/forms/${surveyID.value}`
+        link.value = surveyFormLink(surveyID.value)
     }
 }
 

@@ -40,14 +40,15 @@ const {
     topics, total, totalPages, page } = storeToRefs(store)
 
 const { getTopics, filterTopics } = store
+import { surveyStore } from '@/stores/survey/surveyStore';
+const { formSurvey } = storeToRefs(surveyStore())
 
 const selectedCard = ref(null)
 
 onMounted(async () => {
     await handleTopics()
-    let topicExist = getLocalStorage('selectTopic')
-    if (topicExist) {
-        selectedCard.value = topicExist._id
+    if (formSurvey.value.topic) {
+        getTopic(formSurvey.value.topic)
     }
 })
 

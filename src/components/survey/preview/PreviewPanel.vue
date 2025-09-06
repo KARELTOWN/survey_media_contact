@@ -42,7 +42,6 @@ const handleFile = async (event, question_id) => {
   let files = event.target.files
   answers.value[question_id] = []
   for (const e of files) {
-    console.log('files', e)
 
     let type = getFileCategory(e)
     if (filesAcceptTypes.value[question_id].includes(type)) {

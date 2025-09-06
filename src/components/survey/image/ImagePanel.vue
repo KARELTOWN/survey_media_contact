@@ -66,7 +66,6 @@ let question = reactive({})
 
 onMounted(() => {
     if (props.question && props.question.question_id) {
-        console.log('props.question image', props.question)
         Object.entries(props.question).forEach(([key, value]) => {
             question[key] = value
         })

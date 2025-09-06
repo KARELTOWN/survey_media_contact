@@ -91,7 +91,6 @@ const switchValue = ref(false)
 const emit = defineEmits(['required', 'condition', 'setting', 'delete', 'copy'])
 
 watch(() => switchValue.value, (newValue) => {
-    console.log("newValue", newValue)
     emit('required', newValue)
 })
 

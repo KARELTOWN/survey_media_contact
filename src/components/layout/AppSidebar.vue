@@ -184,6 +184,16 @@ const menuGroups = [
         name: "Enquêtes",
         path: "/enquetes",
       },
+      {
+        icon: CalenderIcon,
+        name: "Brouillons",
+        path: "/brouillons",
+      },
+      {
+        icon: CalenderIcon,
+        name: "Utilisateurs",
+        path: "/utilisateurs",
+      },
     ],
   },
 
