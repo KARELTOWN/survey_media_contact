@@ -17,6 +17,16 @@ export const validateAddUser = [
     .isLength({ min: 1 })
     .withMessage("Renseignez au moins 2 caractères")
     .escape(),
+  body("code")
+    .notEmpty()
+    .withMessage("code est obligatoire")
+    .isNumeric()
+    .withMessage("Un nombre est attendu"),
+  body("phone")
+    .notEmpty()
+    .withMessage("Téléphone est obligatoire")
+    .isNumeric()
+    .withMessage("Un nombre est attendu"),
   body("email")
     .notEmpty()
     .withMessage("Le champ EMAIL est obligatoire")
@@ -54,19 +64,26 @@ export const validateAddUser = [
     }),
 
   body("fonction_id")
-    .notEmpty()
-    .withMessage("La fonction est obligatoire")
-    .custom(async (value) => {
-      let fonction = await Fonction.findOne({ _id: value });
-      if (!fonction) {
-        throw new Error("La fonction n'existe pas");
-      }
-      if (fonction.is_unique === true) {
-        let user_exist = await User.exists({ fonction_id: value });
-        if (user_exist === true) {
-          throw new Error("Un utilisateur a déjà cette fonction");
+    .optional()
+    .custom(async (value, { req }) => {
+      if (value && value !== null && value !== undefined && value !== '') {
+        const { direction_id } = req.body;
+        let fonction = await Fonction.findOne({
+          _id: value,
+          direction_id: direction_id,
+        });
+        if (!fonction) {
+          throw new Error("La fonction n'existe pas");
+        } else {
+          if (fonction.is_unique === true) {
+            let user_exist = await User.exists({ fonction_id: value });
+            if (user_exist === true) {
+              throw new Error("Un utilisateur a déjà cette fonction");
+            }
+          }
         }
       }
+
       return true;
     }),
 ];

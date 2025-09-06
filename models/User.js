@@ -1,5 +1,6 @@
 import { SchemaTypes } from "mongoose";
 import mongoose from "../config/mongodb.js";
+import Direction from "./Direction.js";
 const UserSchema = new mongoose.Schema(
   {
     username: {

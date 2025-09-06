@@ -5,10 +5,12 @@ import morgan from "morgan";
 import path from "path";
 import { fileURLToPath } from "url";
 import bodyParser from "body-parser";
-import Notification from "./models/Notification.js";
 
-// import { schedule_expired_session } from "./services/schedule.js";
-// schedule_expired_session.start();
+import pino from "pino";
+export const logger = pino(
+  {},
+  pino.destination({ dest: "./logs/app.log", mkdir: true })
+);
 
 import redisConnection from "./config/redis.js";
 import cors from "cors";
@@ -42,9 +44,7 @@ app.use(bodyParser.json({ limit: "50mb" }));
 app.use(bodyParser.urlencoded({ extended: true, limit: "50mb" }));
 
 const corsOption = {
-  origin: [
-    "http://localhost:5173",
-  ],
+  origin: ["http://localhost:5173"],
   methods: ["GET", "POST", "DELETE", "PUT", "PATCH"],
   credentials: true,
   allowedHeaders: [
@@ -56,7 +56,7 @@ const corsOption = {
   ],
 };
 
-console.log(corsOption.origin)
+console.log(corsOption.origin);
 app.use(cors(corsOption));
 
 app.use(async (error, req, res, next) => {

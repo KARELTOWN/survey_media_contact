@@ -15,7 +15,8 @@ const {
   createResponseToSurvey,
   getSurveys,
   showSurvey,
-  surveyResponses
+  surveyResponses,
+  getSurveysStatistics
 } = surveyController();
 
 SurveyRouter.get(
@@ -70,8 +71,12 @@ SurveyRouter.get(
   surveyResponses
 );
 
-
-
-
+SurveyRouter.get(
+  "/statistics/:survey_id",
+  isauthentificate,
+  blacklist,
+  validateSurveyId,
+  getSurveysStatistics
+);
 
 export default SurveyRouter;

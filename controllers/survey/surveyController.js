@@ -1,13 +1,13 @@
 import { matchedData, validationResult } from "express-validator";
 import surveyService from "../../services/survey/surveyService.js";
-
+const { getAnswers, getStatistics } = surveyService();
 import SurveyTemplate from "../../models/SurveyTemplate.js";
 import Survey from "../../models/Survey.js";
 import { surveyFields, surveyOperators } from "../../utils/survey.js";
 import Question from "../../models/Question.js";
 import Answer from "../../models/Answer.js";
 import { v4 } from "uuid";
-import mongoose from "../../config/mongodb.js";
+import mailingPug from "../../services/mailing.js";
 
 export default function surveyController() {
   const getSurveyParams = async (req, res, next) => {
@@ -38,7 +38,8 @@ export default function surveyController() {
           "createdAt",
           "updatedAt",
         ])
-        .populate(["topic_id", "category_id", "created_by"]);
+        .populate(["topic_id", "category_id", "created_by"])
+        .sort({ createdAt: -1 });
 
       return res.status(200).json({
         data: surveys_templates,
@@ -69,12 +70,11 @@ export default function surveyController() {
       data.created_by = req.user._id;
       data.direction_id = req.direction_id || null;
       let survey_template = await SurveyTemplate.insertOne(data);
-      let survey = await Survey.create(data);
 
       let questions = data.questions.map((q) => ({
         ...q,
         _id: q.question_id,
-        survey_id: survey._id,
+        survey_id: survey_template._id,
       }));
 
       await Question.insertMany(questions);
@@ -104,6 +104,7 @@ export default function surveyController() {
     try {
       const result = matchedData(req);
       let instances = [];
+      let email_body_data = [];
       let user_id = v4();
       if (Array.isArray(result.responses) && result.responses.length > 0) {
         for (const data of result.responses) {
@@ -120,11 +121,35 @@ export default function surveyController() {
               metadata: result.metadata,
               created_by: user_id,
             });
+            let question_data = await Question.findById(question_id).select([
+              "title",
+              "type_field",
+            ]);
+            email_body_data.push({
+              question_libelle: question_data.title,
+              question_field: question_data.type_field,
+              response: data.response,
+            });
           }
         }
-        let data = await Answer.insertMany(instances);
+        await Answer.insertMany(instances);
       }
 
+      let template = await SurveyTemplate.findById(result.survey_id)
+        .populate("created_by")
+        .select(["title", "description", "created_by"])
+        .exec();
+
+      mailingPug(
+        template.created_by.email,
+        `Réponse d'enquête : ${template.title.substring(0, 20)}`,
+        "newresponse.pug",
+        {
+          data: email_body_data,
+          title: template.title,
+          description: template.description,
+        }
+      );
       return res.status(200).json({
         message: "Données envoyées",
       });
@@ -136,39 +161,8 @@ export default function surveyController() {
   const surveyResponses = async (req, res, next) => {
     try {
       const data = matchedData(req);
-      const responses = await Answer.aggregate([
-        {
-          $match: {
-            survey_id: new mongoose.Types.ObjectId(data.survey_id),
-          },
-        },
-        {
-          $lookup: {
-            from: "questions",
-            localField: "question_id",
-            foreignField: "_id",
-            as: "question",
-          },
-        },
-        {
-          $unwind: "$question",
-        },
-        {
-          $group: {
-            _id: "$created_by",
-            answers: {
-              $push: {
-                question_id: "$question_id",
-                question_label: "$question.title",
-                response: "$response",
-                createdAt: "$createdAt",
-                question_type_field: "$question.type_field",
-              },
-            },
-            total: { $sum: 1 },
-          },
-        },
-      ]);
+
+      const responses = await getAnswers(data.survey_id);
 
       return res.status(200).json({
         message: "Données récupérées",
@@ -176,6 +170,24 @@ export default function surveyController() {
       });
     } catch (error) {
       next(error);
+    }
+  };
+
+  const getSurveysStatistics = async (req, res, next) => {
+    try {
+      const data = matchedData(req);
+      const responses = await getAnswers(data.survey_id);
+      const result = await getStatistics(responses, data.survey_id);
+
+      return res.status(200).json({
+        message: "Statistiques récupérées",
+        data: {
+          statistics: result.statistics,
+          total_responses: result.total_responses,
+        },
+      });
+    } catch (err) {
+      next(err);
     }
   };
 
@@ -187,5 +199,6 @@ export default function surveyController() {
     getSurveys,
     showSurvey,
     surveyResponses,
+    getSurveysStatistics,
   };
 }

@@ -2,17 +2,27 @@ import { validationResult, matchedData } from "express-validator";
 import User from "../../models/User.js";
 import generatePassword from "../../helpers/generatePassword.js";
 import userService from "../../services/user/userService.js";
+import Direction from "../../models/Direction.js";
+import bcrypt from "bcrypt";
+import generateUsername from "../../helpers/generateUsername.js";
 
-const { newAccountNotification, accountStatusNotification } = userService();
+const {
+  newAccountNotification,
+  accountStatusNotification,
+  getFonctions,
+  getRoles,
+  getDirections,
+} = userService();
 
 export default function userController() {
   const getUsers = async (req, res, next) => {
     try {
+      const { limit, page, skip } = req.pagination;
       let users;
       let total_users;
-      total_users = await User.count();
+      total_users = await User.countDocuments();
       users = await User.find({})
-        .populate("role_id", "fonction_id")
+        .populate(["role_id", "fonction_id", "direction_id"])
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit)
@@ -20,11 +30,13 @@ export default function userController() {
 
       res.status(200).json({
         message: "Utilisateurs récupérés",
-        data: users,
-        total: total_users,
-        page: page,
-        limit: limit,
-        totalPages: Math.ceil(total_users / limit),
+        data: {
+          users,
+          total: total_users,
+          page: page,
+          limit: limit,
+          totalPages: Math.ceil(total_users / limit),
+        },
       });
     } catch (error) {
       next(error);
@@ -43,16 +55,21 @@ export default function userController() {
         result.password = hasckpassword;
         result.username = await generateUsername(result);
 
-        const user = await User.create({
+        let user = await User.create({
           ...result,
+          fonction_id: result.fonction_id || null,
           email_verified: true,
           is_active: true,
         });
+        user = await user.populate(["role_id", "fonction_id", "direction_id"]);
 
         if (user) {
           await newAccountNotification(user, password);
           res.status(200).json({
             message: "Account create",
+            data: {
+              user,
+            },
           });
         }
       }
@@ -67,10 +84,10 @@ export default function userController() {
       if (errors.isEmpty()) {
         const data = matchedData(req);
 
-        const user_account = await User.findOne({ id: data.user_id });
+        const user_account = await User.findOne({ _id: data.user_id });
 
         const user = await User.findOneAndUpdate(
-          { id: data.user_id },
+          { _id: data.user_id },
           { is_active: !user_account.is_active },
           { new: true }
         );
@@ -91,5 +108,24 @@ export default function userController() {
     }
   };
 
-  return { getUsers, addUser, changeAccountStatus };
+  const getAccountParams = async (req, res, next) => {
+    try {
+      const directions = await getDirections();
+      const fonctions = await getFonctions();
+      const roles = await getRoles();
+
+      res.status(200).json({
+        message: "Params get",
+        data: {
+          directions,
+          roles,
+          fonctions,
+        },
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  return { getUsers, addUser, changeAccountStatus, getAccountParams };
 }

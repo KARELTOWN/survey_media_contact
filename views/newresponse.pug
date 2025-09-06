@@ -1,0 +1,28 @@
+doctype html
+html
+  head
+    title= title 
+  body
+    h1= title
+    div
+      strong= description
+    ul 
+      each val in data
+        li
+          strong= val.question_libelle
+          - var question_field = val.question_field
+          if question_field === 'select'
+            div= val.response
+          else if question_field === 'checkbox'
+            div= val.response.join(', ')
+          else if question_field === 'date'
+            div= formatTO_DMY(val.response)
+          else if question_field === 'review'
+            div= `${val.response} / 5`
+          else if question_field === 'file'
+            if Array.isArray(val.response) && val.response.length > 0
+              div Fichiers #{val.response.length} fichier(s)
+            else
+              div Aucun fichier 
+          else 
+            div= val.response

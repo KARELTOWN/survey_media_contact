@@ -1,11 +1,12 @@
 import { SchemaTypes } from "mongoose";
 import mongoose from "../config/mongodb.js";
+import SurveyTemplate from "./SurveyTemplate.js";
 
 const AnswerSchema = new mongoose.Schema(
   {
     survey_id: {
       type: SchemaTypes.ObjectId,
-      ref: "Survey",
+      ref: SurveyTemplate,
       required: true,
     },
     question_id: {

@@ -1,3 +1,6 @@
+import Direction from "../../models/Direction.js";
+import Fonction from "../../models/Fonction.js";
+import Role from "../../models/Role.js";
 import notificationService from "../../services/notification/notificationService.js";
 const { sendMailNotification } = notificationService();
 
@@ -18,6 +21,30 @@ export default function userService() {
         model_name: "NEW_ACCOUNT",
       });
       return true;
+    } catch (error) {
+      throw new Error(error);
+    }
+  };
+
+  const getDirections = async () => {
+    try {
+      return await Direction.find({});
+    } catch (error) {
+      throw new Error(error);
+    }
+  };
+
+  const getFonctions = async () => {
+    try {
+      return await Fonction.find({});
+    } catch (error) {
+      throw new Error(error);
+    }
+  };
+
+  const getRoles = async () => {
+    try {
+      return await Role.find({});
     } catch (error) {
       throw new Error(error);
     }
@@ -47,5 +74,8 @@ export default function userService() {
   return {
     newAccountNotification,
     accountStatusNotification,
+    getFonctions,
+    getRoles,
+    getDirections,
   };
 }

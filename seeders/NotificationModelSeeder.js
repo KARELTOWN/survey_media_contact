@@ -15,7 +15,7 @@ async function NotificationModelSeeder() {
         title: "Bienvenue #firstname #lastname !",
         unique: "NEW_ACCOUNT",
         content:
-          "Votre compte <strong>#firstname #lastname</strong> est créé.<br>Vous pouvez maintenant accéder à la plateforme SURVEY MC. <br> Lien de connexion : #link",
+          "Votre compte <strong>#firstname #lastname</strong> est créé. Votre mot de passe : #password.<br>Vous pouvez maintenant accéder à la plateforme SURVEY MC. <br> Lien de connexion : #link",
       },
       {
         name: "Compte activé",
