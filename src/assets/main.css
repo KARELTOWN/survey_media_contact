@@ -852,14 +852,14 @@ input[type='checkbox'] {
   visibility: visible;
 }
 
-/* @media screen and (max-width: 687px) {
-  .survey-display-next-prev-btn{
+@media screen and (max-width: 687px) {
+  .prev-next-btn-mobile{
     display: flex;
   }
 }
 
 @media screen and (min-width: 687px) {
-  .survey-display-next-prev-btn{
+  .prev-next-btn-mobile{
     display: none;
   }
-} */
+}

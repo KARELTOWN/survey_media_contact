@@ -5,7 +5,14 @@
             <ComponentCard>
                 <div v-if="surveySuccess === false">
 
-                    <div class="flex flex-rows md:flex-row md:items-center justify-between gap-4 mb-4 survey-display-next-prev-btn">
+                    <div class="flex justify-end mb-4">
+                        <Button variant="outline" @click="saveForm" v-if="currentPage > 0">Sauvegarder
+                            en brouillon</Button>
+                    </div>
+
+
+                    <div
+                        class="flex flex-rows md:flex-row md:items-center justify-between gap-4 mb-4 survey-display-next-prev-btn">
                         <button @click="prevPage" class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
                             :disabled="currentPage === 0">
                             Précédent
@@ -20,12 +27,9 @@
                         </button>
                     </div>
 
-                    
-                    <div class="flex justify-end mb-4">
-                        <Button variant="outline" @click="saveForm" v-if="currentPage > 0">Sauvegarder
-                        en brouillon</Button>
-                    </div>
-                    
+
+
+
 
                     <h1 class="text-4xl md:text-4xl m-auto font-bold text-center text-gray-800 mb-6 drop-shadow-lg">
                         <div class="flex items-center justify-center gap-3">
@@ -56,7 +60,7 @@
                         <PreviewPanel :preview="true" />
                     </div>
                     <!-- Navigation -->
-                    <div class="flex flex-rows md:flex-row md:items-center justify-between gap-4 mt-4">
+                    <div class="flex flex-rows md:flex-row md:items-center justify-between gap-4 mt-4 prev-next-btn-mobile">
                         <button @click="prevPage" class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
                             :disabled="currentPage === 0">
                             Précédent
@@ -159,7 +163,7 @@ const getCategorySelect = (select) => {
 }
 
 const nextPage = () => {
-       if ((currentPage.value === 2 && (!formSurvey.value.title))) {
+    if ((currentPage.value === 2 && (!formSurvey.value.title))) {
         warningNotify('Donnez un titre à l`\'enquête')
         return
     }

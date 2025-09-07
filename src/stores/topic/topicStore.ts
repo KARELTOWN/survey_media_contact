@@ -74,7 +74,6 @@ export const topicStore = defineStore('topic-store', () => {
   const createTopic = async (data) => {
     try {
       topicSuccess.value = false
-      tracking_code.value = ''
       errors.value = {}
       const schemaProject = validateCreate()
       const data_result = await schemaProject.validate(data, { abortEarly: false })
@@ -90,6 +89,34 @@ export const topicStore = defineStore('topic-store', () => {
           topics.value.unshift(response.data.topic)
           updatePagination()
           successNotify('Thématique créé')
+        }
+      }
+    } catch (err) {
+      const result = handleCatchError(err)
+      if (result) {
+        errors.value = result
+      }
+    }
+  }
+
+  const createCategory = async (data) => {
+    try {
+      topicSuccess.value = false
+      errors.value = {}
+      const schemaProject = validateCreate()
+      const data_result = await schemaProject.validate(data, { abortEarly: false })
+      const result = await fetchPost(`topic/category/create`, data_result)
+      const response = await handleAppError(result)
+      if (response.status === true) {
+        if (response.errors) {
+          errors.value = response.errors
+        }
+      } else {
+        if (response?.data) {
+          topicSuccess.value = true
+          topicCategory.value.unshift(response.data.category)
+          updatePagination()
+          successNotify('Catégorie créé')
         }
       }
     } catch (err) {
@@ -162,5 +189,6 @@ export const topicStore = defineStore('topic-store', () => {
     openModal,
     topicCategory,
     getCategoryInTopic,
+    createCategory
   }
 })
