@@ -2,6 +2,7 @@ import { body, param } from "express-validator";
 import Topic from "../../models/Topic.js";
 import _ from "lodash";
 import topicService from "../../services/topic/topicService.js";
+import Category from "../../models/Category.js";
 const { checkTopicExist } = topicService();
 
 export const validateStoreTopic = [
@@ -9,7 +10,36 @@ export const validateStoreTopic = [
     .notEmpty()
     .withMessage("Le libelle est obligatoire")
     .custom(async (value) => {
-      const topic = await checkTopicExist(value);
+      console.log("data", value);
+
+      const topic = await Topic.exists({ libelle: value });
+      if (topic) {
+        throw new Error("Existe déjà");
+      }
+      return true;
+    }),
+];
+
+export const validateStoreCategory = [
+  body("topic_id")
+    .notEmpty()
+    .withMessage("La thématique est obligatoire")
+    .custom(async (value) => {
+      let exist = await checkTopicExist(value);
+      if (!exist) {
+        throw new Error("La thématique n'existe pas");
+      }
+      return true;
+    }),
+
+  body("libelle")
+    .notEmpty()
+    .withMessage("Le libelle est obligatoire")
+    .custom(async (value, { req }) => {
+      const topic = await Category.exists({
+        libelle: value,
+        topic_id: req.body.topic_id,
+      });
       if (topic) {
         throw new Error("Existe déjà");
       }
@@ -24,7 +54,7 @@ export const validateIdTopic = [
     .custom(async (value) => {
       let exist = await checkTopicExist(value);
       if (!exist) {
-        throw new Error("La thématique existe pas");
+        throw new Error("La thématique n'existe pas");
       }
       return true;
     }),

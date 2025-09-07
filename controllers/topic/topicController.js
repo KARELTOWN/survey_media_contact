@@ -1,13 +1,36 @@
 import { matchedData, validationResult } from "express-validator";
 import topicService from "../../services/topic/topicService.js";
-const {
-  TopicModelFilter,
-  topicCategory,
-} = topicService()
+
+const { TopicModelFilter, topicCategory } = topicService();
 
 import Topic from "../../models/Topic.js";
+import Category from "../../models/Category.js";
 
 export default function topicController() {
+  const createCategory = async (req, res, next) => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(422).json({ errors: errors.array() });
+      }
+      const data = matchedData(req);
+      let category = new Category({ ...data, created_by: req.user._id });
+      await category.save();
+
+      return res.status(200).json({
+        message: "Catégorie créé",
+        data: {
+          category: {
+            _id: category._id,
+            libelle: category.libelle,
+          },
+        },
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
   const createTopic = async (req, res, next) => {
     try {
       const errors = validationResult(req);
@@ -15,7 +38,7 @@ export default function topicController() {
         return res.status(422).json({ errors: errors.array() });
       }
       const data = matchedData(req);
-      let topic = new Topicopic({ ...data, created_by: req.user._id });
+      let topic = new Topic({ ...data, created_by: req.user._id });
       await topic.save();
 
       return res.status(200).json({
@@ -137,5 +160,6 @@ export default function topicController() {
     filterTopics,
     updateTopic,
     getCategoryInTopic,
+    createCategory,
   };
 }

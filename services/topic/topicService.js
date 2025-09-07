@@ -69,6 +69,7 @@ export default function topicService() {
           model: User,
           select: "firstname lastname",
         })
+        .sort({ createdAt: -1 })
         .exec();
       return category;
     } catch (err) {
