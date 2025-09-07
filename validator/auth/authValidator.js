@@ -2,6 +2,7 @@ import { body, param } from "express-validator";
 import User from "../../models/User.js";
 import bcrypt from "bcrypt";
 import validator from "validator";
+import { decrypt } from "../../helpers/encrypt.js";
 const { isUUID } = validator;
 
 export const validateLogin = [
@@ -178,3 +179,20 @@ export const validateUserId = [
       }
     }),
 ];
+export const verificationResendCode = (req, res, next) => {
+  try {
+    const { user_id } = req.body;
+    console.log("req.body", req.body);
+    console.log("user_id", user_id);
+
+    if (user_id) {
+      let decryptData = decrypt(user_id);
+      req.body.decrypt = decryptData;
+      next();
+    }
+  } catch (err) {
+    console.log("error", err);
+
+    return res.status(500).json({ message: "Impossible de renvoyer le code" });
+  }
+};

@@ -7,10 +7,6 @@ import { fileURLToPath } from "url";
 import bodyParser from "body-parser";
 
 import pino from "pino";
-export const logger = pino(
-  {},
-  pino.destination({ dest: "./logs/app.log", mkdir: true })
-);
 
 import redisConnection from "./config/redis.js";
 import cors from "cors";
@@ -44,7 +40,7 @@ app.use(bodyParser.json({ limit: "50mb" }));
 app.use(bodyParser.urlencoded({ extended: true, limit: "50mb" }));
 
 const corsOption = {
-  origin: ["http://localhost:5173"],
+  origin: ["http://localhost:5173",'https://surveymc.bugreveal.com','http://localhost:5175'],
   methods: ["GET", "POST", "DELETE", "PUT", "PATCH"],
   credentials: true,
   allowedHeaders: [

@@ -2,7 +2,6 @@ import { mean, mode, modeFast } from "simple-statistics";
 import mongoose from "../../config/mongodb.js";
 import Answer from "../../models/Answer.js";
 import Question from "../../models/Question.js";
-import { logger } from "../../index.js";
 
 export default function surveyService() {
   const getAnswers = async (survey_id) => {

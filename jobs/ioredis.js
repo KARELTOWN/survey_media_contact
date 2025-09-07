@@ -2,7 +2,7 @@ import { configDotenv } from "dotenv";
 configDotenv();
 import IORedis from "ioredis";
 export const connectionRedis = new IORedis({
-  host: process.env.REDIS_HOST || "redis_dev",
+  host: process.env.REDIS_HOST || "surveymc-redis_dev",
   port: process.env.REDIS_PORT || 6379,
   maxRetriesPerRequest: null,
 });

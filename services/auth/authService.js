@@ -2,13 +2,15 @@ import notificationService from "../../services/notification/notificationService
 const { sendMailNotification } = notificationService();
 
 export default function authService() {
-  const registerNotification = async (user, codeOTP) => {
+  const registerNotification = async (user, codeOTP, encodeUserID) => {
     try {
+      let confirmationLink = `${process.env.FRONT_URL}/confirmation/${encodeUserID}?type=register`;
       let params = {
         firstname: user.firstname,
         lastname: user.lastname,
         email: user.email,
         _id: user._id,
+        confirmationLink: confirmationLink
       };
 
       await sendMailNotification({

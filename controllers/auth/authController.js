@@ -110,6 +110,60 @@ export default function authController() {
     }
   };
 
+  const resendCodeRegistration = async (req, res, next) => {
+    try {
+      const user_id = req.body.decrypt
+      const user = await User.findById(user_id).exec();
+      if (!user) {
+        return res.status(404).json({ message: "Compte non trouvé" });
+      }
+
+      let codeVerification = await VerificationCode.findOne({
+        user_id: user._id,
+        used_at: { $exists: false },
+      }).exec();
+      let encodeUserID = encrypt(user._id.toString());
+
+      if (codeVerification && !codeVerification.isExpired()) {
+        await registerNotification(user, codeVerification.code, encodeUserID);
+      } else if (codeVerification && codeVerification.isExpired()) {
+        let lastVerificationCodeTime = moment(codeVerification.createdAt).add(
+          "2",
+          "minutes"
+        );
+        let now = moment();
+
+        let morethanTwoMinutes = now.isAfter(lastVerificationCodeTime);
+        if (morethanTwoMinutes) {
+          let codeOTP = generateOTP();
+          await VerificationCode.insertOne({
+            user_id: user._id,
+            code: codeOTP,
+            type: verificationType.register,
+            expires_at: moment().add("3", "hours").toDate(),
+          });
+          await registerNotification(user, codeOTP, encodeUserID);
+        } else {
+          return res.status(500).json({
+            message:
+              "Vous devez attendre 2 minutes avant de demander un nouveau code",
+          });
+        }
+      } else if (!codeVerification) {
+        return res.status(500).json({
+          message: "Votre compte a déjà été validé",
+        });
+      }
+
+      return res.status(200).json({
+        message: "Code resend",
+        data: encodeUserID,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
   const register = async (req, res, next) => {
     try {
       const errors = validationResult(req);
@@ -134,14 +188,15 @@ export default function authController() {
             user_id: user._id,
             code: codeOTP,
             type: verificationType.register,
-            expires_at: moment().add("1", "hours").toDate(),
+            expires_at: moment().add("3", "hours").toDate(),
           });
 
-          await registerNotification(user, codeOTP);
+          let encodeUserID = encrypt(user._id.toString());
+          await registerNotification(user, codeOTP, encodeUserID);
 
           return res.status(200).json({
             message: "Account create",
-            data: encrypt(user._id.toString()),
+            data: encodeUserID,
           });
         }
       }
@@ -172,7 +227,7 @@ export default function authController() {
             });
           } else if (result.isExpired()) {
             return res.status(403).json({
-              message: "Le code a expiré",
+              message: "Le code a expiré. Demander à recevoir un autre code",
             });
           } else {
             let response = await user
@@ -398,5 +453,6 @@ export default function authController() {
     resetPassword,
     confirmRegister,
     deconnect,
+    resendCodeRegistration,
   };
 }

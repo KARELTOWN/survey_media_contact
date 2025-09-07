@@ -6,7 +6,7 @@ configDotenv();
 const redisConnection = async () => {
   redisClient = redis.createClient({
     socket: {
-      host: process.env.REDIS_HOST || "redis_dev",
+      host: process.env.REDIS_HOST || "surveymc-redis_dev",
       port: process.env.REDIS_PORT || 6379,
     },
   });

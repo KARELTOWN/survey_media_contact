@@ -10,6 +10,7 @@ import {
   validateResetPassword,
   validateConfirmRegister,
   validateDesaprove,
+  verificationResendCode
 } from "../../validator/auth/authValidator.js";
 import authController from "../../controllers/auth/authController.js";
 import isauthentificate from "../../middleware/isAuthentificate.js";
@@ -24,6 +25,7 @@ const {
   resetPassword,
   confirmRegister,
   deconnect,
+  resendCodeRegistration
 } = authController();
 AuthRouter.post("/login", validateLogin, login);
 
@@ -37,6 +39,13 @@ AuthRouter.get(
   validateForgotPassword,
   forgotPassword
 );
+
+AuthRouter.post(
+  "/resend-verification-code",
+  verificationResendCode,
+  resendCodeRegistration
+);
+
 AuthRouter.post("/desapprouve-reinitialisation", validateDesaprove, desapprove);
 AuthRouter.patch("/reset-password", validateResetPassword, resetPassword);
 

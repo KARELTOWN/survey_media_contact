@@ -68,7 +68,5 @@ const UserSchema = new mongoose.Schema(
   }
 );
 
-UserSchema.index({ code: 1, phone: 1 }, { unique: true });
-
 const User = mongoose.model("User", UserSchema);
 export default User;

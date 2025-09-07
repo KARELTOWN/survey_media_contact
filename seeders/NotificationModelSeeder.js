@@ -8,7 +8,7 @@ async function NotificationModelSeeder() {
         title: "Mr/Mrs #firstname #lastname !",
         unique: "CVC",
         content:
-          "Votre code de vérification : <strong>#code</strong> <br> Durée d'expiration : 1 heure",
+          "Votre code de vérification : <strong>#code</strong> <br> Durée d'expiration : 3 heures. Lien de confirmation : #confirmationLink",
       },
       {
         name: "création de compte",
