@@ -61,9 +61,9 @@ Des notifications emails sont envoyées sur la plateforme. Un **WORKER et un LIS
 
 ### BASE DE DONNEES MONGO : branch mongo
 
-- Cloner la branch **mongoRedis**
+- Cloner la branch **mongo**
 - Avoir **DOCKER INSTALLER**
-- Venir dans le répertoire du dossier créé après avoir cloner et éxecuter : docker-compose up -d --build
+- Venir dans le répertoire du dossier créé après avoir cloner, puis éxecuter : docker-compose up -d --build
 **La base de données est accessible  sur :** http://localhost:8081
 
 
@@ -91,26 +91,25 @@ Des notifications emails sont envoyées sur la plateforme. Un **WORKER et un LIS
 **Le backend démarre sur :** http://localhost:3001
 
 
-
 ## DEMARRAGE AVEC DOCKER
 
 - CREER UN DOSSIER **(EXEMPLE SURVEY)** et suivez les instructions suivantes en étant le dossier que vous avez créer
 - Cloner la branch **front** : git clone repository_remote_url
 - Cloner la branch **back** : git clone repository_remote_url
-- Télécharger le fichier DOCKER COMPOSE suivant et mettez le à la racine du dossier créé **(SURVEY par exemple)**
-- Si vous avez suivi ces instructions , vous devez avoir un dossier contenu à la racine,
-le fichier **docker-compose.yaml**, le dossier **back** et le dossier **front**
-- Lancer : docker-compose up -d --build
+
+- Télécharger le fichier **docker-compose.yaml** et mettez le à la racine du dossier créé **(SURVEY par exemple)** : https://drive.google.com/file/d/1fmhA_MeO-n_kNoh2cOgPGGRyzf8fnoQ6/view?usp=sharing
+
+**NB** Si vous avez suivi ces instructions , vous devez avoir un dossier contenu à la racine, le fichier **docker-compose.yaml**, le dossier **back** et le dossier **front**
+- Maintenant, lancer : docker-compose up -d --build
 
 **Le frontend démarre sur :** http://localhost:5175
 **Le frontend démarre sur :** http://localhost:3001
 **La base de données est accessible  sur :** http://localhost:8081
 
 
-
 ### VERSION DEMO CLE EN MAIN
 
-L'applicaition est déployée sur un serveur VPS sur lequel est installé **DOCKER**, et **NGINX** pour faire le reverxe proxy
+L'application est déployée sur un serveur VPS sur lequel est installé **DOCKER**, et **NGINX** pour faire le reverxe proxy
 
 - **Lien frontend**: https://surveymc.bugreveal.com
 - **Lien api** : https://api.surveymc.bugreveal.com
