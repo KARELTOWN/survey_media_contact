@@ -8,7 +8,7 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      name: 'Dashboard.vue',
+      name: 'Dashboard',
       component: () => import('../views/Dashboard.vue'),
       meta: {
         title: 'Dashboard',
@@ -127,7 +127,7 @@ const router = createRouter({
       },
     },
     {
-      path: '/confirmation',
+      path: '/confirmation/:id',
       name: 'Confirmation',
       component: () => import('../views/Auth/ConfirmationCode.vue'),
       meta: {
@@ -172,6 +172,8 @@ router.beforeEach((to, from, next) => {
 
   if (to.name === 'Survey-Form') {
     return next()
+  } else if (to.name === 'Dashboard') {
+    return next('/enquetes')
   } else {
     if (to.meta.requiredAuth && !token) {
       return next('/signin')

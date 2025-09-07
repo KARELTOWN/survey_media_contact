@@ -1,5 +1,5 @@
 <template>
-    <div class="flex flex-col items-center justify-center min-h-screen bg-gray-50 p-6">
+    <div class="flex flex-col items-center justify-center min-h-screen bg-gray-50">
         <!-- Carte principale -->
         <div class="bg-white shadow-lg rounded-2xl p-8 max-w-lg w-full text-center">
             <!-- Icône succès -->
@@ -25,7 +25,7 @@
 
                 <button @click="copyLink" target="_blank"
                     class="flex items-center justify-center bg-blue-600 text-white py-2 rounded-xl hover:bg-blue-700 transition">
-                    Copier
+                    Copier le lien
                 </button>
 
                 <a :href="linkedinShare" target="_blank"

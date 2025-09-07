@@ -804,29 +804,62 @@ span.flatpickr-weekday,
   }
 }
 
-
 svg {
-    width: 24px !important;
-    height: 24px !important;
+  width: 24px !important;
+  height: 24px !important;
 }
 
 svg:hover {
-    cursor: pointer;
-    stroke: #1A5FCC !important;
+  cursor: pointer;
+  stroke: #1a5fcc !important;
+}
+
+input[type='radio'] {
+  accent-color: #2b7fff; /* change la couleur des radios modernes */
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+}
+input[type='checkbox'] {
+  accent-color: #2b7fff; /* change la couleur des radios modernes */
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+}
+
+.tooltip {
+  position: relative;
+  display: inline-block;
 }
 
 
+.tooltip .tooltiptext {
+  visibility: hidden;
+  width: 120px;
+  background-color: black;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 0;
+  font-size: 15px;
 
+  /* Position the tooltip */
+  position: absolute;
+  z-index: 1;
+}
 
-input[type="radio"] {
-    accent-color: #2B7FFF; /* change la couleur des radios modernes */
-    width: 20px;
-    height: 20px;
-    cursor: pointer;
+.tooltip:hover .tooltiptext {
+  visibility: visible;
 }
-input[type="checkbox"] {
-    accent-color: #2B7FFF; /* change la couleur des radios modernes */
-    width: 20px;
-    height: 20px;
-    cursor: pointer;
+
+/* @media screen and (max-width: 687px) {
+  .survey-display-next-prev-btn{
+    display: flex;
+  }
 }
+
+@media screen and (min-width: 687px) {
+  .survey-display-next-prev-btn{
+    display: none;
+  }
+} */

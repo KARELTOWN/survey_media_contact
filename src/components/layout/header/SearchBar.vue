@@ -1,6 +1,6 @@
 <template>
   <div class="hidden lg:block">
-    <form>
+    <form class="hidden">
       <div class="relative">
         <button class="absolute -translate-y-1/2 left-4 top-1/2">
           <svg

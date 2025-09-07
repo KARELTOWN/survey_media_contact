@@ -14,11 +14,11 @@
       !isExpanded && !isHovered ? 'lg:justify-center' : 'justify-center',
     ]">
       <router-link to="/">
-        <img v-if="isExpanded || isHovered || isMobileOpen" class="dark:hidden" src="/images/logo/logo.png" alt="Logo"
+        <img v-if="isExpanded || isHovered || isMobileOpen" class="dark:hidden scale-150" src="/images/logo/logo.png" alt="Logo"
           width="120" height="40" />
-        <img v-if="isExpanded || isHovered || isMobileOpen" class="hidden dark:block" src="/images/logo/auth-logo.png"
+        <img v-if="isExpanded || isHovered || isMobileOpen" class="hidden dark:block scale-150" src="/images/logo/auth-logo.png"
           alt="Logo" width="90" height="40" />
-        <img v-else src="/images/logo/logo-icon.svg" alt="Logo" width="32" height="32" />
+        <img v-else src="/images/logo/logo.png" alt="Logo" class="scale-200" width="32" height="32" />
       </router-link>
     </div>
     <div class="flex flex-col overflow-y-auto duration-300 ease-linear no-scrollbar">
@@ -66,7 +66,7 @@
                     },
                   ]" />
                 </button>
-                <router-link v-else-if="item.path" :to="item.path" :class="[
+                <router-link v-else-if="item.path" @click="toggleMenu" :to="item.path" :class="[
                   'menu-item group',
                   {
                     'menu-item-active': isActive(item.path),
@@ -168,17 +168,17 @@ import { useSidebar } from "@/composables/useSidebar";
 
 const route = useRoute();
 
-const { isExpanded, isMobileOpen, isHovered, openSubmenu } = useSidebar();
+const { isExpanded, isMobileOpen, isHovered, openSubmenu, toggleMobileSidebar, toggleSidebar } = useSidebar();
 
 const menuGroups = [
   {
     title: "",
     items: [
-      {
-        icon: GridIcon,
-        name: "Tableau de bord",
-        subItems: [{ name: "Statistiques", path: "/", pro: false }],
-      },
+      // {
+      //   icon: GridIcon,
+      //   name: "Tableau de bord",
+      //   subItems: [{ name: "Statistiques", path: "/", pro: false }],
+      // },
       {
         icon: CalenderIcon,
         name: "Enquêtes",
@@ -237,4 +237,13 @@ const startTransition = (el) => {
 const endTransition = (el) => {
   el.style.height = "";
 };
+
+
+const toggleMenu = () => {
+  if (window.innerWidth >= 1024) {
+    // toggleSidebar()
+  } else {
+    toggleMobileSidebar()
+  }
+}
 </script>

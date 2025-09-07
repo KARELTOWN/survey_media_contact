@@ -1,5 +1,5 @@
 FROM node:18-alpine
-WORKDIR /app/replaymap/front
+WORKDIR /app/surveymc/front
 COPY package*.json ./
 RUN npm install
 COPY . .

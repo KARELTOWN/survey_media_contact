@@ -1,7 +1,7 @@
 <template>
-    <div class="max-w-3xl mx-auto p-6">
+    <div class="max-w-3xl mx-auto">
         <!-- Titre -->
-        <input v-model="formSurvey.title" type="text" placeholder="Titre de l'enquête"
+        <input v-model="formSurvey.title" type="text" placeholder="Ecrivez ici le titre de l'enquête"
             class="w-full text-2xl font-bold border-b border-gray-300 focus:outline-none p-2 mb-4" />
 
         <!-- Description -->
@@ -10,10 +10,10 @@
 
 
         <!-- Questions -->
-        <draggable v-model="formSurvey.questions" @change="onDragChange"
-            :group="{ name: 'survey_questions', pull: true, put: true }" class="min-h-[100px] py-2">
+        <!-- <draggable v-model="formSurvey.questions" @change="onDragChange"
+            :group="{ name: 'survey_questions', pull: true, put: true }" class="min-h-[100px] py-2"> -->
             <div v-for="(question, index) in formSurvey.questions" :key="question.question_id"
-                class="mb-6 p-4 border rounded-lg shadow-sm bg-white cursor-grab relative">
+                class="mb-6 p-4 border rounded-lg shadow-sm bg-white relative">
                 <QuestionPanel v-if="question.category === 'question'" @data="getData" @copy="copyQuestion"
                     @delete="deleteQuestion" @save="saveQuestion" :question="question" />
                 <TitleDescriptionPanel v-if="question.category === 'title_description'" @data="getData"
@@ -21,17 +21,18 @@
                 <ImagePanel v-if="question.category === 'image'" @data="getData" @copy="copyQuestion"
                     @delete="deleteQuestion" @save="saveQuestion" :question="question" />
             </div>
-        </draggable>
+        <!-- </draggable> -->
 
 
         <!-- Bouton ajouter une question -->
-        <button @click="open = !open" class="bg-blue-600 text-white px-4 py-2 rounded-lg shadow hover:bg-blue-700">
-            Ajouter
-        </button>
+
+        <Button @click="open = !open" variant="outline" :end-icon="AddIcon">
+            Ajouter une section
+        </Button>
 
         <div class="relative">
             <div v-if="open"
-                class="absolute mt-1 w-56 rounded-lg shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10">
+                class="absolute mt-1 w-56 rounded-lg shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10 bottom-13">
                 <div class="py-1">
                     <button @click="addQuestionZone(); open = false"
                         class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
@@ -39,11 +40,11 @@
                     </button>
                     <button @click="addTitleAndDescriptionZone(); open = false"
                         class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                        Ajouter un title & description
+                        Ajouter une zone de titre et description
                     </button>
                     <button @click="addImageZone(); open = false"
                         class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                        Ajouter une image
+                        Ajouter une zone d'image
                     </button>
                 </div>
             </div>
@@ -66,6 +67,8 @@ import { defaultImage, defaultQuestion, defaultTitleAndDesription } from "@/util
 const { getSurveyParams, saveFormInstance } = store
 const { formSurvey } = storeToRefs(store)
 import { VueDraggableNext as draggable } from 'vue-draggable-next';
+import Button from "../ui/Button.vue";
+import AddIcon from "@/icons/AddIcon.vue";
 const open = ref(false)
 
 onMounted(async () => {

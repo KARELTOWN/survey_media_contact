@@ -15,7 +15,7 @@
             </div>
             <div>
               <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-5">
-           
+
               </div>
               <form @submit.prevent="handleSubmit">
                 <div class="space-y-5">
@@ -107,7 +107,7 @@
                   </div>
                   <div>
                     <button type="submit"
-                      class="flex items-center justify-center w-full px-4 py-3 text-sm font-medium text-white transition rounded-lg bg-brand-500 shadow-theme-xs hover:bg-brand-600">
+                      class="flex items-center justify-center w-full px-4 py-3 text-sm font-medium text-white transition rounded-lg bg-red-500 shadow-theme-xs hover:bg-red-600">
                       Créer un compte
                     </button>
                   </div>
@@ -123,7 +123,7 @@
             </div>
           </div>
         </div>
-        <div class="relative items-center hidden w-full h-full lg:w-1/2 bg-brand-950 dark:bg-white/5 lg:grid">
+        <div class="relative items-center hidden w-full h-full lg:w-1/2 bg-red-950 dark:bg-white/5 lg:grid">
           <div class="flex items-center justify-center z-1">
             <common-grid-shape />
             <div class="flex flex-col items-center max-w-xs">
@@ -194,10 +194,9 @@ const handleSubmit = async () => {
     }
     else {
       if (response?.data) {
-        successNotify('Utilisez le code envoyé sur votre adresse Email pour vérifier votre compte')
-        sessionStorage.setItem('survey_mc_user', response.data)
+        successNotify('Utilisez le code envoyé sur votre adresse Email pour vérifier votre compte. Vérifiez les spams')
         setTimeout(() => {
-          router.push({ path: "/confirmation", query: { type: "register" } })
+          router.push({ name: "Confirmation", query: { type: "register" }, params: { id: response.data } })
         }, 2000)
 
       }

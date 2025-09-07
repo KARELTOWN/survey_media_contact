@@ -2,7 +2,7 @@
     <Modal v-if="props.open === true">
         <template #body>
             <div
-                class="no-scrollbar relative w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11">
+                class="no-scrollbar relative w-3/3 md:w-2/3 max-w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11">
                 <!-- Overlay -->
                 <!-- Bouton de fermeture -->
                 <button @click="$emit('close')" class="absolute top-4 right-4 text-gray-500 hover:text-gray-700">
@@ -12,8 +12,7 @@
                             d="M6 18L18 6M6 6l12 12" />
                     </svg>
                 </button>
-                {{ questionSelect }}
-                {{ defaultDisplayValue }}
+                <h1 class="text-xl md:text-xl font-bold text-center text-gray-800 mb-6 drop-shadow-lg">Condition d'affichage</h1>
                 <!-- AFFICHAGE -->
 
                 <div class="grid grid-cols-3 gap-3 my-4">
@@ -50,7 +49,7 @@
 
                 </div>
                 <button @click="$emit('save')"
-                    class="bg-blue-600 text-white px-4 py-2 rounded-lg shadow hover:bg-blue-700">
+                    class="bg-red-600 text-white px-4 py-2 rounded-lg shadow hover:bg-red-700">
                     Enregistrer
                 </button>
 

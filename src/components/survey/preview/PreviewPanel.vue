@@ -223,6 +223,7 @@ const validateForm = () => {
 
 const router = useRouter()
 
+const disabledBtn = ref(false)
 
 const saveForm = async () => {
   const isValid = validateForm()
@@ -231,10 +232,16 @@ const saveForm = async () => {
       return
     }
     else if (previewMode.value === false && publish.value === true) {
+      infoNotify('Enregistrement en cours')
+      disabledBtn.value = true
       await saveSurveyResponse(answers.value, route.params.id)
       if (surveySuccess.value === true) {
+        disabledBtn.value = false
         setSurveyCookie(route.params.id)
         router.push({ name: 'Response-Send' })
+      }
+      else {
+        disabledBtn.value = false
       }
     }
   }
@@ -438,7 +445,7 @@ watchEffect(async () => {
     </div>
 
     <!-- ✅ Bouton de soumission -->
-    <button @click="saveForm" class="mt-6 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">
+    <button @click="saveForm" class="mt-6 bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700" :disabled="disabledBtn">
       Soumettre
     </button>
   </div>

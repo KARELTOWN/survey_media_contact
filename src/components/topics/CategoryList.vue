@@ -4,14 +4,12 @@
     </div>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-{{ selectedCard }}
         <div v-for="(category, cIndex) in categoryFiltered" :key="cIndex" @click="getCategory(category)" :class="[
             'p-4 border rounded shadow-lg transition cursor-pointer',
             selectedCard === category._id
-                ? 'bg-blue-500 text-white shadow-xl'
+                ? 'bg-red-500 text-white shadow-xl'
                 : 'bg-white hover:shadow-xl'
         ]">
-        {{ category._id }}
             <h3 class="text-lg font-semibold mb-2">{{ category.libelle }}</h3>
         </div>
     </div>

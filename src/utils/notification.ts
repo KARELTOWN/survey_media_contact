@@ -8,6 +8,7 @@ export const successNotify = (msg) => {
     position: 'top-right',
     hideProgressBar: true,
     transition: 'flip',
+    theme: "colored"
   })
 }
 
@@ -17,6 +18,7 @@ export const errorNotify = (msg) => {
     position: 'top-right',
     hideProgressBar: true,
     transition: 'flip',
+    theme: "colored"
   })
 }
 
@@ -26,6 +28,7 @@ export const infoNotify = (msg) => {
     position: 'top-right',
     hideProgressBar: true,
     transition: 'flip',
+    theme: "colored"
   })
 }
 
@@ -35,6 +38,7 @@ export const warningNotify = (msg) => {
     position: 'top-right',
     hideProgressBar: true,
     transition: 'flip',
+    theme: "colored"
   })
 }
 

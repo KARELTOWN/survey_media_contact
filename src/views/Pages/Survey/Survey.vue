@@ -2,10 +2,10 @@
   <AdminLayout>
     <PageBreadcrumb :pageTitle="currentPageTitle" />
     <div class="space-y-5 sm:space-y-6">
-      <ComponentCard title="Enquêtes">
+      <ComponentCard>
         <div class="flex flex-col md:flex-row md:items-center md:justify-end gap-4 mb-4">
           <button type="button" @click="open()"
-            class="flex items-center justify-center w-64 px-4 py-3 text-sm font-medium text-white transition rounded-lg bg-brand-500 shadow-theme-xs hover:bg-brand-600">
+            class="flex items-center justify-center w-64 px-4 py-3 text-sm font-medium text-white transition rounded-lg bg-red-500 shadow-theme-xs hover:bg-red-600">
             Créer une enquête
           </button>
         </div>

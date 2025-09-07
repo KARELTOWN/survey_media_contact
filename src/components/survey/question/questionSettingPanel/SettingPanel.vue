@@ -2,7 +2,7 @@
     <Modal v-if="props.open === true">
         <template #body>
             <div
-                class="no-scrollbar relative w-2/3 max-w-full overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-5 mx-5">
+                class="no-scrollbar relative w-3/3 md:w-2/3 max-w-full overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-5 mx-5">
                 <!-- Overlay -->
                 <!-- Modal -->
                 <div class="bg-white rounded-lg shadow-xl w-full max-w-6xl h-[80vh] overflow-hidden flex z-50">

@@ -4,7 +4,7 @@
       @click="toggle"
       :class="[
         'relative inline-flex h-6 w-12 items-center rounded-full transition-colors focus:outline-none',
-        modelValue ? 'bg-blue-500' : 'bg-gray-300'
+        modelValue ? 'bg-red-500' : 'bg-gray-300'
       ]"
     >
       <span

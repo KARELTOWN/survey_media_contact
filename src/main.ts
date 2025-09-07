@@ -13,6 +13,7 @@ import flatPickr from 'vue-flatpickr-component'
 import indexDBTransaction from "@/utils/indexDB";
 const { initDB } = indexDBTransaction();
 
+
 initDB(['survey_mc_forms']).then(() => {
   console.log("IndexedDB ready ✅");
 }).catch(err => {

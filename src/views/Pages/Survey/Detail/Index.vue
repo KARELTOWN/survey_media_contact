@@ -5,7 +5,7 @@
             <ComponentCard :title="`Enquête ${formSurvey.title}`">
 
                 <div class="flex justify-end items-end">
-                <Button variant="primary" @click="copyLink">Copier le lien</Button>
+                <Button variant="danger" @click="copyLink">Copier le lien</Button>
                 </div>
 
                 <div class="w-3/3 flex flex-col">

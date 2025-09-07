@@ -58,8 +58,8 @@ const variantClasses = {
   },
   info: {
     container:
-      'border-blue-light-500 bg-blue-light-50 dark:border-blue-light-500/30 dark:bg-blue-light-500/15',
-    icon: 'text-blue-light-500',
+      'border-red-light-500 bg-red-light-50 dark:border-red-light-500/30 dark:bg-red-light-500/15',
+    icon: 'text-red-light-500',
   },
 }
 

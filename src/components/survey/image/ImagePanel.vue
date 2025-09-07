@@ -2,7 +2,9 @@
     <input type="file" :name="`file_${question.question_id}`" accept="image/*" class="hidden"
         @change="handleImageOption($event)" />
 
-    <svg @click="openFileSelector()" width="60px" height="60px" viewBox="0 0 24 24" fill="none"
+    <div class="font-bold mb-2 flex ">
+        <div class="me-5">Ajouter une image</div>
+         <svg @click="openFileSelector()" width="80px" height="80px" class="scale-150" viewBox="0 0 24 24" fill="none"
         xmlns="http://www.w3.org/2000/svg" stroke="#2B7FFF">
         <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
         <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
@@ -24,6 +26,8 @@
         </g>
     </svg>
 
+    </div>
+   
     <div v-if="question.img" class="mt-4 w-50 h-50 relative">
         <img :src="question.img" alt="Prévisualisation" class="w-48 h-48 object-cover rounded" />
         <button @click="deleteImg()"
