@@ -1,220 +1,116 @@
-# TailAdmin Vue - Free Vue.js Tailwind CSS Admin Dashboard Template
+# Application interne d'enquête de satisfaction pour les collaborateurs : SURVEY MC
 
-TailAdmin Vue is a free, open-source admin dashboard template **built on Vue.js**, popular and progressive JavaScript
-framework, and **Tailwind CSS**. This **powerful combination** provides developers with an extensive library of
-essential components, elements, and pages to launch a comprehensive and data-centric back-end, dashboard, or admin panel
-solution for any Vue.js based web projects.
+L'application interne d'enquête de satisfaction pour les collaborateurs, conçu pour
+l'Entreprise GROUPE MEDIA CONTACT, permet aux administrateurs de :
+- Créer facilement des enquêtes
+- Personnaliser entièrement les champs de chaque question (Type de champs :
+Réponse courte, Paragraphe, Fichier, Choix Multiple, Avis, Date, Heure ...)
+- Configurer la logique d'affichage des champs ou les conditions d'affichage
+- Partager le lien de l'enquête sur divers médias sociaux et plateformes
+- Gérer les utilisateurs de la plateforme
 
-![TailAdmin Vue.js Dashboard Preview](./banner.png)
+Les fonctionnalitées de l'application a sa version actuelle (V 1.0) permet de concevoir
+les enquêtes et de les partager.
 
-With TailAdmin Vue, you can leverage **Vue.js 3** features such as declarative rendering, component-based architecture,
-Vue Router for routing, and Pinia for state management. It also utilizes the power of Tailwind CSS for rapid UI
-development with its low-level utility classes and responsive design capabilities.
+## TECHNOLOGIES
 
-## Overview
+L'application estc conçu avec des technologies modernes qui assurent la rapidité d'exécutions des fonctionnalitées, une meilleure expérience utilisateur et la sécurtié des données
 
-TailAdmin provides essential UI components and layouts for building feature-rich, data-driven admin dashboards and control panels. It's built on:
+- BACKEND : Réaliser avec **EXPRESS JS**. 
+- FRONTEND : Réaliser avec **VUE JS 3** et **TAILWIND CSS**
+- BASE DE DONNEES : **MONGO DB**
+- AUTRES : **REDIS, BULL MQ**
 
-- Vue 3 (Vite)
-- TypeScript
-- Tailwind CSS
+## SECURITE
 
-### Quick Links
+### AUTHENTIFICATION
+La plateforme est protégée par une authentification. Tout utilisateur doit se connecter en renseignant son adresse email et son mot de passe pour se connecter.
 
-- [✨ Visit Website](https://tailadmin.com)
-- [📄 Documentation](https://tailadmin.com/docs)
-- [⬇️ Download](https://tailadmin.com/download)
-- [🖌️ Figma Design File (Community Edition)](https://www.figma.com/community/file/1463141366275764364)
-- [⚡ Get PRO Version](https://tailadmin.com/pricing)
+- NB: Le mot de passe doit être fort . Il doit avoir au moins 8 caractères dont 1 caractère MAJUSCULE, 1 caractère MINISCULE, 1 caractère spéciale et 1 chiffre.
 
-### Demos
+IL est permi actuellement de faire un enregistrement sur la plateforme. Mais un compte créé n'est pas directement **actif**. Un administrateur doit nécessairement valider le compte.
 
-- [Free Version](https://free-vue-demo.tailadmin.com/)
-- [Pro Version](https://vue-demo.tailadmin.com)
+**POURQUOI ?**
+En effet, la vision est d'avoir une politique de restriction à ces pages, par exemple, en autorisant uniquement des IP étant sur un réseau spécifique.
 
-### Other Versions
+L'administrateur connecté peut toutefois créer manuellement un compte pour un utilisateur.
+Pour ce faire, il doit remplir les informations nécessaires. **La plateforme se charge de créer automatique un mot de passe fort et l'envoie dans le mail du compte créé**
 
-- [HTML Version](https://github.com/TailAdmin/tailadmin-free-tailwind-dashboard-template)
-- [Next.js Version](https://github.com/TailAdmin/free-nextjs-admin-dashboard)
-- [React Version](https://github.com/TailAdmin/free-react-tailwind-admin-dashboard)
+### CRYPTAGE DU MOT DE PASSE
 
-## Installation
+Le mot de passe est crypté en base de données pour assurer qu'il soit illisible.
 
-### Prerequisites
+### UNICITE DES ADRESSES E-MAIL
 
-To get started with TailAdmin, ensure you have the following prerequisites installed and set up:
+Deux comptes ne peuvent avoir la même adresse E-mail. L'email est unique.
 
-- Node.js 18.x or later (recommended to use Node.js 20.x or later)
-- Recommended IDE Setup: [VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+### VALIDATION NIVEAU FRONTEND
 
-#### Type Support for `.vue` Imports in TS
+Les formulaires sont validées au niveau du FRONTEND en utilisant **YUP**
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
+### VALIDATION NIVEAU BACKEND
 
-### Cloning the Repository
+Les informations à stockées sont validées au niveau du BACKEND en utilisant **EXPRESS VALIDATOR**
 
-Clone the repository using the following command:
+## NOTIFICATIONS
 
-```bash
-git clone https://github.com/TailAdmin/vue-tailwind-admin-dashboard.git
-```
+Des notifications emails sont envoyées sur la plateforme. Un **WORKER et un LISTENER** conçu avec **BULLMQ** permettent de mettre les notifications en queues pour être traitées de manières asynchrones, avec des relances en cas d'échec.
 
-> Windows Users: place the repository near the root of your drive if you face issues while cloning.
 
-1. Install dependencies:
+## DEMARRAGE NORMAL
 
-   ```bash
-   npm install
-   # or
-   yarn install
-   ```
+### BASE DE DONNEES MONGO : branch mongo
 
-2. Start the development server:
+- Cloner la branch **mongoRedis**
+- Avoir **DOCKER INSTALLER**
+- Venir dans le répertoire du dossier créé après avoir cloner et éxecuter : docker-compose up -d --build
+**La base de données est accessible  sur :** http://localhost:8081
 
-   ```bash
-   npm run dev
-   # or
-   yarn dev
-   ```
 
-3. Production build:
-   ```bash
-   npm run build
-   # or
-   yarn build
-   ```
+### REDIS (Important pour les notifications par mails)
 
-## Feature Comparison
+- Avoir **DOCKER INSTALLER**
+- Executer : docker pull redis
+- Executer : docker run -d -p 6379:6379 redis
 
-### Free Version
+### FRONTEND : BRANCH front
 
-- 1 Unique Dashboard
-- 30+ dashboard components
-- 50+ UI elements
-- Basic Figma design files
-- Community support
+- Cloner la branch **front** : git clone repository_remote_url
+- Executer : npm install
+- Executer : npm run dev
 
-### Pro Version
+**Le frontend démarre sur :** http://localhost:5175
 
-- 5 Unique Dashboards: Analytics, Ecommerce, Marketing, CRM, Stocks (more coming soon)
-- 400+ dashboard components and UI elements
-- Complete Figma design file
-- Email support
+## BACKEND : BRANCH back
 
-To learn more about pro version features and pricing, visit our [pricing page](https://tailadmin.com/pricing).
+- Cloner la branch **back** : git clone repository_remote_url
+- Executer : npm install
+- Executer pour démarrer le serveur EXPRESS : npm run dev
+- Pour l'envoie des notifications email, Exécuter : npm run worker puis npm run listener
 
-## Components
+**Le backend démarre sur :** http://localhost:3001
 
-TailAdmin is a pre-designed starting point for building a web-based dashboard using Vue.js and Tailwind CSS. The template includes:
 
-- Sophisticated and accessible sidebar
-- Data visualization components
-- Prebuilt profile management and 404 page
-- Tables and Charts(Line and Bar)
-- Authentication forms and input elements
-- Alerts, Dropdowns, Modals, Buttons and more
-- Can't forget Dark Mode 🕶️
 
-All components are built with Vue and styled using Tailwind CSS for easy customization.
+## DEMARRAGE AVEC DOCKER
 
-## Features
+- CREER UN DOSSIER **(EXEMPLE SURVEY)** et suivez les instructions suivantes en étant le dossier que vous avez créer
+- Cloner la branch **front** : git clone repository_remote_url
+- Cloner la branch **back** : git clone repository_remote_url
+- Télécharger le fichier DOCKER COMPOSE suivant et mettez le à la racine du dossier créé **(SURVEY par exemple)**
+- Si vous avez suivi ces instructions , vous devez avoir un dossier contenu à la racine,
+le fichier **docker-compose.yaml**, le dossier **back** et le dossier **front**
+- Lancer : docker-compose up -d --build
 
-**💎 High-quality, Premium Modern Design:**
-A thoughtfully designed dashboard template with a deep focus on UX/UI, already trusted and utilized by over 10K+ web apps worldwide.
+**Le frontend démarre sur :** http://localhost:5175
+**Le frontend démarre sur :** http://localhost:3001
+**La base de données est accessible  sur :** http://localhost:8081
 
-**✨ Vue 3:**
-Get enhanced performance with the latest Vue version.
 
-**⚡ Vite Build System:**
-Enjoy quick development with Vite, ensuring fast code compilation.
 
-**🔀 Vue Router:**
-Manage app navigation with ease using Vue Router for seamless transitions.
+### VERSION DEMO CLE EN MAIN
 
-**💡 Reactive Utilities:**
-Enhance component reactivity with @vueuse/core utilities.
+L'applicaition est déployée sur un serveur VPS sur lequel est installé **DOCKER**, et **NGINX** pour faire le reverxe proxy
 
-**📊 Charting with ApexCharts:**
-Visualize data with ApexCharts for beautiful analytics.
-
-**🗺️ Vector Maps with JSVectorMap:**
-Easily integrate interactive vector maps with JSVectorMap.
-
-**🖌️ UI with Tailwind CSS:**
-Frontend UI built on the powerful and versatile Tailwind CSS framework.
-
-**💫 TypeScript Support:**
-Write safer, maintainable code with TailAdmin Vue's TypeScript Support.
-
-**✅ Linting and Formatting:**
-Maintain a clean codebase with built-in linting and formatting.
-
-**🗃️ State Management with Pinia:**
-Handle your app's state with Pinia for clean, organized code.
-
-## Update Logs
-
-### Version 2.0.1 - [February 27, 2025]
-
-#### Update Overview
-
-- Upgraded to Tailwind CSS v4 for better performance and efficiency.
-- Updated class usage to match the latest syntax and features.
-- Replaced deprecated class and optimized styles.
-
-#### Next Steps
-
-- Run npm install or yarn install to update dependencies.
-- Check for any style changes or compatibility issues.
-- Refer to the Tailwind CSS v4 [Migration Guide](https://tailwindcss.com/docs/upgrade-guide) on this release. if needed.
-- This update keeps the project up to date with the latest Tailwind improvements. 🚀
-
-### Version 2.0.0 - [February 2025]
-
-Major update with Vue 3 migration and comprehensive redesign.
-
-#### Major Improvements
-
-- Complete migration to Vue 3 Composition API
-- Updated to Vue Router 4
-- Enhanced user interface with new Vue 3 components
-- Improved performance with Vue 3's virtual DOM
-- Better accessibility and responsive design
-
-#### New Features
-
-- Redesigned dashboards (Ecommerce, Analytics, Marketing, CRM)
-- Collapsible sidebar with Vue 3 integration
-- Enhanced navigation with Vue Router 4
-- Real-time chat functionality
-- Full-featured calendar with drag-and-drop
-- Advanced table components
-- Updated data visualization with ApexCharts
-
-#### Breaking Changes
-
-- Requires Vue 3 and Vue Router 4
-- Chart components migrated to ApexCharts for Vue 3
-- Modified routing implementation
-- Updated component APIs for Vue 3 compatibility
-
-[Read more](https://tailadmin.com/docs/update-logs/vue) on this release.
-
-### Version 1.0.2 - [June 19, 2024]
-
-#### Issues
-
-- Fix Mobile Menu Hamburger Icon issue.
-
-### Version 1.0.1 - [Feb 08, 2024]
-
-#### Enhancements
-
-- Make it functional [Multiselect Dropdown/Form Elements].
-- Delete SelectGroup Components then create a SelectGroup folder and create two files under this
-  folder SelectGroupOne.vue SelectGroupTwo.vue [Select Group/Form Elements & Layout].
-- Update style.css file.
-
-### Version 1.0.0 - Initial Release - [Jan 22, 2024]
-
-- Initial release of TailAdmin Vue.
+- **Lien frontend**: https://surveymc.bugreveal.com
+- **Lien api** : https://api.surveymc.bugreveal.com
