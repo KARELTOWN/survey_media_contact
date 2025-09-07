@@ -63,48 +63,49 @@ Des notifications emails sont envoyées sur la plateforme. Un **WORKER et un LIS
 
 - Cloner la branch **mongo**
 - Avoir **DOCKER INSTALLER**
-- Venir dans le répertoire du dossier créé après avoir cloner, puis éxecuter : docker-compose up -d --build
-**La base de données est accessible  sur :** http://localhost:8081
+- Venir dans le répertoire du dossier créé après avoir cloner, puis éxecuter : **docker-compose up -d --build**
+- **La base de données est accessible  sur :** http://localhost:8081
 
 
 ### REDIS (Important pour les notifications par mails)
 
 - Avoir **DOCKER INSTALLER**
-- Executer : docker pull redis
-- Executer : docker run -d -p 6379:6379 redis
+- Executer : **docker pull redis**
+- Executer : **docker run -d -p 6379:6379 redis**
 
 ### FRONTEND : BRANCH front
 
-- Cloner la branch **front** : git clone repository_remote_url
-- Executer : npm install
-- Executer : npm run dev
+- Cloner la branch **front** : **git clone repository_remote_url**
+- Executer : **npm install**
+- Executer : **npm run dev**
 
-**Le frontend démarre sur :** http://localhost:5175
+- **Le frontend démarre sur :** http://localhost:5175
 
 ## BACKEND : BRANCH back
 
-- Cloner la branch **back** : git clone repository_remote_url
-- Executer : npm install
-- Executer pour démarrer le serveur EXPRESS : npm run dev
-- Pour l'envoie des notifications email, Exécuter : npm run worker puis npm run listener
+- Cloner la branch **back** : **git clone repository_remote_url**
+- Executer : **npm install**
+- Executer pour démarrer le serveur EXPRESS : **npm run dev**
+- Pour l'envoie des notifications email, Exécuter : **npm run worker** puis **npm run listener**
 
-**Le backend démarre sur :** http://localhost:3001
+- **Le backend démarre sur :** http://localhost:3001
 
 
 ## DEMARRAGE AVEC DOCKER
 
 - CREER UN DOSSIER **(EXEMPLE SURVEY)** et suivez les instructions suivantes en étant le dossier que vous avez créer
-- Cloner la branch **front** : git clone repository_remote_url
-- Cloner la branch **back** : git clone repository_remote_url
+- Cloner la branch **front** : **git clone repository_remote_url**
+- Cloner la branch **back** : **git clone repository_remote_url**
 
 - Télécharger le fichier **docker-compose.yaml** et mettez le à la racine du dossier créé **(SURVEY par exemple)** : https://drive.google.com/file/d/1fmhA_MeO-n_kNoh2cOgPGGRyzf8fnoQ6/view?usp=sharing
 
-**NB** Si vous avez suivi ces instructions , vous devez avoir un dossier contenu à la racine, le fichier **docker-compose.yaml**, le dossier **back** et le dossier **front**
-- Maintenant, lancer : docker-compose up -d --build
+- **NB** Si vous avez suivi ces instructions , vous devez avoir un dossier contenu à la racine, le fichier **docker-compose.yaml**, le dossier **back** et le dossier **front**
 
-**Le frontend démarre sur :** http://localhost:5175
-**Le frontend démarre sur :** http://localhost:3001
-**La base de données est accessible  sur :** http://localhost:8081
+- Maintenant, lancer : **docker-compose up -d --build**
+
+- **Le frontend démarre sur :** http://localhost:5175
+- **Le frontend démarre sur :** http://localhost:3001
+- **La base de données est accessible  sur :** http://localhost:8081
 
 
 ### VERSION DEMO CLE EN MAIN
