@@ -9,7 +9,7 @@
           </svg>
         </button>
         <h5 class="mb-2 font-semibold text-gray-800 modal-title text-theme-xl dark:text-white/90 lg:text-2xl">
-          {{ selectUser ? 'Modifier le Projet' : 'Ajouter un Projet' }}
+          {{ selectUser ? 'Modifier le Utilisateur' : 'Ajouter un Utilisateur' }}
         </h5>
         <form @submit.prevent="handleSubmit">
           <div class="space-y-5">
