@@ -330,7 +330,7 @@ watchEffect(async () => {
     <div v-for="question in formSurvey.questions" :key="question.question_id" class="mb-6">
       <!-- Titre / label -->
 
-      <label v-if="question.title" class="block font-semibold mb-2">
+      <label v-if="question.title && displayField(question.condition)" class="block font-semibold mb-2">
         {{ question.title }}
         <span v-if="question.required" class="text-red-500">*</span>
       </label>

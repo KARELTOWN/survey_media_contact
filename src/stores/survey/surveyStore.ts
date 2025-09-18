@@ -1,7 +1,7 @@
 import { fetchGet, fetchPost, fetchPut } from '@/composables/request'
 import { handleAppError, handleCatchError } from '@/utils/handleAppError'
 import { successNotify } from '@/utils/notification'
-import { deleteIndexDBStorage, getLocalStorage, setIndexDBStorage } from '@/utils/storage'
+import { deleteIndexDBStorage, setIndexDBStorage } from '@/utils/storage'
 import { defaultQuestion } from '@/utils/survey'
 import { getUUID } from '@/utils/uuid'
 import { defineStore } from 'pinia'
@@ -51,7 +51,7 @@ export const surveyStore = defineStore('survey-store', () => {
     }
   }
 
-  let formSurvey = ref({
+  const formSurvey = ref({
     form_id: '',
     title: '',
     description: '',
@@ -72,7 +72,7 @@ export const surveyStore = defineStore('survey-store', () => {
   const getSurveyParams = async () => {
     try {
       const result = await fetchGet(`survey/params`)
-      const response = await handleAppError(result)
+      const response = await handleAppError(result) as { status: boolean; data?: any; errors: any }
       if (response.status === false) {
         if (response?.data) {
           questionsFieldType.value = response.data.questions_field_types
@@ -84,10 +84,10 @@ export const surveyStore = defineStore('survey-store', () => {
     }
   }
 
-  const showSurvey = async (survey_id) => {
+  const showSurvey = async (survey_id:any) => {
     try {
       const result = await fetchGet(`survey/show/${survey_id}`)
-      const response = await handleAppError(result)
+      const response:any = await handleAppError(result)
       if (response.status === false) {
         if (response?.data) {
           formSurvey.value = response.data
@@ -101,7 +101,7 @@ export const surveyStore = defineStore('survey-store', () => {
   const getSurveys = async () => {
     try {
       const result = await fetchGet(`survey/get`)
-      const response = await handleAppError(result)
+      const response:any = await handleAppError(result)
       if (response.status === false) {
         if (response?.data) {
           surveysList.value = response.data

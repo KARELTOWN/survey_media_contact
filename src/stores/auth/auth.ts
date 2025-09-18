@@ -10,7 +10,7 @@ export const authStore = defineStore('auth', () => {
 
   const deconnect = async () => {
     const result = await fetchGet('auth/deconnect')
-    const response = await handleAppError(result)
+    const response:any = await handleAppError(result)
     if (response.status === false) {
       removeLocalStorage('survey_mc_token')
 

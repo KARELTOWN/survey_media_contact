@@ -12,15 +12,15 @@
             v-model="questionSelect.field_params.rows" />
     </div>
 
-    <div class="mb-3">
+    <!-- <div class="mb-3">
         <label for="max_size" class="form-label">Nombre de colonne</label>
         <input type="number" min="1" class="ms-4 border border-gray-200 focus:outline-none text-lg p-2 mb-3" id="max_caracter"
             v-model="questionSelect.field_params.cols" />
-    </div>
+    </div> -->
 
 
     <div class="mb-3">
-        <label for="max_size" class="form-label">Placeholder</label>
+        <label for="max_size" class="form-label">Texte d'aide</label>
         <input type="text" class="ms-4 border border-gray-200 focus:outline-none text-lg p-2 mb-3" id="placeholder_text"
             v-model="questionSelect.field_params.placeholder" />
     </div>
