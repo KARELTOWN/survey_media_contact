@@ -1,7 +1,7 @@
 import { fetchGet, fetchPost, fetchPut } from '@/composables/request'
 import { handleAppError, handleCatchError } from '@/utils/handleAppError'
 import { successNotify } from '@/utils/notification'
-import { deleteIndexDBStorage, setIndexDBStorage } from '@/utils/storage'
+import { deleteIndexDBStorage, getLocalStorage, setIndexDBStorage } from '@/utils/storage'
 import { defaultQuestion } from '@/utils/survey'
 import { getUUID } from '@/utils/uuid'
 import { defineStore } from 'pinia'
@@ -72,7 +72,7 @@ export const surveyStore = defineStore('survey-store', () => {
   const getSurveyParams = async () => {
     try {
       const result = await fetchGet(`survey/params`)
-      const response = await handleAppError(result) as { status: boolean; data?: any; errors: any }
+      const response = await handleAppError(result)
       if (response.status === false) {
         if (response?.data) {
           questionsFieldType.value = response.data.questions_field_types
@@ -84,10 +84,10 @@ export const surveyStore = defineStore('survey-store', () => {
     }
   }
 
-  const showSurvey = async (survey_id:any) => {
+  const showSurvey = async (survey_id) => {
     try {
       const result = await fetchGet(`survey/show/${survey_id}`)
-      const response:any = await handleAppError(result)
+      const response = await handleAppError(result)
       if (response.status === false) {
         if (response?.data) {
           formSurvey.value = response.data
@@ -101,7 +101,7 @@ export const surveyStore = defineStore('survey-store', () => {
   const getSurveys = async () => {
     try {
       const result = await fetchGet(`survey/get`)
-      const response:any = await handleAppError(result)
+      const response = await handleAppError(result)
       if (response.status === false) {
         if (response?.data) {
           surveysList.value = response.data
@@ -235,7 +235,7 @@ export const surveyStore = defineStore('survey-store', () => {
     }
   }
 
-    const getSurveyStatistics = async (survey_id) => {
+  const getSurveyStatistics = async (survey_id) => {
     try {
       surveySuccess.value = false
       errors.value = {}
@@ -261,8 +261,7 @@ export const surveyStore = defineStore('survey-store', () => {
     }
   }
 
-  
-  const surveyFormLink = (surveyID)=> {
+  const surveyFormLink = (surveyID) => {
     return `${import.meta.env.VITE_FRONT_URL}/forms/${surveyID}`
   }
 
@@ -287,6 +286,6 @@ export const surveyStore = defineStore('survey-store', () => {
     getSurveyResponses,
     getInitialFormSurvey,
     getSurveyStatistics,
-    statistics
+    statistics,
   }
 })

@@ -194,6 +194,11 @@ const menuGroups = [
         name: "Utilisateurs",
         path: "/utilisateurs",
       },
+       {
+        icon: GridIcon,
+        name: "Paramètres",
+        subItems: [{ name: "Configurations", path: "/configurations", pro: false }],
+      },
     ],
   },
 

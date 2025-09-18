@@ -88,6 +88,16 @@ const router = createRouter({
         requiredAuth: true,
       },
     },
+    
+    {
+      path: '/configurations',
+      name: 'Configurations',
+      component: () => import('../views/Pages/Config/Header.vue'),
+      meta: {
+        title: 'Configurations',
+        requiredAuth: true,
+      },
+    },
 
     // Profile
     {

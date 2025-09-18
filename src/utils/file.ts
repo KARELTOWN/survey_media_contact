@@ -66,3 +66,9 @@ export function base64ToTempUrl(base64) {
   const blob = new Blob([new Uint8Array(byteArrays)], { type: mimeType });
   return URL.createObjectURL(blob);
 }
+
+
+export function isFileSizeAllowed(file, maxMB = 10) {
+  const maxBytes = maxMB * 1024 * 1024
+  return file.size <= maxBytes
+}

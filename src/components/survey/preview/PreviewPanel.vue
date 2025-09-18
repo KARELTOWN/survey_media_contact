@@ -6,7 +6,7 @@ import { onMounted, ref, watch, watchEffect } from "vue"
 import { surveyStore } from "@/stores/survey/surveyStore";
 import { storeToRefs } from "pinia";
 import { errorNotify, infoNotify, successNotify } from "@/utils/notification";
-import { convertToBase64, convertToTempURL, getFileCategory } from "@/utils/file";
+import { convertToBase64, convertToTempURL, getFileCategory, isFileSizeAllowed } from "@/utils/file";
 import { useRoute, useRouter } from "vue-router";
 import SurveyFormHeader from "../header/SurveyFormHeader.vue";
 import { defaultFileImg } from "@/utils/survey";
@@ -27,13 +27,6 @@ const filesAcceptInputAttributes = ref([])
 const filesSize = ref([])
 const filesList = ref([])
 const filesAcceptTypes = ref([])
-
-
-
-function isFileSizeAllowed(file, maxMB = 10) {
-  const maxBytes = maxMB * 1024 * 1024
-  return file.size <= maxBytes
-}
 
 
 const handleFile = async (event, question_id) => {
@@ -320,7 +313,7 @@ watchEffect(async () => {
   <div v-if="previewMode === false">
     <SurveyFormHeader />
   </div>
-  <div class="max-w-3xl mx-auto p-6 bg-gray-50 rounded-xl shadow-md"
+  <div class="max-w-3xl mx-auto p-6 bg-gray-50 rounded-xl shadow-md mt-5"
     v-if="(previewMode === true) || (previewMode === false && cookieExist === false && publish === true)">
     <!-- ✅ En-tête du formulaire -->
     <h1 class="text-2xl font-bold mb-2">{{ formSurvey.title }}</h1>
