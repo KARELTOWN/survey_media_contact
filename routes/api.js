@@ -7,6 +7,7 @@ import { blacklist } from "../middleware/blacklist.js";
 import DirectionRouter from "./direction/directionRouter.js";
 import TopicRouter from "./topic/topicRouter.js";
 import UserRouter from "./user/userRouter.js";
+import ConfigRouter from "./config/ConfigRouter.js";
 import SurveyRouter from "./survey/surveyRouter.js";
 
 router.use("/auth/", AuthRouter);
@@ -15,5 +16,6 @@ router.use("/direction/", isauthentificate, blacklist, DirectionRouter);
 router.use("/topic/", isauthentificate, blacklist, TopicRouter);
 router.use("/users/", isauthentificate, blacklist, UserRouter);
 router.use("/survey/", SurveyRouter);
+router.use("/config/", ConfigRouter);
 
 export default router;
