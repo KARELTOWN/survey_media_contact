@@ -8,12 +8,14 @@ import isauthentificate from "../../middleware/isAuthentificate.js";
 import { blacklist } from "../../middleware/blacklist.js";
 import checkAccountHeaders from "../../middleware/checkAccountHeaders.js";
 import { validateSurveyId } from "../../validator/survey/surveyValidator.js";
+import permissionCheck from "../../middleware/permissionCheck.js";
 
 configRouter.post(
   "/update",
   isauthentificate,
   blacklist,
   checkAccountHeaders,
+  permissionCheck('CE'),
   validateConfigUpdate,
   updateConfig
 );

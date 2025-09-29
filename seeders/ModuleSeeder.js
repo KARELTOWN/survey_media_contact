@@ -3,17 +3,12 @@ import Module from "../models/Module.js";
 async function ModuleSeeder() {
   try {
     let data = [
-      { libelle: "Utilisateurs" },
-      { libelle: "Thématiques" },
-      { libelle: "Catégories d'enquêtes" },
-      { libelle: "Directions" },
-      { libelle: "Roles" },
-      { libelle: "Fonctions" },
-      { libelle: "Formulaire d'enquêtes" },
-      { libelle: "Réponses aux enquêtes" },
-      { libelle: "Modèles de Notfications" },
-      { libelle: "Notifications" },
-      { libelle: "Statistiques" },
+      { libelle: "Societe" },
+      { libelle: "Configuration enquête" },
+      { libelle: "Collaborateur" },
+      { libelle: "Thématique" },
+      { libelle: "Catégorie" },
+      { libelle: "Enquetes" },
     ];
 
     await Module.insertMany(data, { ordered: false });

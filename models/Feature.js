@@ -7,6 +7,12 @@ const FeatureSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    code: {
+      type: String,
+      required: true,
+      unique: true,
+      sparse: true
+    },
     module_id: {
       type: SchemaTypes.ObjectId,
       ref: Module,

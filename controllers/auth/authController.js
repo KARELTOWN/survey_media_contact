@@ -112,7 +112,7 @@ export default function authController() {
 
   const resendCodeRegistration = async (req, res, next) => {
     try {
-      const user_id = req.body.decrypt
+      const user_id = req.body.decrypt;
       const user = await User.findById(user_id).exec();
       if (!user) {
         return res.status(404).json({ message: "Compte non trouvé" });
@@ -231,7 +231,10 @@ export default function authController() {
             });
           } else {
             let response = await user
-              .updateOne({ email_verified: true }, { new: true })
+              .updateOne(
+                { email_verified: true, is_active: true },
+                { new: true }
+              )
               .exec();
             await result.updateOne({ used_at: moment().toDate() });
             if (response) {

@@ -3,7 +3,7 @@ import User from "../../models/User.js";
 import userService from "../../services/user/userService.js";
 import UserCompany from "../../models/UserCompany.js";
 
-const { invitationNotification, retireFromCompanyNotification, getRoles } =
+const { invitationNotification, getRoles } =
   userService();
 
 export default function userController() {
@@ -47,7 +47,7 @@ export default function userController() {
 
         const user = await User.findOne({ email: value }).exec();
 
-        let user_company = await UserCompany({
+        let user_company = await UserCompany.insertOne({
           user_id: user._id,
           company_id: req.ownerId,
           role_id: result.role_id,
@@ -97,20 +97,5 @@ export default function userController() {
     }
   };
 
-  const getAccountParams = async (req, res, next) => {
-    try {
-      const roles = await getRoles(req.ownerId);
-
-      res.status(200).json({
-        message: "Params get",
-        data: {
-          roles,
-        },
-      });
-    } catch (error) {
-      next(error);
-    }
-  };
-
-  return { getUsers, addUserToCompany, retireFromCompany, getAccountParams };
+  return { getUsers, addUserToCompany, retireFromCompany };
 }

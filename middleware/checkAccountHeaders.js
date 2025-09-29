@@ -22,9 +22,7 @@ export default async function checkAccountHeaders(req, res, next) {
       });
     }
   }
-
-  console.log('req.user._id', req.user)
-
+ 
   req.ownerId = account_type === "enterprise" ? account_id : req.user._id;
   if (account_type === "enterprise") {
     account_type === "enterprise"

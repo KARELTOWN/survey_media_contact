@@ -3,20 +3,120 @@ import Feature from "../models/Feature.js";
 
 const FeatureSeeder = async () => {
   try {
-    // let modules = await Module.find({}).exec();
-    // for (const foundModule of modules) {
-    //   let features = [];
-    //   if (module == "Utilisateurs") {
-    //     features = [
-    //       {
-    //         libelle: "Ajouter un utilisateur",
-    //         module_id: foundModule._id,
-    //       },
-    //     ];
-    //   }
-    //   await Feature.insertMany(features);
-    // }
-    // console.log("All features inserts.");
+    let modules = await Module.find({}).exec();
+    for (const foundModule of modules) {
+      let features = [];
+      if (foundModule.libelle == "Societe") {
+        features = [
+          {
+            libelle: "Ajout société",
+            code: "AS",
+            module_id: foundModule._id,
+          },
+          {
+            libelle: "Détail société",
+            code: "DS",
+            module_id: foundModule._id,
+          },
+          {
+            libelle: "Modification société",
+            code: "MS",
+            module_id: foundModule._id,
+          },
+        ];
+      }
+      if (foundModule.libelle == "Configuration enquête") {
+        features = [
+          {
+            libelle: "Configuration d'enquêtes",
+            code: "CE",
+            module_id: foundModule._id,
+          },
+        ];
+      }
+      if (foundModule.libelle == "Collaborateur") {
+        features = [
+          {
+            libelle: "Liste de collaborateurs",
+            code: "LC",
+            module_id: foundModule._id,
+          },
+          {
+            libelle: "Invitation collaborateur",
+            code: "IC",
+            module_id: foundModule._id,
+          },
+          {
+            libelle: "Retrait/Reintegration collaborateur",
+            code: "RRC",
+            module_id: foundModule._id,
+          },
+          {
+            libelle: "Modification role du collaborateur",
+            code: "MRC",
+            module_id: foundModule._id,
+          },
+        ];
+      }
+      if (foundModule.libelle == "Thématique") {
+        features = [
+          {
+            libelle: "Ajout thématique",
+            code: "AT",
+            module_id: foundModule._id,
+          },
+          {
+            libelle: "Modification thématique",
+            code: "MT",
+            module_id: foundModule._id,
+          },
+        ];
+      }
+      if (foundModule.libelle == "Catégorie") {
+        features = [
+          {
+            libelle: "Ajout catégorie",
+            code: "AC",
+            module_id: foundModule._id,
+          },
+          {
+            libelle: "Modification catégorie",
+            code: "MC",
+            module_id: foundModule._id,
+          },
+        ];
+      }
+      if (foundModule.libelle == "Enquetes") {
+        features = [
+          {
+            libelle: "Ajout d'enquête",
+            code: "AE",
+            module_id: foundModule._id,
+          },
+          {
+            libelle: "Détail d'enquête",
+            code: "DE",
+            module_id: foundModule._id,
+          },
+          {
+            libelle: "Réponses d'enquêtes",
+            code: "RE",
+            module_id: foundModule._id,
+          },
+          {
+            libelle: "Statistique d'enquêtes",
+            code: "SE",
+            module_id: foundModule._id,
+          },
+          {
+            libelle: "Modification d'enquête",
+            code: "ME",
+            module_id: foundModule._id,
+          },
+        ];
+      }
+      await Feature.insertMany(features);
+    }
   } catch (error) {
     throw error;
   }

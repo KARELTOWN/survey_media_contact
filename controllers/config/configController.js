@@ -22,7 +22,6 @@ export default function configController() {
 
   const getConfig = async (req, res, next) => {
     try {
-      console.log('req.ownerId', req.ownerId)
       const config = await SurveyConfig.findOne({ owner_id: req.ownerId });
       return res
         .status(200)

@@ -57,14 +57,6 @@ export default function userService() {
     }
   };
 
-  const getRoles = async (owner_id) => {
-    try {
-      return await Role.find({ owner_id });
-    } catch (error) {
-      throw new Error(error);
-    }
-  };
-
   const accountStatusNotification = async (user) => {
     try {
       let params = {
@@ -99,7 +91,6 @@ export default function userService() {
   return {
     newAccountNotification,
     accountStatusNotification,
-    getRoles,
     invitationNotification,
     getActiveAccountData
   };

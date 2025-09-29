@@ -16,32 +16,31 @@ const {
   filterTopics,
   updateTopic,
   getCategoryInTopic,
-  createCategory
+  createCategory,
 } = topicController();
 import paginateData from "../../helpers/pagination.js";
 import { validatePaginationQuery } from "../../validator/generalValidator.js";
+import permissionCheck from "../../middleware/permissionCheck.js";
 
 TopicRouter.post(
   "/create",
+  permissionCheck("AT"),
   validateStoreTopic,
   createTopic
 );
 
 TopicRouter.post(
   "/category/create",
+  permissionCheck("AC"),
   validateStoreCategory,
   createCategory
 );
 
-TopicRouter.get(
-  "/get",
-  validatePaginationQuery,
-  paginateData,
-  getTopics
-);
+TopicRouter.get("/get", validatePaginationQuery, paginateData, getTopics);
 
 TopicRouter.put(
   "/update/:project_id",
+  permissionCheck("MC"),
   validateUpdateTopic,
   updateTopic
 );
@@ -54,10 +53,6 @@ TopicRouter.post(
   filterTopics
 );
 
-TopicRouter.get(
-  "/category/:topic_id",
-  validateIdTopic,
-  getCategoryInTopic
-);
+TopicRouter.get("/category/:topic_id", validateIdTopic, getCategoryInTopic);
 
 export default TopicRouter;
