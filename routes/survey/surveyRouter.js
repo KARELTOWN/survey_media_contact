@@ -7,6 +7,7 @@ import surveyController from "../../controllers/survey/surveyController.js";
 
 import isauthentificate from "../../middleware/isAuthentificate.js";
 import { blacklist } from "../../middleware/blacklist.js";
+import checkAccountHeaders from "../../middleware/checkAccountHeaders.js";
 
 const {
   getSurveyParams,
@@ -22,6 +23,7 @@ const {
 SurveyRouter.get(
   "/params",
   isauthentificate,
+  checkAccountHeaders,
   blacklist,
   getSurveyParams
 );
@@ -34,6 +36,7 @@ SurveyRouter.get(
 SurveyRouter.post(
   "/create",
   isauthentificate,
+  checkAccountHeaders,
   blacklist,
   surveyValidator,
   createSurvey
@@ -42,6 +45,7 @@ SurveyRouter.post(
 SurveyRouter.get(
   "/get",
   isauthentificate,
+  checkAccountHeaders,
   blacklist,
   getSurveys
 );
@@ -49,6 +53,7 @@ SurveyRouter.get(
 SurveyRouter.get(
   "/show/:survey_id",
   isauthentificate,
+  checkAccountHeaders,
   blacklist,
   validateSurveyId,
   showSurvey
@@ -66,6 +71,7 @@ SurveyRouter.put(
 SurveyRouter.get(
   "/detail/responses/:survey_id",
   isauthentificate,
+  checkAccountHeaders,
   blacklist,
   validateSurveyId,
   surveyResponses
@@ -74,6 +80,7 @@ SurveyRouter.get(
 SurveyRouter.get(
   "/statistics/:survey_id",
   isauthentificate,
+  checkAccountHeaders,
   blacklist,
   validateSurveyId,
   getSurveysStatistics

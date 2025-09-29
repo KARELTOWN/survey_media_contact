@@ -18,6 +18,13 @@ async function NotificationModelSeeder() {
           "Votre compte <strong>#firstname #lastname</strong> est créé. Votre mot de passe : #password.<br>Vous pouvez maintenant accéder à la plateforme SURVEY MC. <br> Lien de connexion : #link",
       },
       {
+        name: "Invitation à rejoindre une société",
+        title: "Invitation à rejoindre #enterprise !",
+        unique: "JOIN_COMPANY_INVITATION",
+        content:
+          "Vous êtes invité à rejoindre <strong>#enterprise</strong> en tant que <strong>#role</strong>. <br> Cliquez sur ce lien pour accepter l'invitation : #link",
+      },
+      {
         name: "Compte activé",
         title: "Bienvenue #firstname #lastname !",
         unique: "ACTIVATE_ACCOUNT",

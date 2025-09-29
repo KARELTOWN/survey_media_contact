@@ -1,23 +1,36 @@
 import express from "express";
 const UserRouter = express.Router();
 
-import { validateUserId } from "../../validator/auth/authValidator.js";
-
-import { validateAddUser } from "../../validator/user/userValidator.js";
+import { validateAddUser, validateUserCompanyId } from "../../validator/user/userValidator.js";
 
 import userController from "../../controllers/user/userController.js";
 import paginateData from "../../helpers/pagination.js";
-import { validatePaginationQuery } from "../../validator/generalValidator.js";
+import {
+  validatePaginationQuery,
+} from "../../validator/generalValidator.js";
 
-const { addUser, changeAccountStatus, getUsers, getAccountParams } =
+const { addUserToCompany, retireFromCompany, getUsers, getAccountParams } =
   userController();
 
-UserRouter.post("/create", validateAddUser, addUser);
+UserRouter.post(
+  "/create",
+  validateAddUser,
+  addUserToCompany
+);
 
-UserRouter.post("/change_account_status", validateUserId, changeAccountStatus);
+UserRouter.post(
+  "/retire_user",
+  validateUserCompanyId,
+  retireFromCompany
+);
 
 UserRouter.get("/params", getAccountParams);
 
-UserRouter.get("/get", validatePaginationQuery, paginateData, getUsers);
+UserRouter.get(
+  "/get",
+  validatePaginationQuery,
+  paginateData,
+  getUsers
+);
 
 export default UserRouter;

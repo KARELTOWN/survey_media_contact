@@ -15,6 +15,7 @@ const CategorySchema = new mongoose.Schema(
     created_by: {
       type: SchemaTypes.ObjectId,
       ref: "User",
+      required: true,
     },
   },
   {

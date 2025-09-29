@@ -1,28 +1,22 @@
 import { validationResult, matchedData } from "express-validator";
 import User from "../../models/User.js";
-import generatePassword from "../../helpers/generatePassword.js";
 import userService from "../../services/user/userService.js";
-import Direction from "../../models/Direction.js";
-import bcrypt from "bcrypt";
-import generateUsername from "../../helpers/generateUsername.js";
+import UserCompany from "../../models/UserCompany.js";
 
-const {
-  newAccountNotification,
-  accountStatusNotification,
-  getFonctions,
-  getRoles,
-  getDirections,
-} = userService();
+const { invitationNotification, retireFromCompanyNotification, getRoles } =
+  userService();
 
 export default function userController() {
   const getUsers = async (req, res, next) => {
     try {
       const { limit, page, skip } = req.pagination;
-      let users;
-      let total_users;
-      total_users = await User.countDocuments();
-      users = await User.find({})
-        .populate(["role_id", "fonction_id", "direction_id"])
+      let query = { company_id: req.ownerId };
+      console.log("ownerId", req.ownerId);
+      let total_users = await UserCompany.countDocuments(query);
+
+      let users = await UserCompany.find(query)
+        .populate(["user_id", "role_id"])
+        .select(["user_id", "role_id", "_id", "is_active"])
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit)
@@ -43,30 +37,28 @@ export default function userController() {
     }
   };
 
-  const addUser = async (req, res, next) => {
+  const addUserToCompany = async (req, res, next) => {
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
         res.status(422).json({ errors: errors.array() });
       } else {
         const result = matchedData(req);
-        let password = generatePassword(8);
-        const hasckpassword = await bcrypt.hash(password, 10);
-        result.password = hasckpassword;
-        result.username = await generateUsername(result);
 
-        let user = await User.create({
-          ...result,
-          fonction_id: result.fonction_id || null,
-          email_verified: true,
-          is_active: true,
+        const user = await User.findOne({ email: value }).exec();
+
+        let user_company = await UserCompany({
+          user_id: user._id,
+          company_id: req.ownerId,
+          role_id: result.role_id,
         });
-        user = await user.populate(["role_id", "fonction_id", "direction_id"]);
 
-        if (user) {
-          await newAccountNotification(user, password);
+        user = await user.populate(["role_id"]);
+
+        if (user_company) {
+          await invitationNotification(user, req.body.enterprise_data);
           res.status(200).json({
-            message: "Account create",
+            message: "User add to Company",
             data: {
               user,
             },
@@ -78,22 +70,19 @@ export default function userController() {
     }
   };
 
-  const changeAccountStatus = async (req, res, next) => {
+  const retireFromCompany = async (req, res, next) => {
     try {
       const errors = validationResult(req);
       if (errors.isEmpty()) {
         const data = matchedData(req);
 
-        const user_account = await User.findOne({ _id: data.user_id });
-
-        const user = await User.findOneAndUpdate(
-          { _id: data.user_id },
-          { is_active: !user_account.is_active },
+        const user_company = await UserCompany.findOneAndUpdate(
+          { _id: data.user_company },
+          [{ $set: { is_active: { $not: "$is_active" } } }],
           { new: true }
         );
-        if (user) {
-          await accountStatusNotification(user);
-
+        if (user_company) {
+          console.log(user_company);
           res.status(200).json({
             message: "Modify successfully",
           });
@@ -110,16 +99,12 @@ export default function userController() {
 
   const getAccountParams = async (req, res, next) => {
     try {
-      const directions = await getDirections();
-      const fonctions = await getFonctions();
-      const roles = await getRoles();
+      const roles = await getRoles(req.ownerId);
 
       res.status(200).json({
         message: "Params get",
         data: {
-          directions,
           roles,
-          fonctions,
         },
       });
     } catch (error) {
@@ -127,5 +112,5 @@ export default function userController() {
     }
   };
 
-  return { getUsers, addUser, changeAccountStatus, getAccountParams };
+  return { getUsers, addUserToCompany, retireFromCompany, getAccountParams };
 }

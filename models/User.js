@@ -1,6 +1,5 @@
 import { SchemaTypes } from "mongoose";
 import mongoose from "../config/mongodb.js";
-import Direction from "./Direction.js";
 const UserSchema = new mongoose.Schema(
   {
     username: {
@@ -40,19 +39,6 @@ const UserSchema = new mongoose.Schema(
     },
     phone: {
       type: String,
-    },
-    role_id: {
-      type: SchemaTypes.ObjectId,
-      ref: "Role",
-      required: true,
-    },
-    direction_id: {
-      type: SchemaTypes.ObjectId,
-      ref: "Direction",
-    },
-    fonction_id: {
-      type: SchemaTypes.ObjectId,
-      ref: "Fonction",
     },
     email_verified: {
       type: Boolean,

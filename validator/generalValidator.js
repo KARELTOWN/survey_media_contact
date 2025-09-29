@@ -1,4 +1,4 @@
-import { query } from "express-validator";
+import { body, query } from "express-validator";
 
 export const validatePaginationQuery = [
   query("page")
@@ -13,7 +13,6 @@ export const validatePaginationQuery = [
     .withMessage("La limite doit être un entier"),
 ];
 
-
 export const validateLimitQuery = [
   query("limit")
     .notEmpty()
@@ -21,6 +20,7 @@ export const validateLimitQuery = [
     .isInt({ gt: 0 })
     .withMessage("La limite doit être un entier"),
 ];
+
 
 export const validateLimitSkipQuery = [
   query("limit")
@@ -33,7 +33,6 @@ export const validateLimitSkipQuery = [
     .withMessage("SKIP est obligatoire")
     .withMessage("SKIP doit être un entier"),
 ];
-
 
 export const validateSkipQuery = [
   query("skip")

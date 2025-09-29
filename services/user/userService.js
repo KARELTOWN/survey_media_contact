@@ -1,8 +1,9 @@
-import Direction from "../../models/Direction.js";
-import Fonction from "../../models/Fonction.js";
 import Role from "../../models/Role.js";
+import User from "../../models/User.js";
 import notificationService from "../../services/notification/notificationService.js";
+import companyService from "../company/companyService.js";
 const { sendMailNotification } = notificationService();
+const { companyData } = companyService();
 
 export default function userService() {
   const newAccountNotification = async (user, password) => {
@@ -26,25 +27,39 @@ export default function userService() {
     }
   };
 
-  const getDirections = async () => {
+  const getActiveAccountData = (req) => {
+    return {
+      owner_id: req.ownerId,
+      account_type_ref: req.account_type_ref,
+    };
+  };
+
+  const invitationNotification = async (user, enterprise) => {
     try {
-      return await Direction.find({});
+      let params = {
+        firstname: user.firstname,
+        lastname: user.lastname,
+        email: user.email,
+        _id: user._id,
+        role: user.role_id.libelle,
+        enterprise: enterprise.denomination,
+        link:
+          process.env.FRONT_URL + `?user=${user._id}&company=${enterprise._id}`,
+      };
+      await sendMailNotification({
+        receivers: [{ ...params }],
+        params: params,
+        model_name: "JOIN_COMPANY_INVITATION",
+      });
+      return true;
     } catch (error) {
       throw new Error(error);
     }
   };
 
-  const getFonctions = async () => {
+  const getRoles = async (owner_id) => {
     try {
-      return await Fonction.find({});
-    } catch (error) {
-      throw new Error(error);
-    }
-  };
-
-  const getRoles = async () => {
-    try {
-      return await Role.find({});
+      return await Role.find({ owner_id });
     } catch (error) {
       throw new Error(error);
     }
@@ -71,11 +86,21 @@ export default function userService() {
     }
   };
 
+  const getUserData = async (id) => {
+    try {
+      let user = await User.findById(id);
+      return user;
+    } catch (err) {
+      throw new Error(err);
+    }
+  };
+
+
   return {
     newAccountNotification,
     accountStatusNotification,
-    getFonctions,
     getRoles,
-    getDirections,
+    invitationNotification,
+    getActiveAccountData
   };
 }

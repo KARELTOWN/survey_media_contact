@@ -1,16 +1,18 @@
 import { matchedData } from "express-validator";
-import Config from "../../models/Config.js";
+import SurveyConfig from "../../models/SurveyConfig.js";
+import SurveyTemplate from "../../models/SurveyTemplate.js";
 
 export default function configController() {
   const updateConfig = async (req, res, next) => {
     try {
       const data = matchedData(req);
-      const count = await Config.countDocuments();
-      if (count > 0) {
-        let config = await Config.findOne({});
-        await config.updateOne({ survey_header: data });
+      let config = await SurveyConfig.findOne({ owner_id: req.ownerId });
+      if (config) {
+        await config.updateOne({ ...data });
       } else {
-        await Config.create({ survey_header: data });
+        data.owner_id = req.ownerId;
+        data.account_type_ref = req.account_type_ref;
+        await SurveyConfig.create({ ...data });
       }
       return res.status(200).json({ message: "Configuration modifiée" });
     } catch (err) {
@@ -20,7 +22,8 @@ export default function configController() {
 
   const getConfig = async (req, res, next) => {
     try {
-      const config = await Config.findOne({});
+      console.log('req.ownerId', req.ownerId)
+      const config = await SurveyConfig.findOne({ owner_id: req.ownerId });
       return res
         .status(200)
         .json({ data: config, message: "Configuration récupérée" });
@@ -29,8 +32,23 @@ export default function configController() {
     }
   };
 
+  const getConfigFromSurveyId = async (req, res, next) => {
+    try {
+      const data = matchedData(req);
+      let survey_template = await SurveyTemplate.findById(data.survey_id);
+      const config = await SurveyConfig.findOne({
+        owner_id: survey_template.owner_id,
+      });
+      return res
+        .status(200)
+        .json({ data: config, message: "Configuration récupérée" });
+    } catch (err) {
+      next(err);
+    }
+  };
   return {
     getConfig,
     updateConfig,
+    getConfigFromSurveyId,
   };
 }

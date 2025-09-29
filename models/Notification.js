@@ -10,7 +10,7 @@ const NotificationSchema = new mongoose.Schema(
     mail_to: {
       type: SchemaTypes.ObjectId,
       ref: "User",
-      required: true
+      required: true,
     },
     title: {
       type: String,
@@ -26,6 +26,20 @@ const NotificationSchema = new mongoose.Schema(
     },
     readAt: {
       type: Date,
+    },
+    owner_id: {
+      type: SchemaTypes.ObjectId,
+      required: true,
+      refPath: "account_type_ref",
+    },
+    account_type_ref: {
+      type: String,
+      required: true,
+      enum: ["Company", "User"],
+    },
+    created_by: {
+      type: SchemaTypes.ObjectId,
+      ref: "User",
     },
   },
   {

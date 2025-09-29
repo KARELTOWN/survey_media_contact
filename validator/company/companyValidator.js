@@ -1,0 +1,91 @@
+import { body, param, validationResult } from "express-validator";
+import _ from "lodash";
+import companyService from "../../services/company/companyService.js";
+import Company from "../../models/Company.js";
+const { checkCompanyExist } = companyService();
+
+export const validateStoreCompany = [
+  body("denomination")
+    .notEmpty()
+    .withMessage("La dénomination est obligatoire"),
+  body("logo")
+    .notEmpty()
+    .withMessage("Le logo est obligatoire")
+    .custom(async (value) => {
+      if (!value.startsWith("data:image/")) {
+        throw new Error("L'image au format non approprié");
+      }
+      return true;
+    }),
+  body("adress").notEmpty().withMessage("L'adresse est obligatoire"),
+  body("phone").notEmpty().withMessage("Le téléphone est obligatoire"),
+  body("email")
+    .notEmpty()
+    .withMessage("Le téléphone est obligatoire")
+    .isEmail()
+    .withMessage("Email invalide"),
+
+  body("open_hours")
+    .notEmpty()
+    .withMessage("L'heure de travaille est obligatoire"),
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({ errors: errors.array() });
+    }
+    next();
+  },
+];
+
+export const validateIdCompany = [
+  param("company_id")
+    .notEmpty()
+    .withMessage("La société est obligatoire")
+    .custom(async (value) => {
+      let exist = await checkCompanyExist(value);
+      if (!exist) {
+        throw new Error("La société n'existe pas");
+      }
+      return true;
+    }),
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({ errors: errors.array() });
+    }
+    next();
+  },
+];
+
+export const validateUpdateCompany = [
+  body("denomination")
+    .notEmpty()
+    .withMessage("La dénomination est obligatoire"),
+  body("logo")
+    .notEmpty()
+    .withMessage("Le logo est obligatoire")
+    .custom(async (value) => {
+      if (!value.startsWith("data:image/")) {
+        throw new Error("L'image au format non approprié");
+      }
+      return true;
+    }),
+  body("adress").notEmpty().withMessage("L'adresse est obligatoire"),
+  body("phone").notEmpty().withMessage("Le téléphone est obligatoire"),
+  body("email")
+    .notEmpty()
+    .withMessage("Le téléphone est obligatoire")
+    .isEmail()
+    .withMessage("Email invalide"),
+
+  body("open_hours")
+    .notEmpty()
+    .withMessage("L'heure de travaille est obligatoire"),
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({ errors: errors.array() });
+    }
+    next();
+  },
+];

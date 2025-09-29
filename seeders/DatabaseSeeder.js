@@ -1,17 +1,9 @@
 import NotificationModelSeeder from "./NotificationModelSeeder.js";
 import QuestionFieldTypeSeeder from "./QuestionFieldTypeSeeder.js";
-import DirectionSeeder from "./DirectionSeeder.js";
-import CategorySeeder from "./CategorySeeder.js";
-import TopicSeeder from "./TopicSeeder.js";
-import RoleSeeder from "./RoleSeeder.js";
 import ModuleSeeder from "./ModuleSeeder.js";
 import UserSeeder from "./UserSeeder.js";
 
 const seeders = [
-  RoleSeeder,
-  TopicSeeder,
-  CategorySeeder,
-  DirectionSeeder,
   QuestionFieldTypeSeeder,
   NotificationModelSeeder,
   ModuleSeeder,

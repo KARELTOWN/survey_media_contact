@@ -38,7 +38,13 @@ export default function topicController() {
         return res.status(422).json({ errors: errors.array() });
       }
       const data = matchedData(req);
-      let topic = new Topic({ ...data, created_by: req.user._id });
+
+      let topic = new Topic({
+        ...data,
+        created_by: req.user._id,
+        owner_id: req.ownerId,
+        account_type_ref: req.account_type_ref,
+      });
       await topic.save();
 
       return res.status(200).json({
@@ -60,7 +66,12 @@ export default function topicController() {
       const { limit, skip, page } = req.pagination;
       let data;
 
-      const result = await TopicModelFilter(req, {}, skip, limit);
+      let query = {
+        owner_id: req.ownerId,
+        account_type_ref: req.account_type_ref,
+      };
+      console.log('query', query)
+      const result = await TopicModelFilter(req, query, skip, limit);
       const { total_topic, topic_list } = result;
       data = {
         topics: topic_list,
@@ -122,6 +133,8 @@ export default function topicController() {
       let query = {};
 
       query.libelle = { $regex: data.search, $options: "i" };
+      query.owner_id = req.ownerId;
+      query.account_type_ref = req.account_type_ref;
 
       const result = await TopicModelFilter(req, query, skip, limit);
       const { total_topic, topic_list } = result;

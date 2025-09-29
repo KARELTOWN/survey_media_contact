@@ -5,8 +5,6 @@ import bcrypt from "bcrypt";
 import User from "../models/User.js";
 async function UserSeeder() {
   try {
-    let role = await Role.findOne({ libelle: "Utilisateur" });
-
     const hasckpassword = await bcrypt.hash("P@ss2025", 10);
 
     let user = {
@@ -14,7 +12,6 @@ async function UserSeeder() {
       firstname: "ADMIN",
       email: "kareltowanou123@gmail.com",
       password: hasckpassword,
-      role_id: role._id,
       email_verified: true,
       is_active: true,
     };

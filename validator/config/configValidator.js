@@ -11,11 +11,39 @@ export const validateConfigUpdate = [
       }
       return true;
     }),
-  body("adress").notEmpty().withMessage("L'adresse est obligatoire"),
-  body("phone").notEmpty().withMessage("Le téléphone est obligatoire"),
+  body("adress")
+    .optional()
+    .custom((value, { req }) => {
+      if (
+        req.account_type_ref === "enterprise" &&
+        (!value || value == undefined)
+      ) {
+        throw new Error("Adresse obligatoire");
+      }
+      return true;
+    }),
+  body("phone")
+    .optional()
+    .custom((value, { req }) => {
+      if (
+        req.account_type_ref === "enterprise" &&
+        (!value || value == undefined)
+      ) {
+        throw new Error("Téléphone obligatoire");
+      }
+      return true;
+    }),
   body("open_hours")
-    .notEmpty()
-    .withMessage("L'heure de travaille est obligatoire"),
+    .optional()
+    .custom((value, { req }) => {
+      if (
+        req.account_type_ref === "enterprise" &&
+        (!value || value == undefined)
+      ) {
+        throw new Error("Horaires d'ouvertures obligatoires");
+      }
+      return true;
+    }),
   (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {

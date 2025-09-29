@@ -35,18 +35,23 @@ const SurveyTemplateSchema = new mongoose.Schema(
     publish: {
       type: Boolean,
       required: true,
-      default: true
+      default: true,
+    },
+    owner_id: {
+      type: SchemaTypes.ObjectId,
+      required: true,
+      refPath: "account_type_ref",
+    },
+    account_type_ref: {
+      type: String,
+      required: true,
+      enum: ["Company", "User"],
     },
     created_by: {
       type: SchemaTypes.ObjectId,
       ref: "User",
       required: true,
     },
-    direction_id: {
-      type: SchemaTypes.ObjectId,
-      ref: 'Direction',
-      required: false
-    }
   },
   {
     timestamps: true,
