@@ -3,10 +3,10 @@
     <PageBreadcrumb :pageTitle="currentPageTitle" />
     <div class="space-y-5 sm:space-y-6">
       <ComponentCard>
-        <div>
+        <div class="flex justify-end">
           <button type="button" @click="open()"
             class="flex items-center justify-center w-64 px-4 py-3 text-sm font-medium text-white transition rounded-lg bg-red-500 shadow-theme-xs hover:bg-red-600">
-            Ajouter un utilisateur 
+            Inviter un collaborateur 
 
           </button>
         </div>
@@ -33,7 +33,7 @@ import PageBreadcrumb from "@/components/common/PageBreadcrumb.vue";
 import AdminLayout from "@/components/layout/AdminLayout.vue";
 import ComponentCard from "@/components/common/ComponentCard.vue";
 import UserList from "@/components/user/UserList.vue";
-const currentPageTitle = ref("Utilisateurs");
+const currentPageTitle = ref("Collaborateurs");
 import CreateUser from '@/components/user/CreateUser.vue'
 import Pagination from "@/components/pagination/Pagination.vue";
 

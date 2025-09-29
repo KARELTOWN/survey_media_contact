@@ -863,3 +863,7 @@ input[type='checkbox'] {
     display: none;
   }
 }
+
+.text-danger {
+  color: red;
+}

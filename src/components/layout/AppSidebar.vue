@@ -14,10 +14,10 @@
       !isExpanded && !isHovered ? 'lg:justify-center' : 'justify-center',
     ]">
       <router-link to="/">
-        <img v-if="isExpanded || isHovered || isMobileOpen" class="dark:hidden scale-150" src="/images/logo/logo.png" alt="Logo"
-          width="120" height="40" />
-        <img v-if="isExpanded || isHovered || isMobileOpen" class="hidden dark:block scale-150" src="/images/logo/auth-logo.png"
-          alt="Logo" width="90" height="40" />
+        <img v-if="isExpanded || isHovered || isMobileOpen" class="dark:hidden scale-150" src="/images/logo/logo.png"
+          alt="Logo" width="120" height="40" />
+        <img v-if="isExpanded || isHovered || isMobileOpen" class="hidden dark:block scale-150"
+          src="/images/logo/auth-logo.png" alt="Logo" width="90" height="40" />
         <img v-else src="/images/logo/logo.png" alt="Logo" class="scale-200" width="32" height="32" />
       </router-link>
     </div>
@@ -38,16 +38,17 @@
             </h2>
             <ul class="flex flex-col gap-4">
               <li v-for="(item, index) in menuGroup.items" :key="item.name">
-                <button v-if="item.subItems" @click="toggleSubmenu(groupIndex, index)" :class="[
-                  'menu-item group w-full',
-                  {
-                    'menu-item-active': isSubmenuOpen(groupIndex, index),
-                    'menu-item-inactive': !isSubmenuOpen(groupIndex, index),
-                  },
-                  !isExpanded && !isHovered
-                    ? 'lg:justify-center'
-                    : 'lg:justify-start',
-                ]">
+                <button v-if="item.subItems && item.account_type == item.require_account"
+                  @click="toggleSubmenu(groupIndex, index)" :class="[
+                    'menu-item group w-full',
+                    {
+                      'menu-item-active': isSubmenuOpen(groupIndex, index),
+                      'menu-item-inactive': !isSubmenuOpen(groupIndex, index),
+                    },
+                    !isExpanded && !isHovered
+                      ? 'lg:justify-center'
+                      : 'lg:justify-start',
+                  ]">
                   <span :class="[
                     isSubmenuOpen(groupIndex, index)
                       ? 'menu-item-icon-active'
@@ -66,13 +67,14 @@
                     },
                   ]" />
                 </button>
-                <router-link v-else-if="item.path" @click="toggleMenu" :to="item.path" :class="[
-                  'menu-item group',
-                  {
-                    'menu-item-active': isActive(item.path),
-                    'menu-item-inactive': !isActive(item.path),
-                  },
-                ]">
+                <router-link v-else-if="item.path && item.account_type == item.require_account" @click="toggleMenu"
+                  :to="item.path" :class="[
+                    'menu-item group',
+                    {
+                      'menu-item-active': isActive(item.path),
+                      'menu-item-inactive': !isActive(item.path),
+                    },
+                  ]">
                   <span :class="[
                     isActive(item.path)
                       ? 'menu-item-icon-active'
@@ -165,6 +167,7 @@ import {
 import SidebarWidget from "./SidebarWidget.vue";
 import BoxCubeIcon from "@/icons/BoxCubeIcon.vue";
 import { useSidebar } from "@/composables/useSidebar";
+import { get_account_type } from "@/composables/request";
 
 const route = useRoute();
 
@@ -183,21 +186,30 @@ const menuGroups = [
         icon: CalenderIcon,
         name: "Enquêtes",
         path: "/enquetes",
+        require_account: 'any',
+        account_type: 'any'
       },
       {
         icon: CalenderIcon,
         name: "Brouillons",
         path: "/brouillons",
+        require_account: 'any',
+        account_type: 'any'
       },
       {
         icon: CalenderIcon,
-        name: "Utilisateurs",
-        path: "/utilisateurs",
+        name: "Collaborateurs",
+        path: "/collaborateurs",
+        require_account: 'enterprise',
+        account_type: get_account_type()
       },
-       {
+      {
         icon: GridIcon,
         name: "Paramètres",
-        subItems: [{ name: "Configurations", path: "/configurations", pro: false }],
+        subItems: [
+          { name: "Configurations d'enquête", path: "/configurations", pro: false },
+          { name: "Sociétés", path: "/societes", pro: false },
+        ],
       },
     ],
   },

@@ -60,6 +60,15 @@ const router = createRouter({
         title: 'Formulaire',
       },
     },
+    {
+      path: '/societes/',
+      name: 'Societes',
+      component: () => import('../views/Pages/Company/Company.vue'),
+      meta: {
+        title: 'Societes',
+        requiredAuth: true,
+      },
+    },
 
     {
       path: '/formulaire-envoye',
@@ -80,15 +89,15 @@ const router = createRouter({
     },
 
     {
-      path: '/utilisateurs',
-      name: 'Utilisateurs',
+      path: '/collaborateurs',
+      name: 'Collaborateurs',
       component: () => import('../views/Pages/User/User.vue'),
       meta: {
-        title: 'Liste des utilisateurs',
+        title: 'Liste des collaborateurs',
         requiredAuth: true,
       },
     },
-    
+
     {
       path: '/configurations',
       name: 'Configurations',

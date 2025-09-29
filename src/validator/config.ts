@@ -1,3 +1,4 @@
+import { get_account_type } from '@/composables/request'
 import * as yup from 'yup'
 
 export default function configValidator() {
@@ -6,11 +7,39 @@ export default function configValidator() {
       logo: yup.string().required('Logo obligatoire'),
       phone: yup
         .string()
-        .required('Téléphone obligatoire')
-        .matches(/^\+?[0-9]{8,15}$/, 'Numéro de téléphone invalide'),
+        .nullable()
+        .notRequired()
+        .test('is-valid-phone', 'Numéro de téléphone invalide', (value) => {
+          const account_type = get_account_type()
+          if (account_type === 'enterprise') {
+            if (!value)
+              return this.createError({
+                message: 'Le téléphone est obligatoire pour une entreprise',
+              })
+          }
+          if (!value) return true // autorise vide ou null
+          return /^\+?[0-9]{8,15}$/.test(value)
+        }),
 
-      adress: yup.string().required('Adresse obligatoire'),
-      open_hours: yup.string().required("Les heures d'ouvertures sont obligatoires"),
+      adress: yup
+        .string()
+        .test('required-if-enterprise', 'Adresse est obligatoire', function (value) {
+          const account_type = get_account_type()
+
+          if (account_type === 'enterprise') {
+            return !!value
+          }
+          return true
+        }),
+      open_hours: yup
+        .string()
+        .test('required-if-enterprise', "Heures d'ouvertures est obligatoire", function (value) {
+          const account_type = get_account_type()
+          if (account_type === 'enterprise') {
+            return !!value
+          }
+          return true
+        }),
     })
   }
 

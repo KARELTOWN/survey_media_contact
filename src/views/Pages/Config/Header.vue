@@ -3,11 +3,13 @@
         <PageBreadcrumb pageTitle="Configurer" />
 
         <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
-            <div class="w-3/3 flex flex-col">
-
+            <div class="w-1/3 flex flex-col">
                 <div class="flex border-b">
                     <button @click="activeTab = 'en-tete'" :class="tabClass('en-tete')">En tête</button>
                 </div>
+            </div>
+
+            <div class="w-3/3 flex flex-col">
 
                 <div class="flex-1 overflow-y-auto p-4">
                     <div v-if="activeTab === 'en-tete'" class="space-y-4">

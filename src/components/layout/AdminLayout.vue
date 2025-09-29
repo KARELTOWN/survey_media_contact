@@ -20,4 +20,14 @@ import AppHeader from './AppHeader.vue'
 import { useSidebar } from '@/composables/useSidebar'
 import Backdrop from './Backdrop.vue'
 const { isExpanded, isHovered } = useSidebar()
+import { companyStore } from "@/stores/company/companyStore";
+const store = companyStore()
+const { getCompanies } = store
+import { onMounted } from 'vue'
+
+
+onMounted(()=> {
+  getCompanies()
+})
+
 </script>

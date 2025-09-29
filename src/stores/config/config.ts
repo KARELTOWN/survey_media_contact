@@ -14,9 +14,8 @@ export const configStore = defineStore('config-store', () => {
     try {
       configSuccess.value = false
       errors.value = {}
-
+      console.log('form', form)
       const schemaValidation = validateHeaderConfig()
-      console.log('schemaValidation', form)
       const data = await schemaValidation.validate(
         {
           ...form,
@@ -42,6 +41,7 @@ export const configStore = defineStore('config-store', () => {
     } catch (err) {
       const result = handleCatchError(err)
       if (result) {
+        console.log('result', result)
         errors.value = result
       }
     }
@@ -59,9 +59,32 @@ export const configStore = defineStore('config-store', () => {
           configSuccess.value = true
           config.value = response.data
         }
+      } else {
+        configSuccess.value = false
       }
-      else {
-                  configSuccess.value = false
+    } catch (err) {
+      configSuccess.value = false
+      const result = handleCatchError(err)
+      if (result) {
+        errors.value = result
+      }
+    }
+  }
+
+  const getSurveyConfig = async (survey_id:any) => {
+    try {
+      configSuccess.value = false
+      const result = await fetchGet(`config/survey_config/${survey_id}`)
+
+      const response = await handleAppError(result)
+
+      if (response.status === false) {
+        if (response?.data) {
+          configSuccess.value = true
+          config.value = response.data
+        }
+      } else {
+        configSuccess.value = false
       }
     } catch (err) {
       configSuccess.value = false
@@ -77,6 +100,7 @@ export const configStore = defineStore('config-store', () => {
     errors,
     configSuccess,
     getConfig,
+    getSurveyConfig,
     config,
   }
 })

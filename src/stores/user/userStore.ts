@@ -71,7 +71,7 @@ export const userStore = defineStore('user-store', () => {
     try {
       search_errors.value = {}
       userSuccess.value = false
-      const result = await fetchPost(`users/change_account_status`, data)
+      const result = await fetchPost(`users/retire_user`, data)
       const response = await handleAppError(result)
       if (response.status === false) {
         userSuccess.value = true

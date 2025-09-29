@@ -1,10 +1,10 @@
 <template>
-    <header class="w-full bg-black text-white" v-if="displayHeader">
+    <header class="w-full bg-black text-white px-5" v-if="displayHeader">
         <div class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-4 pb-3 gap-4">
-            <div class="col-span-1" v-if="form.logo">
+            <div class="col-span-1 flex justify-center items-center" v-if="form.logo">
                 <img :src="form.logo" alt="Media Contact" class="h-20 md:h-20 object-contain" />
             </div>
-            <div class="col-span-1 flex items-center space-x-2" v-if="form.adress">
+            <div class="col-span-1 flex justify-center items-center space-x-2" v-if="form.adress">
                 <svg class="h-4 w-4 text-red-500 flex-shrink-0" viewBox="0 0 24 24" fill="none"
                     xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                     <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 11 7 11s7-5.75 7-11c0-3.87-3.13-7-7-7z"
@@ -14,7 +14,7 @@
                 <span class="truncate">{{ form.adress }}</span>
             </div>
             <!-- Horaires -->
-            <div class="col-span-1 flex items-center space-x-2" v-if="form.open_hours">
+            <div class="col-span-1 flex justify-center items-center space-x-2" v-if="form.open_hours">
                 <svg class="h-4 w-4 text-red-500 flex-shrink-0" viewBox="0 0 24 24" fill="none"
                     xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                     <path d="M12 8v4l3 3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"
@@ -25,7 +25,7 @@
             </div>
 
             <!-- Téléphone -->
-            <div class="col-span-1 flex items-center space-x-2" v-if="form.phone">
+            <div class="col-span-1 flex justify-center items-center space-x-2" v-if="form.phone">
                 <svg class="h-4 w-4 text-red-500 flex-shrink-0" viewBox="0 0 24 24" fill="none"
                     xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                     <path
@@ -43,11 +43,12 @@
 import { computed, onMounted, reactive, ref } from 'vue';
 import { configStore } from '@/stores/config/config';
 import { storeToRefs } from 'pinia';
+import { useRoute } from 'vue-router';
 const store = configStore()
 const { config, configSuccess } = storeToRefs(store)
-const { getConfig } = store
+const { getSurveyConfig } = store
 
-const displayHeader = computed(()=> (form.adress && form.phone && form.logo && form.open_hours))
+const displayHeader = computed(()=> (form.logo))
 
 const form = reactive({
     adress: '',
@@ -56,10 +57,13 @@ const form = reactive({
     open_hours: ''
 })
 
+const route = useRoute()
+
 onMounted(async () => {
-    await getConfig().then(() => {
+    await getSurveyConfig(route.params.id).then(() => {
         if (configSuccess.value === true) {
-            const header = config.value.survey_header
+            const header = config.value
+            console.log('header', header)
             if (header) {
                 form.phone = header.phone
                 form.logo = header.logo
