@@ -39,7 +39,8 @@
                                     </div>
                                 </form>
                                 <div class="mt-5">
-                                    <Button variant="outline" class="mb-3" @click="resendCode">Renvoyer un autre code</Button>
+                                    <Button variant="outline" class="mb-3" @click="resendCode">Renvoyer un autre
+                                        code</Button>
 
                                     <p
                                         class="text-sm font-normal text-center text-gray-700 dark:text-gray-400 sm:text-start">
@@ -165,7 +166,7 @@ const handleSubmit = async () => {
             return
         }
         else {
-            successNotify('Compte vérifié. Un administrateur va valider votre compte.')
+            successNotify('Compte vérifié')
             setTimeout(() => {
                 router.push({ path: "/" })
             }, 2000)
