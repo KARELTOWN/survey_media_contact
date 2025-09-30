@@ -1,28 +1,37 @@
-import Role from "../../models/Role.js";
 import User from "../../models/User.js";
 import notificationService from "../../services/notification/notificationService.js";
-import companyService from "../company/companyService.js";
 const { sendMailNotification } = notificationService();
+import { encrypt } from "../../helpers/encrypt.js";
+import moment from "moment";
 
 export default function userService() {
   const getActiveAccountData = (req) => {
     return {
-      owner_id: req.ownerId,
+      owner_id: req.owner_id,
       account_type_ref: req.account_type_ref,
     };
   };
 
-  const invitationNotification = async (user, enterprise, user_company) => {
+  const invitationNotification = async (
+    user,
+    enterprise,
+    user_company,
+    role
+  ) => {
     try {
+      let token =
+        user_company.toString() +
+        "@" +
+        moment().add("3", "hours").toISOString();
+      let encrypt_token = encrypt(token);
       let params = {
         firstname: user.firstname,
         lastname: user.lastname,
         email: user.email,
         _id: user._id,
-        role: user.role_id.libelle,
-        enterprise: enterprise.denomination,
-        link:
-          process.env.FRONT_URL + `?id=${user_company}`,
+        role: role,
+        enterprise: enterprise,
+        link: process.env.FRONT_URL + `/join_company?jc=${encrypt_token}`,
       };
       await sendMailNotification({
         receivers: [{ ...params }],
@@ -44,10 +53,9 @@ export default function userService() {
     }
   };
 
-
   return {
     invitationNotification,
     getActiveAccountData,
-    getUserData
+    getUserData,
   };
 }

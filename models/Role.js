@@ -5,8 +5,7 @@ const Roleschema = new mongoose.Schema(
   {
     libelle: {
       type: String,
-      unique: [true, "Le role existe déjà"],
-      sparse: true,
+      required: true,
     },
     owner_id: {
       type: SchemaTypes.ObjectId,
@@ -28,5 +27,6 @@ const Roleschema = new mongoose.Schema(
   }
 );
 
+Roleschema.index({ libelle: 1, owner_id: 1 }, { unique: true });
 const Role = mongoose.model("Role", Roleschema);
 export default Role;

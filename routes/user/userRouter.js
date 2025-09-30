@@ -4,13 +4,14 @@ const UserRouter = express.Router();
 import {
   validateAddUser,
   validateUserCompanyId,
+  validateAcceptInvitation
 } from "../../validator/user/userValidator.js";
 
 import userController from "../../controllers/user/userController.js";
 import paginateData from "../../helpers/pagination.js";
 import { validatePaginationQuery } from "../../validator/generalValidator.js";
 import permissionCheck from "../../middleware/permissionCheck.js";
-const { addUserCompany, changeUserInCompanyState, getUsers, getAccountParams } =
+const { addUserCompany, retireUserFromCompany, getUsers, getAccountParams, acceptInvitation } =
   userController();
 
 UserRouter.post(
@@ -21,10 +22,16 @@ UserRouter.post(
 );
 
 UserRouter.post(
-  "/update_user_company_state",
+  "/retire_user_from_company",
   permissionCheck("RRC"),
   validateUserCompanyId,
-  changeUserInCompanyState
+  retireUserFromCompany
+);
+
+UserRouter.post(
+  "/accept_invitation",
+  validateAcceptInvitation,
+  acceptInvitation
 );
 
 UserRouter.get(

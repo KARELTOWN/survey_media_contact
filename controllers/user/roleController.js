@@ -1,4 +1,9 @@
+import { matchedData } from "express-validator";
 import roleService from "../../services/user/roleService.js";
+import userService from "../../services/user/userService.js";
+import Role from "../../models/Role.js";
+
+const { getActiveAccountData } = userService();
 const {
   createRoleFn,
   updateRoleFn,
@@ -10,11 +15,15 @@ export default function roleController() {
   const createRole = async (req, res, next) => {
     try {
       const data = matchedData(req);
-      let role = createRoleFn({
+
+      let active_account_data = getActiveAccountData(req);
+
+      let created_by = { created_by: req.user._id };
+      let role = await createRoleFn({
         libelle: data.libelle,
-        owner_id: req.ownerId,
+        ...active_account_data,
+        ...created_by,
       });
-      await role.save();
 
       return res.status(200).json({
         message: "Role créé",
@@ -32,10 +41,10 @@ export default function roleController() {
 
   const getRoles = async (req, res, next) => {
     try {
-      const data = await getRolesFn(req.ownerId);
+      const data = await getRolesFn(req.owner_id);
 
       return res.status(200).json({
-        message: "Topics récupérées",
+        message: "Roles récupérées",
         data: data,
       });
     } catch (error) {
@@ -65,10 +74,14 @@ export default function roleController() {
   const getPermissions = async (req, res, next) => {
     try {
       const data = matchedData(req);
-      let permissions = await getPermissionsFn(data.permission_id);
+      let permissions = await getPermissionsFn(data.role_id);
+      let role = await Role.findOne({ _id: data.role_id }).select('libelle');
       return res.status(200).json({
         message: "Get successfully",
-        data: permissions,
+        data: {
+          permissions,
+          role,
+        },
       });
     } catch (error) {
       next(error);
@@ -81,7 +94,6 @@ export default function roleController() {
       let permission = await updatePermissionFn(data.permission_id);
       return res.status(200).json({
         message: "Update successfully",
-        data: permission,
       });
     } catch (error) {
       next(error);
@@ -93,6 +105,6 @@ export default function roleController() {
     updateRole,
     getPermissions,
     createRole,
-    updatePermission
+    updatePermission,
   };
 }

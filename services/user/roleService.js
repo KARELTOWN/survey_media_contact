@@ -72,12 +72,12 @@ export default function roleService() {
 
       const grouped = permissions.reduce((acc, perm) => {
         const moduleName = perm.module_id.libelle;
-
         if (!acc[moduleName]) {
           acc[moduleName] = [];
         }
 
         acc[moduleName].push({
+          permission_id: perm._id,
           feature: perm.feature_id.libelle,
           is_active: perm.is_active,
         });

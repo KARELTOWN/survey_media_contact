@@ -39,7 +39,7 @@ export const surveyValidator = [
 
   body("description")
     .optional()
-    .isString()
+    .isString().trim().escape()
     .withMessage("description doit être une chaîne de caractères"),
 
   body("topic_id")

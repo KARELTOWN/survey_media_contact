@@ -5,11 +5,10 @@ import morgan from "morgan";
 import path from "path";
 import { fileURLToPath } from "url";
 import bodyParser from "body-parser";
-
 import pino from "pino";
-
 import redisConnection from "./config/redis.js";
 import cors from "cors";
+import helmet from "helmet";
 
 const __filename = fileURLToPath(import.meta.url);
 
@@ -79,6 +78,7 @@ export const viewspath = path.join(__dirname, "views");
 
 app.use(express.static(path.join(__dirname, "public/files")));
 app.use(morgan("dev"));
+app.use(helmet());
 app.use(express.json());
 app.use("/api", router);
 

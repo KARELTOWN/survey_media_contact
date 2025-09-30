@@ -2,13 +2,14 @@ import { matchedData, validationResult } from "express-validator";
 import companyService from "../../services/company/companyService.js";
 import SurveyConfig from "../../models/SurveyConfig.js";
 import roleService from "../../services/user/roleService.js";
-const { createRole } = roleService();
+const { createRoleFn } = roleService();
 const { companyData } = companyService();
+import userService from "../../services/user/userService.js";
+
 const { getActiveAccountData } = userService();
 
 import Company from "../../models/Company.js";
 import UserCompany from "../../models/UserCompany.js";
-import userService from "../../services/user/userService.js";
 
 export default function companyController() {
   const createCompany = async (req, res, next) => {
@@ -17,12 +18,13 @@ export default function companyController() {
       let company = new Company({ ...data, created_by: req.user._id });
       await company.save();
 
-      let active_account_data = getActiveAccountData(req);
-      let created_by = {created_by: req.user._id}
-      let role = await createRole({
+      let created_by = { created_by: req.user._id };
+      
+      let role = await createRoleFn({
         libelle: "Administrateur",
-        ...active_account_data,
-        created_by,
+        owner_id: company._id,
+        account_type_ref: 'Company',
+        ...created_by,
       });
 
       if (role) {
@@ -31,7 +33,7 @@ export default function companyController() {
           company_id: company._id,
           role_id: role._id,
           is_active: true,
-          created_by,
+          ...created_by,
         });
 
         await SurveyConfig.insertOne({

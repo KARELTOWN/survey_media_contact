@@ -34,7 +34,7 @@ export default function topicController() {
       let topic = new Topic({
         ...data,
         created_by: req.user._id,
-        owner_id: req.ownerId,
+        owner_id: req.owner_id,
         account_type_ref: req.account_type_ref,
       });
       await topic.save();
@@ -59,7 +59,7 @@ export default function topicController() {
       let data;
 
       let query = {
-        owner_id: req.ownerId,
+        owner_id: req.owner_id,
         account_type_ref: req.account_type_ref,
       };
       const result = await TopicModelFilter(req, query, skip, limit);
@@ -116,7 +116,7 @@ export default function topicController() {
       let query = {};
 
       query.libelle = { $regex: data.search, $options: "i" };
-      query.owner_id = req.ownerId;
+      query.owner_id = req.owner_id;
       query.account_type_ref = req.account_type_ref;
 
       const result = await TopicModelFilter(req, query, skip, limit);

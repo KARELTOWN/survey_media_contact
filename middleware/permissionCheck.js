@@ -11,6 +11,9 @@ export default function permissionCheck(featureCode) {
         "_id",
         "module_id",
       ]);
+      if (!feature) {
+        return res.status(403).json({ message: "Permission denied" });
+      }
 
       if (account_type === "Company") {
         let user_id = req.user._id;
@@ -38,7 +41,7 @@ export default function permissionCheck(featureCode) {
         }
       } else if (account_type === "User") {
         let module = await Module.findById(feature.module_id).select("libelle");
-        if (["Collaborateur", "Role"].includes(module.libelle)) {
+        if (module && ["Collaborateur", "Role"].includes(module.libelle)) {
           return res.status(403).json({ message: "Permission denied" });
         }
       }

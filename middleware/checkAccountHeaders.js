@@ -24,7 +24,7 @@ export default async function checkAccountHeaders(req, res, next) {
       req.company_data = company;
     }
 
-    req.ownerId = account_type === "enterprise" ? account_id : req.user._id;
+    req.owner_id = account_type === "enterprise" ? account_id : req.user._id;
     req.account_type_ref = account_type === "enterprise" ? "Company" : "User";
     next();
   } catch (err) {

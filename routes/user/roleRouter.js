@@ -27,7 +27,7 @@ RoleRouter.put(
   updateRole
 );
 
-RoleRouter.get("/get", permissionCheck("RE"), getRoles);
+RoleRouter.get("/get", permissionCheck("RR"), getRoles);
 
 RoleRouter.get(
   "/permissions/:role_id",
@@ -37,7 +37,7 @@ RoleRouter.get(
 );
 
 RoleRouter.put(
-  "/update_permissions/:permission_id",
+  "/update_permission/:permission_id",
   permissionCheck("MPR"),
   validatePermission,
   updatePermission

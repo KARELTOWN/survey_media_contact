@@ -6,11 +6,11 @@ export default function configController() {
   const updateConfig = async (req, res, next) => {
     try {
       const data = matchedData(req);
-      let config = await SurveyConfig.findOne({ owner_id: req.ownerId });
+      let config = await SurveyConfig.findOne({ owner_id: req.owner_id });
       if (config) {
         await config.updateOne({ ...data });
       } else {
-        data.owner_id = req.ownerId;
+        data.owner_id = req.owner_id;
         data.account_type_ref = req.account_type_ref;
         await SurveyConfig.create({ ...data });
       }
@@ -22,7 +22,7 @@ export default function configController() {
 
   const getConfig = async (req, res, next) => {
     try {
-      const config = await SurveyConfig.findOne({ owner_id: req.ownerId });
+      const config = await SurveyConfig.findOne({ owner_id: req.owner_id });
       return res
         .status(200)
         .json({ data: config, message: "Configuration récupérée" });

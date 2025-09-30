@@ -10,6 +10,7 @@ const seeders = [
   NotificationModelSeeder,
   ModuleSeeder,
   UserSeeder,
+  FeatureSeeder,
   PermissionSeeder,
 ];
 

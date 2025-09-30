@@ -13,13 +13,17 @@ const { createCompany, showCompany, getCompanies, updateCompany } =
 
 CompanyRouter.post(
   "/create",
-  permissionCheck("AS"),
   validateStoreCompany,
   createCompany
-)
+);
 
 CompanyRouter.get("/get", getCompanies);
-CompanyRouter.get("/show/:company_id", permissionCheck('DS'), validateIdCompany, showCompany);
+CompanyRouter.get(
+  "/show/:company_id",
+  permissionCheck("DS"),
+  validateIdCompany,
+  showCompany
+);
 CompanyRouter.put(
   "/update/:company_id",
   permissionCheck("MS"),

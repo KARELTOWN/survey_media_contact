@@ -7,8 +7,8 @@ export const validateStoreRole = [
   body("libelle")
     .notEmpty()
     .withMessage("Libelle obligatoire")
-    .custom(async (value) => {
-      let exist = await Role.exists({ libelle: value, owner_id: req.ownerId });
+    .custom(async (value, { req }) => {
+      let exist = await Role.exists({ libelle: value, owner_id: req.owner_id });
       if (exist) {
         throw new Error("Role existe déjà");
       }
@@ -21,8 +21,8 @@ export const validateUpdateRole = [
   param("role_id")
     .notEmpty()
     .withMessage("Role obligatoire")
-    .custom(async (value) => {
-      let exist = await Role.findOne({ _id: value, owner_id: req.ownerId });
+    .custom(async (value, { req }) => {
+      let exist = await Role.findOne({ _id: value, owner_id: req.owner_id });
       if (!exist) {
         throw new Error("Role non trouvé");
       }
@@ -48,8 +48,8 @@ export const validateRoleId = [
   param("role_id")
     .notEmpty()
     .withMessage("Role obligatoire")
-    .custom(async (value) => {
-      let exist = await Role.findOne({ _id: value, owner_id: req.ownerId });
+    .custom(async (value, { req }) => {
+      let exist = await Role.findOne({ _id: value, owner_id: req.owner_id });
       if (!exist) {
         throw new Error("Role non trouvé");
       }

@@ -3,6 +3,9 @@ import User from "../../models/User.js";
 import Role from "../../models/Role.js";
 import UserCompany from "../../models/UserCompany.js";
 import { expressResultValidator } from "../requestValidator.js";
+import { decrypt } from "../../helpers/encrypt.js";
+import moment from "moment";
+import { redisClient } from "../../config/redis.js";
 
 export const validateAddUser = [
   body("email")
@@ -30,7 +33,7 @@ export const validateAddUser = [
     .custom(async (value, { req }) => {
       let role = await Role.exists({
         _id: value,
-        owner_id: req.ownerId,
+        owner_id: req.owner_id,
         account_type_ref: req.account_type_ref,
       });
       if (!role) {
@@ -57,12 +60,54 @@ export const validateUserCompanyId = [
   expressResultValidator,
 ];
 
+export const validateAcceptInvitation = [
+  body("token")
+    .notEmpty()
+    .withMessage("Token obligatoire")
+    .custom(async (value, { req }) => {
+      let token = decrypt(value);
+
+      const blacklist = await redisClient.get(token);
+      if (blacklist) {
+        throw new Error("Token invalide");
+      }
+
+      let tokenData = token.split("@");
+      if (!Array.isArray(tokenData) || tokenData.length !== 2) {
+        throw new Error("Token invalide");
+      }
+      const date = moment(tokenData[1], moment.ISO_8601, true);
+      if (!date.isValid()) {
+        throw new Error("Token invalide");
+      }
+
+      let now = moment();
+      if (now.isAfter(date)) {
+        throw new Error("Le lien d'invitation a expiré");
+      }
+
+      let user_company = await UserCompany.findById(tokenData[0]);
+      if (!user_company) {
+        throw new Error("Données invalides");
+      }
+
+      if (user_company.user_id.toString() !== req.user._id.toString()) {
+        throw new Error("Invitation invalide");
+      }
+      req.user_company = tokenData[0];
+      req.expiration = date;
+      req.token = token;
+      return true;
+    }),
+  expressResultValidator,
+];
+
 export const validateAddUserCompany = [
   body("role_id")
     .notEmpty()
     .withMessage("Role obligatoire")
     .custom(async (value, { req }) => {
-      let role = await Role.exists({ _id: value, owner_id: req.ownerId });
+      let role = await Role.exists({ _id: value, owner_id: req.owner_id });
       if (!role) {
         throw new Error("Role n'existe pas");
       }

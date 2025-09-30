@@ -20,8 +20,7 @@ const SurveyConfigSchema = new mongoose.Schema(
       },
     },
     phone: {
-      type: String,
-      required: true,
+      type: String
     },
     header_bg: {
       type: String,

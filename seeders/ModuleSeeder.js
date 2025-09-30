@@ -9,6 +9,7 @@ async function ModuleSeeder() {
       { libelle: "Thématique" },
       { libelle: "Catégorie" },
       { libelle: "Enquetes" },
+      { libelle: "Role" },
     ];
 
     await Module.insertMany(data, { ordered: false });

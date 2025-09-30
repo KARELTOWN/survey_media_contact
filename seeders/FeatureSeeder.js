@@ -9,11 +9,6 @@ const FeatureSeeder = async () => {
       if (foundModule.libelle == "Societe") {
         features = [
           {
-            libelle: "Ajout société",
-            code: "AS",
-            module_id: foundModule._id,
-          },
-          {
             libelle: "Détail société",
             code: "DS",
             module_id: foundModule._id,
@@ -129,7 +124,7 @@ const FeatureSeeder = async () => {
           },
           {
             libelle: "Récupérer les roles",
-            code: "RE",
+            code: "RR",
             module_id: foundModule._id,
           },
           {
@@ -144,7 +139,7 @@ const FeatureSeeder = async () => {
           },
         ];
       }
-      await Feature.insertMany(features);
+      await Feature.insertMany(features, { ordered: false });
     }
   } catch (error) {
     throw error;

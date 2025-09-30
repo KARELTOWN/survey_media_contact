@@ -30,7 +30,7 @@ export default function surveyController() {
   const getSurveys = async (req, res, next) => {
     try {
       let surveys_templates = await SurveyTemplate.find({
-        owner_id: req.ownerId
+        owner_id: req.owner_id
       })
         .select([
           "_id",
@@ -70,7 +70,7 @@ export default function surveyController() {
     try {
       const data = matchedData(req);
       data.created_by = req.user._id;
-      data.owner_id = req.ownerId;
+      data.owner_id = req.owner_id;
       data.account_type_ref = req.account_type_ref;
       let survey_template = await SurveyTemplate.insertOne(data);
 

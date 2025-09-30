@@ -92,8 +92,8 @@ export default function authController() {
             message: "Connexion réussie",
             data: {
               token: token,
-              data: encrypt(user._id.toString()),
-              refreshToken: refresh_token,
+              // data: encrypt(user._id.toString()),
+              // refreshToken: refresh_token,
             },
           });
         } else {
@@ -167,11 +167,8 @@ export default function authController() {
       result.username = await generateUsername(result);
       let codeOTP = generateOTP();
 
-      let role = await Role.findOne({ libelle: "Utilisateur" });
-
       const user = await User.create({
         ...result,
-        role_id: role._id,
       });
 
       if (user) {
