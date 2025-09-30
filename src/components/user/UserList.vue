@@ -64,7 +64,7 @@
                         </td>
                         <td>
                             <div class="flex flex justify-center space-x-2">
-                                <Button @click="changeAccountStatus(user_company, index)" size="sm" variant="outline"
+                                <Button @click="retireUser(user_company, index)" size="sm" variant="outline"
                                     :startIcon="SettingsIcon">
                                 </Button>
                             </div>
@@ -87,9 +87,9 @@ import Swal from 'sweetalert2'
 
 const store = userStore()
 const {
-    users, selectUser, openModal, errors, userSuccess } = storeToRefs(store)
+    users, userSuccess } = storeToRefs(store)
 
-const { getUsers, changeStatus } = store
+const { getUsers, retireUserFromCompany } = store
 
 onMounted(async () => {
     await handleUsers()
@@ -102,26 +102,18 @@ const handleUsers = async () => {
     }
 }
 
-const changeAccountStatus = async (user_company, index) => {
-    console.log('user_company', user_company)
-    let text = user_company.is_active === true ? "Le collaborateur ne pourra plus accéder à l'espace d'administration de votre société" : "Le collaborateur pourra accéder à l'espace d'administration de votre société et faire des actions que lui accordent son role"
+const retireUser = async (user_company, index) => {
     Swal.fire({
-        title: "Etes vous sûr de vouloir changer le status du compte ?",
-        text: text,
+        title: "Voulez-vous retirer le collaborateur ?",
+        text: "Le collaborateur ne pourra plus accéder à l'espace d'administration de votre société",
         icon: "warning",
         showCancelButton: true,
         confirmButtonColor: "#3085d6",
         cancelButtonColor: "#d33",
-        confirmButtonText: "Oui, changer !",
+        confirmButtonText: "Oui, retirer !",
     }).then(async (result) => {
         if (result.isConfirmed) {
-            await changeStatus({ user_company: user_company._id })
-            if (userSuccess.value === true) {
-                console.log('users.value[index]', users.value[index].is_active)
-
-                users.value[index].is_active = !users.value[index].is_active
-                console.log('users.value[index] apres', users.value[index].is_active)
-            }
+            await retireUserFromCompany({ user_company: user_company._id })
         }
     });
 }

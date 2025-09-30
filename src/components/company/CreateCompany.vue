@@ -96,11 +96,12 @@ import Modal from '@/components/profile/Modal.vue'
 import { storeToRefs } from "pinia";
 import { convertToBase64, isFileSizeAllowed } from '@/utils/file';
 import { companyStore } from '@/stores/company/companyStore';
+import { infoNotify } from '@/utils/notification';
 
 const store = companyStore()
 const { errors,
   companySuccess, selectCompany, company } = storeToRefs(store)
-const { createCompany, updateCompany, getCompany } = store
+const { createCompany, updateCompany, getCompany, getCompanies } = store
 
 const isOpen = ref(false)
 
@@ -187,6 +188,16 @@ const closeModal = () => {
 
 const disableBtn = ref(false)
 
+
+const handleCompanyList = async () => {
+  try {
+    await getCompanies()
+  }
+  catch (err) {
+    console.log(err)
+  }
+}
+
 const handleSubmit = async () => {
   try {
     disableBtn.value = true
@@ -195,6 +206,7 @@ const handleSubmit = async () => {
       disableBtn.value = false
       if (companySuccess.value === true) {
         closeModal()
+        handleCompanyList()
       }
       disabledBtn.value = false
     }
@@ -203,6 +215,7 @@ const handleSubmit = async () => {
       disabledBtn.value = false
       if (companySuccess.value === true) {
         closeModal()
+        handleCompanyList()
       }
     }
 
@@ -211,4 +224,5 @@ const handleSubmit = async () => {
     disabledBtn.value = false
   }
 }
+
 </script>

@@ -114,6 +114,7 @@ import PreviewPanel from "@/components/survey/preview/PreviewPanel.vue";
 import { useRoute, useRouter } from "vue-router";
 import SaveIcon from "@/icons/SaveIcon.vue";
 import Button from "@/components/ui/Button.vue";
+import { get_account_id } from "@/composables/request";
 
 const pageTitle = [
     "Thématique",
@@ -126,9 +127,10 @@ const route = useRoute()
 const router = useRouter()
 
 const getSurveyDataStore = async () => {
-    const storeData = await getIndexDBStorage(`survey_form_${formSurvey.value.form_id}`)
+    const storeData = await getIndexDBStorage(`survey_form_${formSurvey.value.form_id}@${get_account_id()}`)
     return storeData
 }
+
 onMounted(async () => {
     surveySuccess.value = false
     if (validator.isUUID(route.params.id)) {

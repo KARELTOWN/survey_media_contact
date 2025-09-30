@@ -37,7 +37,7 @@ export const handleAppError = async (response: Response): Promise<object> => {
       }
       return { status: true, errors: errors }
     } else if (response.status == 403) {
-      errorNotify(res.message)
+      errorNotify('Accès non autorisé')
     } else if (response.status == 404) {
       errorNotify(res.message)
     } else {

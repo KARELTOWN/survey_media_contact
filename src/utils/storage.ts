@@ -28,14 +28,13 @@ export const getIndexDBStorage = async (key: string) => {
   }
 }
 
-export const getAllDataInDBStorage = async () => {
+export const getAllDataInDBStorage = async (account_id) => {
   try {
-    return await getAllEvents('survey_mc_forms')
+    return await getAllEvents('survey_mc_forms', account_id)
   } catch (err) {
     console.error('IndexedDB get failed ❌', err)
   }
 }
-
 
 export const deleteIndexDBStorage = async (key: string) => {
   try {

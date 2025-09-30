@@ -65,7 +65,7 @@
 <script setup>
 import Badge from '@/components/ui/Badge.vue';
 import { surveyStore } from '@/stores/survey/surveyStore';
-import { base64ToTempUrl, getFileCategoryFromMime, getMimeType } from '@/utils/file';
+import { base64ToTempUrl, getFileType } from '@/utils/file';
 import { formatTimestampToDate, formatTO_DMY } from '@/utils/format';
 import { defaultFileImg } from '@/utils/survey';
 import { storeToRefs } from 'pinia';
@@ -91,10 +91,6 @@ onMounted(async () => {
 })
 
 const fileType = (file) => {
-    let mimetype = getMimeType(file)
-    if (mimetype !== null) {
-        return getFileCategoryFromMime(mimetype)
-    }
-    return null
+    return getFileType(file)
 }
 </script>

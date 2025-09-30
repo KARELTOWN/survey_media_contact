@@ -12,8 +12,22 @@ import SurveyFormHeader from "../header/SurveyFormHeader.vue";
 import { defaultFileImg } from "@/utils/survey";
 import { getSurveyCookie, setSurveyCookie } from "@/composables/cookie";
 import { flatpickrConfig, flatpickrTimeOnlyConfig } from "@/utils/format";
+import FileViewer from "@/components/viewer/FileViewer.vue";
 
 const previewMode = ref(false)
+
+const openViewer = ref(false)
+const fileToOpen = ref('')
+
+const openFile = (file_base_64) => {
+  openViewer.value = true
+  fileToOpen.value = file_base_64
+}
+
+const closeFileViewer = () => {
+  fileToOpen.value = ''
+  openViewer.value = false
+}
 
 const props = defineProps({
   preview: Boolean
@@ -346,7 +360,7 @@ watchEffect(async () => {
           <input type="radio" :name="question.question_id" :value="opt.value" :checked="opt.default === true"
             v-model="answers[question.question_id]" />
           <span>{{ opt.value }}</span>
-          <img v-if="opt.img" :src="opt.img" class="w-6 h-6 rounded ml-2" />
+          <img v-if="opt.img" :src="opt.img" @click="openFile(opt.img)" class="w-16 h-16 rounded ml-2 cursor-pointer" />
         </label>
       </div>
 
@@ -358,7 +372,7 @@ watchEffect(async () => {
           <label class="flex items-center space-x-2">
             <span>{{ opt.value }}</span>
           </label>
-          <img v-if="opt.img" :src="opt.img" class="w-6 h-6 rounded ml-2" />
+          <img v-if="opt.img" :src="opt.img" @click="openFile(opt.img)" class="w-16 h-16 rounded ml-2 cursor-pointer" />
         </div>
 
       </div>
@@ -382,7 +396,7 @@ watchEffect(async () => {
           <div v-if="filesList[question.question_id]?.length > 0"
             class="grid grid-cols-1 lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-1">
             <div v-for="(file, fIndex) in filesList[question.question_id]" :key="fIndex" class="mt-4 relative">
-              <img :src="file.img" alt="Prévisualisation" class="w-48 h-48 object-cover rounded" />
+              <img :src="file.img" @click="openFile(answers[question.question_id][fIndex])" alt="Prévisualisation" class="w-48 h-48 object-cover rounded cursor-pointer" />
               <div class="text-muted font-bold">{{ file.name }}</div>
               <button @click="deleteFile(fIndex, question.question_id)"
                 class="absolute top-2 right-2 bg-white rounded-full p-1 shadow-md hover:bg-red-100 transition">
@@ -429,7 +443,8 @@ watchEffect(async () => {
 
       <!-- Image -->
       <div v-else-if="question.category === 'image' && displayField(question.condition)" class="mt-4">
-        <img :src="question.img" class="rounded-lg shadow-md max-h-64 object-contain" />
+        <img :src="question.img" @click="openFile(question.img)"
+          class="rounded-lg max-h-100 max-w-[100%] object-contain cursor-pointer" />
       </div>
 
       <p v-if="formErrors[question.question_id]" class="text-red-500 text-sm mt-1">
@@ -438,7 +453,8 @@ watchEffect(async () => {
     </div>
 
     <!-- ✅ Bouton de soumission -->
-    <button @click="saveForm" class="mt-6 bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700" :disabled="disabledBtn">
+    <button @click="saveForm" class="mt-6 bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700"
+      :disabled="disabledBtn">
       Soumettre
     </button>
   </div>
@@ -448,5 +464,7 @@ watchEffect(async () => {
   <div v-if="cookieExist === true" class="text-center mt-6">
     <h2 class="text-xl font-bold mb-2">Vous avez déjà soumis cette enquête</h2>
   </div>
+
+  <FileViewer :open="openViewer" :file="fileToOpen" @close="closeFileViewer" />
 
 </template>

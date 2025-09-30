@@ -94,7 +94,7 @@ const menuItems = [
   // { href: '/chat', icon: SettingsIcon, text: 'Account settings' },
   // { href: '/profile', icon: InfoCircleIcon, text: 'Support' },
 ]
-const companiesList = [
+let companiesList = [
   { type: 'personal', data: '', text: 'Compte personnel' },
 ]
 
@@ -104,13 +104,16 @@ onMounted(() => {
 
 watch(() => companies.value, (newV) => {
   if (newV.length > 0) {
+    companiesList = [
+      { type: 'personal', data: '', text: 'Compte personnel' },
+    ]
     companies.value.forEach((e) => {
       companiesList.push(
         { type: 'enterprise', data: e, text: e.denomination },
       )
     })
   }
-}, { once: true })
+})
 
 
 onUnmounted(() => {

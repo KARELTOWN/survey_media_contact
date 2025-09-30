@@ -4,7 +4,8 @@ import { defineStore } from 'pinia'
 import { reactive, ref } from 'vue'
 import userValidator from '@/validator/user'
 import { successNotify } from '@/utils/notification'
-const { validateAddUser } = userValidator()
+import { removeLocalStorage } from '@/utils/storage'
+const { validateInviteUser } = userValidator()
 export const userStore = defineStore('user-store', () => {
   const errors = ref({})
   const search_errors = ref({})
@@ -24,28 +25,16 @@ export const userStore = defineStore('user-store', () => {
   const fonctions = ref([])
   const roles = ref([])
 
-  let selectUser = ref('')
-  let openModal = ref(false)
+  const selectUser = ref('')
+  const openModal = ref(false)
 
-  const updatePagination = () => {
-    total.value += 1
-    totalPages.value = Math.ceil(total.value / limit.value)
-  }
-
-  const getUserAccountParams = async () => {
-    try {
-      const result = await fetchGet(`users/params`)
-      const response = await handleAppError(result)
-      if (response.status === false) {
-        if (response?.data) {
-          roles.value = response.data.roles
-          fonctions.value = response.data.fonctions
-          directions.value = response.data.directions
-        }
-      }
-    } catch (err) {
-      handleCatchError(err)
+  const updatePagination = (action) => {
+    if (action === 'add') {
+      total.value += 1
+    } else {
+      total.value -= 1
     }
+    totalPages.value = Math.ceil(total.value / limit.value)
   }
 
   const getUsers = async () => {
@@ -67,22 +56,59 @@ export const userStore = defineStore('user-store', () => {
     }
   }
 
-  const changeStatus = async (data) => {
+  const acceptInvitation = async (data) => {
     try {
-      search_errors.value = {}
+      errors.value = {}
       userSuccess.value = false
-      const result = await fetchPost(`users/retire_user`, data)
+      const result = await fetchPost(`users/accept_invitation`, data)
+      const response = await handleAppError(result)
+
+      if (response.status === false) {
+        userSuccess.value = true
+        successNotify('Invitation acceptée')
+      } else {
+        if (response.errors) {
+          errors.value = response.errors
+        }
+      }
+    } catch (err) {
+      const result = handleCatchError(err)
+      if (result) {
+        errors.value = result
+      }
+    }
+  }
+
+  const retireUserFromCompany = async (data) => {
+    try {
+      errors.value = {}
+      userSuccess.value = false
+      const result = await fetchPost(`users/retire_user_from_company`, data)
       const response = await handleAppError(result)
       if (response.status === false) {
         userSuccess.value = true
         successNotify('Status changé')
+        let index = users.value.findIndex((item) => item._id === data.user_company)
+        users.value.splice(index, 1)
+        updatePagination('add')
+        console.log('DSFSFFSFSF')
+                console.log('DSFSFFSFSF', response?.data)
+
+        if (response?.data && response?.data?.self === true) {
+          removeLocalStorage('survey_mc_account_type')
+          removeLocalStorage('survey_mc_account_id')
+          window.location.href = '/'
+        }
       } else {
         if (response.errors) {
-          search_errors.value = response.errors
+          errors.value = response.errors
         }
       }
     } catch (err) {
-      handleCatchError(err)
+      const result = handleCatchError(err)
+      if (result) {
+        errors.value = result
+      }
     }
   }
 
@@ -109,25 +135,21 @@ export const userStore = defineStore('user-store', () => {
     }
   }
 
-  const createUser = async (data) => {
+  const inviteUser = async (data) => {
     try {
       userSuccess.value = false
       errors.value = {}
-      const schemaProject = validateAddUser()
+      const schemaProject = validateInviteUser()
       const data_result = await schemaProject.validate(data, { abortEarly: false })
-      const result = await fetchPost(`users/create`, data_result)
+      const result = await fetchPost(`users/add_company`, data_result)
       const response = await handleAppError(result)
       if (response.status === true) {
         if (response.errors) {
           errors.value = response.errors
         }
       } else {
-        if (response?.data) {
-          userSuccess.value = true
-          users.value.unshift(response.data.user)
-          updatePagination()
-          successNotify('Utilisateur créé')
-        }
+        userSuccess.value = true
+        successNotify('Invitation envoyée')
       }
     } catch (err) {
       const result = handleCatchError(err)
@@ -138,7 +160,7 @@ export const userStore = defineStore('user-store', () => {
   }
 
   return {
-    createUser,
+    inviteUser,
     getUsers,
     errors,
     users,
@@ -152,10 +174,10 @@ export const userStore = defineStore('user-store', () => {
     search_form,
     selectUser,
     openModal,
-    changeStatus,
-    getUserAccountParams,
+    retireUserFromCompany,
     directions,
     fonctions,
     roles,
+    acceptInvitation,
   }
 })

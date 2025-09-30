@@ -39,11 +39,12 @@ import { onMounted, ref } from 'vue'
 import { formatTimestampToDate } from '@/utils/format';
 import { useRouter } from 'vue-router';
 import { getAllDataInDBStorage } from '@/utils/storage';
+import { get_account_id } from '@/composables/request';
 
 const surveysDraft = ref([])
 
 onMounted(async () => {
-    const allData = await getAllDataInDBStorage()
+    const allData = await getAllDataInDBStorage(get_account_id())
     surveysDraft.value = allData
     console.log('alldata', allData)
 })

@@ -33,7 +33,7 @@ export default function indexDBTransaction() {
     })
   }
 
-  const getAllEvents = (table) => {
+  const getAllEvents = (table, account_id) => {
     return new Promise((resolve, reject) => {
       const transaction = db.transaction(table, 'readonly')
       const store = transaction.objectStore(table)
@@ -46,7 +46,12 @@ export default function indexDBTransaction() {
         if (cursor) {
           const value = cursor.value
           const key = cursor.key
-          events_data.push({ key: cursor.key, value: value })
+          let keyParts = key.split('@')
+          if (Array.isArray(keyParts) && keyParts.length == 2) {
+            if (keyParts[1] === account_id) {
+              events_data.push({ key: cursor.key, value: value })
+            }
+          }
           cursor.continue()
         } else {
           resolve(events_data)
@@ -106,16 +111,15 @@ export default function indexDBTransaction() {
       const transaction = db.transaction(table, 'readwrite')
       const store = transaction.objectStore(table)
 
-        const request = store.delete(key)
+      const request = store.delete(key)
 
-        request.onsuccess = () => {
-            resolve('Events delete')
-        }
+      request.onsuccess = () => {
+        resolve('Events delete')
+      }
 
-        request.onerror = () => {
-          reject(request.error)
-        }
-      
+      request.onerror = () => {
+        reject(request.error)
+      }
     })
   }
   return { initDB, deleteEventByKey, getEvents, saveEvents, getAllEvents }

@@ -14,9 +14,9 @@
       !isExpanded && !isHovered ? 'lg:justify-center' : 'justify-center',
     ]">
       <router-link to="/">
-        <img v-if="isExpanded || isHovered || isMobileOpen" class="dark:hidden scale-150" src="/images/logo/logo.png"
+        <img v-if="isExpanded || isHovered || isMobileOpen" class="dark:hidden scale-120 text-decoration-none" src="/images/logo/logo.png"
           alt="Logo" width="120" height="40" />
-        <img v-if="isExpanded || isHovered || isMobileOpen" class="hidden dark:block scale-150"
+        <img v-if="isExpanded || isHovered || isMobileOpen" class="hidden dark:block scale-120"
           src="/images/logo/auth-logo.png" alt="Logo" width="90" height="40" />
         <img v-else src="/images/logo/logo.png" alt="Logo" class="scale-200" width="32" height="32" />
       </router-link>
@@ -38,7 +38,7 @@
             </h2>
             <ul class="flex flex-col gap-4">
               <li v-for="(item, index) in menuGroup.items" :key="item.name">
-                <button v-if="item.subItems && item.account_type == item.require_account"
+                <button v-if="item.subItems"
                   @click="toggleSubmenu(groupIndex, index)" :class="[
                     'menu-item group w-full',
                     {
@@ -91,7 +91,7 @@
                     ">
                     <ul class="mt-2 space-y-1 ml-9">
                       <li v-for="subItem in item.subItems" :key="subItem.name">
-                        <router-link :to="subItem.path" :class="[
+                        <router-link :to="subItem.path" v-if="subItem.account_type == subItem.require_account" :class="[
                           'menu-dropdown-item',
                           {
                             'menu-dropdown-item-active': isActive(
@@ -207,8 +207,21 @@ const menuGroups = [
         icon: GridIcon,
         name: "Paramètres",
         subItems: [
-          { name: "Configurations d'enquête", path: "/configurations", pro: false },
-          { name: "Sociétés", path: "/societes", pro: false },
+          {
+            name: "Configurations d'enquête", path: "/configurations", pro: false,
+            require_account: 'any',
+            account_type: 'any'
+          },
+          {
+            name: "Sociétés", path: "/societes", pro: false,
+            require_account: 'any',
+            account_type: 'any'
+          },
+          {
+            name: "Roles", path: "/roles", pro: false,
+            require_account: 'enterprise',
+            account_type: get_account_type()
+          },
         ],
       },
     ],

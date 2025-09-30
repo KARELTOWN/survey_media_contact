@@ -69,7 +69,6 @@ const router = createRouter({
         requiredAuth: true,
       },
     },
-
     {
       path: '/formulaire-envoye',
       name: 'Response-Send',
@@ -87,7 +86,6 @@ const router = createRouter({
         requiredAuth: true,
       },
     },
-
     {
       path: '/collaborateurs',
       name: 'Collaborateurs',
@@ -97,7 +95,34 @@ const router = createRouter({
         requiredAuth: true,
       },
     },
+    {
+      path: '/join_company',
+      name: 'Join company',
+      component: () => import('../views/Pages/User/JoinCompany.vue'),
+      meta: {
+        title: 'Liste des collaborateurs',
+        requiredAuth: true,
+      },
+    },
+    {
+      path: '/roles',
+      name: 'Roles',
+      component: () => import('../views/Pages/Role/Role.vue'),
+      meta: {
+        title: 'Roles',
+        requiredAuth: true,
+      },
+    },
 
+    {
+      path: '/roles/:id/permissions',
+      name: 'Permissions',
+      component: () => import('../views/Pages/Role/Permission.vue'),
+      meta: {
+        title: 'Roles',
+        requiredAuth: true,
+      },
+    },
     {
       path: '/configurations',
       name: 'Configurations',

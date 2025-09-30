@@ -71,6 +71,7 @@
                     </tr>
                 </tbody>
             </table>
+            <div class="text-center text-lg font-bold my-3" v-if="companies.length === 0">Aucune donnée</div>
         </div>
     </div>
 </template>

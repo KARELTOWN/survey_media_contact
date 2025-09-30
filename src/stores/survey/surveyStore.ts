@@ -1,4 +1,4 @@
-import { fetchGet, fetchPost, fetchPut } from '@/composables/request'
+import { fetchGet, fetchPost, fetchPut, get_account_id } from '@/composables/request'
 import { handleAppError, handleCatchError } from '@/utils/handleAppError'
 import { successNotify } from '@/utils/notification'
 import { deleteIndexDBStorage, getLocalStorage, setIndexDBStorage } from '@/utils/storage'
@@ -128,8 +128,10 @@ export const surveyStore = defineStore('survey-store', () => {
 
   const saveFormInstance = async () => {
     formSurvey.value.lastEdit = Date.now()
-    console.log('Données à sauvegarder', formSurvey.value)
-    await setIndexDBStorage(`survey_form_${formSurvey.value.form_id}`, formSurvey.value)
+    await setIndexDBStorage(
+      `survey_form_${formSurvey.value.form_id}@${get_account_id()}`,
+      formSurvey.value,
+    )
   }
 
   const createSurvey = async () => {
@@ -162,7 +164,7 @@ export const surveyStore = defineStore('survey-store', () => {
           surveySuccess.value = true
           surveyID.value = response?.data
           successNotify("Questionnaire d'enquête créé")
-          await deleteIndexDBStorage(`survey_form_${data.form_id}`)
+          await deleteIndexDBStorage(`survey_form_${data.form_id}@${get_account_id()}`)
         }
       }
     } catch (err) {

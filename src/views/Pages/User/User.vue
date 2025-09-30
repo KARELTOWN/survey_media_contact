@@ -21,20 +21,20 @@
           </div>
 
         </div>
-        <CreateUser :open="openModal" @close="close" />
+        <InviteUser :open="openModal" @close="close" />
       </ComponentCard>
     </div>
   </AdminLayout>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref } from "vue";
 import PageBreadcrumb from "@/components/common/PageBreadcrumb.vue";
 import AdminLayout from "@/components/layout/AdminLayout.vue";
 import ComponentCard from "@/components/common/ComponentCard.vue";
 import UserList from "@/components/user/UserList.vue";
 const currentPageTitle = ref("Collaborateurs");
-import CreateUser from '@/components/user/CreateUser.vue'
+import InviteUser from '@/components/user/InviteUser.vue'
 import Pagination from "@/components/pagination/Pagination.vue";
 
 import { userStore } from "@/stores/user/userStore.ts";

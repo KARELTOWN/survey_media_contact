@@ -10,8 +10,8 @@
 
 
         <!-- Questions -->
-        <!-- <draggable v-model="formSurvey.questions" @change="onDragChange"
-            :group="{ name: 'survey_questions', pull: true, put: true }" class="min-h-[100px] py-2"> -->
+        <draggable v-model="formSurvey.questions" @change="onDragChange"
+            :group="{ name: 'survey_questions', pull: true, put: true }" class="min-h-[100px] py-2">
             <div v-for="(question, index) in formSurvey.questions" :key="question.question_id"
                 class="mb-6 p-4 border rounded-lg shadow-sm bg-white relative">
                 <QuestionPanel v-if="question.category === 'question'" @data="getData" @copy="copyQuestion"
@@ -21,7 +21,7 @@
                 <ImagePanel v-if="question.category === 'image'" @data="getData" @copy="copyQuestion"
                     @delete="deleteQuestion" @save="saveQuestion" :question="question" />
             </div>
-        <!-- </draggable> -->
+        </draggable>
 
 
         <!-- Bouton ajouter une question -->
