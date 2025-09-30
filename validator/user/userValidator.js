@@ -1,8 +1,8 @@
-import { body, param } from "express-validator";
+import { body, param, validationResult } from "express-validator";
 import User from "../../models/User.js";
 import Role from "../../models/Role.js";
-import Company from "../../models/Company.js";
 import UserCompany from "../../models/UserCompany.js";
+import { expressResultValidator } from "../requestValidator.js";
 
 export const validateAddUser = [
   body("email")
@@ -11,7 +11,7 @@ export const validateAddUser = [
     .isEmail()
     .withMessage("EMAIL invalide")
     .escape()
-    .custom(async (value, {req}) => {
+    .custom(async (value, { req }) => {
       const user = await User.findOne({ email: value }).exec();
       if (!user) {
         throw new Error("Compte non trouvé");
@@ -38,8 +38,8 @@ export const validateAddUser = [
       }
       return true;
     }),
+  expressResultValidator,
 ];
-
 
 export const validateUserCompanyId = [
   body("user_company")
@@ -54,4 +54,29 @@ export const validateUserCompanyId = [
         return true;
       }
     }),
+  expressResultValidator,
+];
+
+export const validateAddUserCompany = [
+  body("role_id")
+    .notEmpty()
+    .withMessage("Role obligatoire")
+    .custom(async (value, { req }) => {
+      let role = await Role.exists({ _id: value, owner_id: req.ownerId });
+      if (!role) {
+        throw new Error("Role n'existe pas");
+      }
+      return true;
+    }),
+  body("email")
+    .notEmpty()
+    .withMessage("Email obligatoire")
+    .custom(async (value, { req }) => {
+      let user = await User.exists({ email: value });
+      if (!user) {
+        throw new Error("Utilisateur inconnu");
+      }
+      return true;
+    }),
+  expressResultValidator,
 ];

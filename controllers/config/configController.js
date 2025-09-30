@@ -29,7 +29,7 @@ export default function configController() {
     } catch (err) {
       next(err);
     }
-  };
+  }
 
   const getConfigFromSurveyId = async (req, res, next) => {
     try {

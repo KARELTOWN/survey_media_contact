@@ -115,6 +115,35 @@ const FeatureSeeder = async () => {
           },
         ];
       }
+      if (foundModule.libelle == "Role") {
+        features = [
+          {
+            libelle: "Ajout role",
+            code: "AR",
+            module_id: foundModule._id,
+          },
+          {
+            libelle: "Modifier role",
+            code: "MR",
+            module_id: foundModule._id,
+          },
+          {
+            libelle: "Récupérer les roles",
+            code: "RE",
+            module_id: foundModule._id,
+          },
+          {
+            libelle: "Récupérer les permissions d'un role",
+            code: "RPR",
+            module_id: foundModule._id,
+          },
+          {
+            libelle: "Modifier la permission d'un role",
+            code: "MPR",
+            module_id: foundModule._id,
+          },
+        ];
+      }
       await Feature.insertMany(features);
     }
   } catch (error) {

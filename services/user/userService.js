@@ -3,30 +3,8 @@ import User from "../../models/User.js";
 import notificationService from "../../services/notification/notificationService.js";
 import companyService from "../company/companyService.js";
 const { sendMailNotification } = notificationService();
-const { companyData } = companyService();
 
 export default function userService() {
-  const newAccountNotification = async (user, password) => {
-    try {
-      let params = {
-        firstname: user.firstname,
-        lastname: user.lastname,
-        email: user.email,
-        _id: user._id,
-        password: password,
-        link: process.env.FRONT_URL,
-      };
-      await sendMailNotification({
-        receivers: [{ ...params }],
-        params: params,
-        model_name: "NEW_ACCOUNT",
-      });
-      return true;
-    } catch (error) {
-      throw new Error(error);
-    }
-  };
-
   const getActiveAccountData = (req) => {
     return {
       owner_id: req.ownerId,
@@ -34,7 +12,7 @@ export default function userService() {
     };
   };
 
-  const invitationNotification = async (user, enterprise) => {
+  const invitationNotification = async (user, enterprise, user_company) => {
     try {
       let params = {
         firstname: user.firstname,
@@ -44,33 +22,12 @@ export default function userService() {
         role: user.role_id.libelle,
         enterprise: enterprise.denomination,
         link:
-          process.env.FRONT_URL + `?user=${user._id}&company=${enterprise._id}`,
+          process.env.FRONT_URL + `?id=${user_company}`,
       };
       await sendMailNotification({
         receivers: [{ ...params }],
         params: params,
         model_name: "JOIN_COMPANY_INVITATION",
-      });
-      return true;
-    } catch (error) {
-      throw new Error(error);
-    }
-  };
-
-  const accountStatusNotification = async (user) => {
-    try {
-      let params = {
-        firstname: user.firstname,
-        lastname: user.lastname,
-        email: user.email,
-        _id: user._id,
-        link: process.env.FRONT_URL,
-      };
-      await sendMailNotification({
-        receivers: [{ ...params }],
-        params: params,
-        model_name:
-          user.is_active === true ? "ACTIVATE_ACCOUNT" : "DESACTIVATE_ACCOUNT",
       });
       return true;
     } catch (error) {
@@ -89,9 +46,8 @@ export default function userService() {
 
 
   return {
-    newAccountNotification,
-    accountStatusNotification,
     invitationNotification,
-    getActiveAccountData
+    getActiveAccountData,
+    getUserData
   };
 }

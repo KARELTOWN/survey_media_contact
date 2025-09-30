@@ -3,7 +3,7 @@ import Role from "../../models/Role.js";
 import Permission from "../../models/Permission.js";
 
 export default function roleService() {
-  const createRole = async (data) => {
+  const createRoleFn = async (data) => {
     try {
       let role = await Role.findOne({
         libelle: data.libelle,
@@ -31,7 +31,7 @@ export default function roleService() {
     }
   };
 
-  const getRoles = async (owner_id) => {
+  const getRolesFn = async (owner_id) => {
     try {
       return await Role.find({ owner_id });
     } catch (error) {
@@ -39,7 +39,7 @@ export default function roleService() {
     }
   };
 
-  const updateRole = async (data) => {
+  const updateRoleFn = async (data) => {
     try {
       let role = await Role.findByIdAndUpdate(
         data.role_id,
@@ -55,7 +55,7 @@ export default function roleService() {
     }
   };
 
-  const getPermissions = async (role_id) => {
+  const getPermissionsFn = async (role_id) => {
     try {
       let permissions = await Permission.find({ role_id })
         .populate([
@@ -91,10 +91,10 @@ export default function roleService() {
     }
   };
 
-  const updatePermission = async (data) => {
+  const updatePermissionFn = async (permission_id) => {
     try {
       let permission = await Permission.findByIdAndUpdate(
-        data.permission_id,
+        permission_id,
         [{ $set: { is_active: { $not: "$is_active" } } }],
         { new: true }
       );
@@ -105,10 +105,10 @@ export default function roleService() {
   };
 
   return {
-    createRole,
-    updateRole,
-    updatePermission,
-    getPermissions,
-    getRoles,
+    createRoleFn,
+    updateRoleFn,
+    updatePermissionFn,
+    getPermissionsFn,
+    getRolesFn,
   };
 }

@@ -4,6 +4,7 @@ import Category from "../../models/Category.js";
 import { surveyFields, surveyOperators } from "../../utils/survey.js";
 import SurveyTemplate from "../../models/SurveyTemplate.js";
 import Question from "../../models/Question.js";
+import { expressResultValidator } from "../requestValidator.js";
 /**
  * Validator pour SurveyTemplate
  */
@@ -19,13 +20,7 @@ export const validateSurveyId = [
       }
       return true;
     }),
-  (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(422).json({ errors: errors.array() });
-    }
-    next();
-  },
+  expressResultValidator,
 ];
 
 export const surveyValidator = [
@@ -227,13 +222,7 @@ export const surveyValidator = [
     return true;
   }),
 
-  (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(422).json({ errors: errors.array() });
-    }
-    next();
-  },
+  expressResultValidator,
 ];
 
 export const surveyResponseValidator = [
@@ -256,11 +245,5 @@ export const surveyResponseValidator = [
 
   body("metadata").optional(),
 
-  (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(422).json({ errors: errors.array() });
-    }
-    next();
-  },
+  expressResultValidator,
 ];

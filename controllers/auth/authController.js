@@ -60,49 +60,44 @@ export default function authController() {
 
   const login = async (req, res, next) => {
     try {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return res.status(422).json({ errors: errors.array() });
+      const result = matchedData(req);
+
+      const user = await User.findOne({ email: result.email }).select(
+        "+password"
+      );
+      if (!user) {
+        return res.status(403).json({ message: "Le compte n'existe pas" });
       } else {
-        const result = matchedData(req);
+        if (user.email_verified === false) {
+          return res.status(403).json({ message: "Compte non vérifié" });
+        }
+        if (user.is_active === false) {
+          return res.status(403).json({ message: "Compte inactif" });
+        }
 
-        const user = await User.findOne({ email: result.email }).select(
-          "+password"
-        );
-        if (!user) {
-          return res.status(403).json({ message: "Le compte n'existe pas" });
+        const confirm = await bcrypt.compare(result.password, user.password);
+
+        if (confirm) {
+          const token = jwt.sign(
+            {
+              id: user._id,
+            },
+            process.env.SECRET_KEY,
+            {
+              expiresIn: "2h",
+            }
+          );
+          const refresh_token = generateRefreshToken(user);
+          return res.status(200).json({
+            message: "Connexion réussie",
+            data: {
+              token: token,
+              data: encrypt(user._id.toString()),
+              refreshToken: refresh_token,
+            },
+          });
         } else {
-          if (user.email_verified === false) {
-            return res.status(403).json({ message: "Compte non vérifié" });
-          }
-          if (user.is_active === false) {
-            return res.status(403).json({ message: "Compte inactif" });
-          }
-
-          const confirm = await bcrypt.compare(result.password, user.password);
-
-          if (confirm) {
-            const token = jwt.sign(
-              {
-                id: user._id,
-              },
-              process.env.SECRET_KEY,
-              {
-                expiresIn: "2h",
-              }
-            );
-            const refresh_token = generateRefreshToken(user);
-            return res.status(200).json({
-              message: "Connexion réussie",
-              data: {
-                token: token,
-                data: encrypt(user._id.toString()),
-                refreshToken: refresh_token,
-              },
-            });
-          } else {
-            return res.status(403).json({ message: "Identifiants invalides" });
-          }
+          return res.status(403).json({ message: "Identifiants invalides" });
         }
       }
     } catch (error) {
@@ -166,39 +161,34 @@ export default function authController() {
 
   const register = async (req, res, next) => {
     try {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return res.status(422).json({ errors: errors.array() });
-      } else {
-        const result = matchedData(req);
-        const hasckpassword = await bcrypt.hash(result.password, 10);
-        result.password = hasckpassword;
-        result.username = await generateUsername(result);
-        let codeOTP = generateOTP();
+      const result = matchedData(req);
+      const hasckpassword = await bcrypt.hash(result.password, 10);
+      result.password = hasckpassword;
+      result.username = await generateUsername(result);
+      let codeOTP = generateOTP();
 
-        let role = await Role.findOne({ libelle: "Utilisateur" });
+      let role = await Role.findOne({ libelle: "Utilisateur" });
 
-        const user = await User.create({
-          ...result,
-          role_id: role._id,
+      const user = await User.create({
+        ...result,
+        role_id: role._id,
+      });
+
+      if (user) {
+        await VerificationCode.insertOne({
+          user_id: user._id,
+          code: codeOTP,
+          type: verificationType.register,
+          expires_at: moment().add("3", "hours").toDate(),
         });
 
-        if (user) {
-          await VerificationCode.insertOne({
-            user_id: user._id,
-            code: codeOTP,
-            type: verificationType.register,
-            expires_at: moment().add("3", "hours").toDate(),
-          });
+        let encodeUserID = encrypt(user._id.toString());
+        await registerNotification(user, codeOTP, encodeUserID);
 
-          let encodeUserID = encrypt(user._id.toString());
-          await registerNotification(user, codeOTP, encodeUserID);
-
-          return res.status(200).json({
-            message: "Account create",
-            data: encodeUserID,
-          });
-        }
+        return res.status(200).json({
+          message: "Account create",
+          data: encodeUserID,
+        });
       }
     } catch (error) {
       next(error);
@@ -207,50 +197,40 @@ export default function authController() {
 
   const confirmRegister = async (req, res, next) => {
     try {
-      const errors = validationResult(req);
-      if (errors.isEmpty()) {
-        const data = matchedData(req);
-        const user_id = decrypt(data.user_id);
-        const user = await User.findById(user_id).exec();
-        if (!user) {
-          return res.status(404).json({ message: "Compte non trouvé" });
-        }
-        const result = await VerificationCode.findOne({
-          user_id: user._id,
-          used_at: { $exists: false },
-        }).exec();
+      const data = matchedData(req);
+      const user_id = decrypt(data.user_id);
+      const user = await User.findById(user_id).exec();
+      if (!user) {
+        return res.status(404).json({ message: "Compte non trouvé" });
+      }
+      const result = await VerificationCode.findOne({
+        user_id: user._id,
+        used_at: { $exists: false },
+      }).exec();
 
-        if (result) {
-          if (result.code !== data.code) {
-            return res.status(403).json({
-              message: "Le code est invalide",
-            });
-          } else if (result.isExpired()) {
-            return res.status(403).json({
-              message: "Le code a expiré. Demander à recevoir un autre code",
-            });
-          } else {
-            let response = await user
-              .updateOne(
-                { email_verified: true, is_active: true },
-                { new: true }
-              )
-              .exec();
-            await result.updateOne({ used_at: moment().toDate() });
-            if (response) {
-              // await confirmRegisterNotification(user);
-              return res.status(200).json({
-                message: "Account create",
-              });
-            }
-          }
+      if (result) {
+        if (result.code !== data.code) {
+          return res.status(403).json({
+            message: "Le code est invalide",
+          });
+        } else if (result.isExpired()) {
+          return res.status(403).json({
+            message: "Le code a expiré. Demander à recevoir un autre code",
+          });
         } else {
-          return res.status(500).json({ message: "Action impossible" });
+          let response = await user
+            .updateOne({ email_verified: true, is_active: true }, { new: true })
+            .exec();
+          await result.updateOne({ used_at: moment().toDate() });
+          if (response) {
+            // await confirmRegisterNotification(user);
+            return res.status(200).json({
+              message: "Account create",
+            });
+          }
         }
       } else {
-        res
-          .status(422)
-          .json({ message: "Erreur de validation", errors: errors.array() });
+        return res.status(500).json({ message: "Action impossible" });
       }
     } catch (error) {
       next(error);
@@ -261,49 +241,79 @@ export default function authController() {
     try {
       const errors = validationResult(req);
 
-      if (!errors.isEmpty()) {
-        return res.status(422).json({ errors: errors.array() });
+      const data = matchedData(req);
+      const { email } = data;
+      let user = await User.findOne({ email: email }).exec();
+      if (!user) {
+        res
+          .status(404)
+          .json({ message: "Ce email ne semble associé à aucun compte" });
+      }
+      const resetToken = await PasswordResetToken.findOne({
+        user_id: user._id,
+        used_at: { $exists: false },
+      }).exec();
+      if (resetToken) {
+        const expired = await resetToken.isExpired();
+        if (!expired) {
+          return res.status(403).json({
+            message: "Un lien de réinitialisation vous a déjà été envoyé",
+          });
+        }
+      }
+      let token = createTokenString();
+      let toSave = new PasswordResetToken({
+        user_id: user._id,
+        token: encrypt(token),
+        expires_at: moment().add("3", "hours").toDate(),
+      });
+      let result = await toSave.save();
+      const link = process.env.FRONT_URL + "/reset-password?" + "urpi=" + token;
+
+      const reject =
+        process.env.FRONT_URL +
+        "/desapprouve-reinitialisation?" +
+        "urpi=" +
+        token;
+
+      await forgotPasswordNotification(user, link, reject);
+
+      return res.status(200).json({
+        message: "Mail de réinitialisation envoyé",
+        data: {},
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  const desapprove = async (req, res, next) => {
+    try {
+      const { token } = matchedData(req);
+      const result = await PasswordResetToken.findOne({
+        token: encrypt(token),
+        used_at: { $exists: false },
+      }).exec();
+      if (result) {
+        const expired = await result.isExpired();
+        if (expired) {
+          return res.status(403).json({
+            message:
+              "Lien expiré. Envoyez nous une requête si vous rencontrez un problème avec votre compte",
+          });
+        } else {
+          await result.updateOne({
+            expires_at: moment().subtract(3, "hours").toDate(),
+          });
+          return res.status(200).json({
+            message: "Annulation effectuée",
+            data: {},
+          });
+        }
       } else {
-        const data = matchedData(req);
-        const { email } = data;
-        let user = await User.findOne({ email: email }).exec();
-        if (!user) {
-          res
-            .status(404)
-            .json({ message: "Ce email ne semble associé à aucun compte" });
-        }
-        const resetToken = await PasswordResetToken.findOne({
-          user_id: user._id,
-          used_at: { $exists: false },
-        }).exec();
-        if (resetToken) {
-          const expired = await resetToken.isExpired();
-          if (!expired) {
-            return res.status(403).json({
-              message: "Un lien de réinitialisation vous a déjà été envoyé",
-            });
-          }
-        }
-        let token = createTokenString();
-        let toSave = new PasswordResetToken({
-          user_id: user._id,
-          token: encrypt(token),
-          expires_at: moment().add("3", "hours").toDate(),
-        });
-        let result = await toSave.save();
-        const link =
-          process.env.FRONT_URL + "/reset-password?" + "urpi=" + token;
-
-        const reject =
-          process.env.FRONT_URL +
-          "/desapprouve-reinitialisation?" +
-          "urpi=" +
-          token;
-
-        await forgotPasswordNotification(user, link, reject);
-
-        return res.status(200).json({
-          message: "Mail de réinitialisation envoyé",
+        return res.status(403).json({
+          message:
+            "Le lien de réinitialisation invalide. Envoyez nous une requête si vous rencontrez un problème avec votre compte",
           data: {},
         });
       }
@@ -312,119 +322,67 @@ export default function authController() {
     }
   };
 
-  const desapprove = async (req, res, next) => {
-    try {
-      const errors = validationResult(req);
-      if (errors.isEmpty()) {
-        const { token } = matchedData(req);
-        const result = await PasswordResetToken.findOne({
-          token: encrypt(token),
-          used_at: { $exists: false },
-        }).exec();
-        if (result) {
-          const expired = await result.isExpired();
-          if (expired) {
-            return res.status(403).json({
-              message:
-                "Lien expiré. Envoyez nous une requête si vous rencontrez un problème avec votre compte",
-            });
-          } else {
-            await result.updateOne({
-              expires_at: moment().subtract(3, "hours").toDate(),
-            });
-            return res.status(200).json({
-              message: "Annulation effectuée",
-              data: {},
-            });
-          }
-        } else {
-          return res.status(403).json({
-            message:
-              "Le lien de réinitialisation invalide. Envoyez nous une requête si vous rencontrez un problème avec votre compte",
-            data: {},
-          });
-        }
-      } else {
-        res
-          .status(422)
-          .json({ message: "Erreur de validation", errors: errors.array() });
-      }
-    } catch (error) {
-      next(error);
-    }
-  };
-
   const resetPassword = async (req, res, next) => {
     try {
-      const errors = validationResult(req);
-      if (errors.isEmpty()) {
-        const data = matchedData(req);
-        const resetToken = await PasswordResetToken.findOne({
-          token: encrypt(data.token),
-          used_at: { $exists: false },
-        }).exec();
-        if (resetToken) {
-          const user_find = await User.findById(resetToken.user_id)
-            .select("+password")
-            .exec();
-          if (!user_find) {
-            return res.status(403).json({
-              message: "Compte non trouvé",
-            });
-          }
-          const result = await bcrypt.compare(
-            data.password,
-            user_find.password
-          );
-          if (result === true) {
-            return res.status(403).json({
-              message: "Vous ne pouvez pas utiliser votre ancien mot de passe",
-            });
-          }
-
-          const expired = await resetToken.isExpired();
-          console.log("expired", expired);
-
-          if (expired === true) {
-            return res.status(403).json({
-              message: "Le lien de réinitialisation a expiré",
-            });
-          }
-
-          const hashPassword = await bcrypt.hash(data.password, 10);
-
-          const user = await User.findOneAndUpdate(
-            { _id: resetToken.user_id },
-            { password: hashPassword },
-            { new: true }
-          );
-          if (user) {
-            console.log("user", user);
-            await resetToken.updateOne({
-              used_at: moment().toDate(),
-            });
-
-            await resetPasswordNotification(user);
-
-            return res.status(200).json({
-              message: "Mot de passe réinitialisé",
-              data: user,
-            });
-          }
+      const data = matchedData(req);
+      const resetToken = await PasswordResetToken.findOne({
+        token: encrypt(data.token),
+        used_at: { $exists: false },
+      }).exec();
+      if (resetToken) {
+        const user_find = await User.findById(resetToken.user_id)
+          .select("+password")
+          .exec();
+        if (!user_find) {
           return res.status(403).json({
-            message: "Erreur de mise à jour du mot de passe",
-            data: user,
-          });
-        } else {
-          return res.status(403).json({
-            message: "Le lien de réinitialisation n'est pas valide",
-            data: {},
+            message: "Compte non trouvé",
           });
         }
+        const result = await bcrypt.compare(data.password, user_find.password);
+        if (result === true) {
+          return res.status(403).json({
+            message: "Vous ne pouvez pas utiliser votre ancien mot de passe",
+          });
+        }
+
+        const expired = await resetToken.isExpired();
+        console.log("expired", expired);
+
+        if (expired === true) {
+          return res.status(403).json({
+            message: "Le lien de réinitialisation a expiré",
+          });
+        }
+
+        const hashPassword = await bcrypt.hash(data.password, 10);
+
+        const user = await User.findOneAndUpdate(
+          { _id: resetToken.user_id },
+          { password: hashPassword },
+          { new: true }
+        );
+        if (user) {
+          console.log("user", user);
+          await resetToken.updateOne({
+            used_at: moment().toDate(),
+          });
+
+          await resetPasswordNotification(user);
+
+          return res.status(200).json({
+            message: "Mot de passe réinitialisé",
+            data: user,
+          });
+        }
+        return res.status(403).json({
+          message: "Erreur de mise à jour du mot de passe",
+          data: user,
+        });
       } else {
-        res
-          .status(422)
-          .json({ message: "Erreur de validation", errors: errors.array() });
+        return res.status(403).json({
+          message: "Le lien de réinitialisation n'est pas valide",
+          data: {},
+        });
       }
     } catch (error) {
       next(error);

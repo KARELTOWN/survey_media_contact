@@ -3,6 +3,7 @@ import User from "../../models/User.js";
 import bcrypt from "bcrypt";
 import validator from "validator";
 import { decrypt } from "../../helpers/encrypt.js";
+import { expressResultValidator } from "../requestValidator.js";
 const { isUUID } = validator;
 
 export const validateLogin = [
@@ -43,6 +44,7 @@ export const validateLogin = [
       "Le MOT DE PASSE n'est pas fort. Il doit contenir au moins : un caractère spécial, un chiffre, une lettre majuscule, une lettre miniscule"
     )
     .escape(),
+  expressResultValidator,
 ];
 
 export const validateRegister = [
@@ -105,11 +107,13 @@ export const validateRegister = [
       }
       return true;
     }),
+  expressResultValidator,
 ];
 
 export const validateConfirmRegister = [
   body("user_id").notEmpty().withMessage("Utilisateur non renseigné"),
   body("code").notEmpty().withMessage("Le code OTP est obligatoire"),
+  expressResultValidator,
 ];
 
 export const validateForgotPassword = [
@@ -119,12 +123,14 @@ export const validateForgotPassword = [
     .isEmail()
     .withMessage("EMAIL invalide")
     .escape(),
+  expressResultValidator,
 ];
 
 export const validateDesaprove = [
   body("token")
     .notEmpty()
     .withMessage("Réinitialisation impossible obligatoire"),
+  expressResultValidator,
 ];
 
 export const validateResetPassword = [
@@ -163,6 +169,7 @@ export const validateResetPassword = [
       }
       return true;
     }),
+  expressResultValidator,
 ];
 
 export const validateUserId = [
@@ -178,6 +185,7 @@ export const validateUserId = [
         return true;
       }
     }),
+  expressResultValidator,
 ];
 export const verificationResendCode = (req, res, next) => {
   try {

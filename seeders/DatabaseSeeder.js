@@ -2,12 +2,15 @@ import NotificationModelSeeder from "./NotificationModelSeeder.js";
 import QuestionFieldTypeSeeder from "./QuestionFieldTypeSeeder.js";
 import ModuleSeeder from "./ModuleSeeder.js";
 import UserSeeder from "./UserSeeder.js";
+import FeatureSeeder from "./FeatureSeeder.js";
+import PermissionSeeder from "./PermissionSeeder.js";
 
 const seeders = [
   QuestionFieldTypeSeeder,
   NotificationModelSeeder,
   ModuleSeeder,
-  UserSeeder
+  UserSeeder,
+  PermissionSeeder,
 ];
 
 for (const seeder of seeders) {
@@ -16,7 +19,6 @@ for (const seeder of seeders) {
     console.log(`${seeder.name} exécuté avec succès`);
   } catch (err) {
     console.error(`Erreur dans ${seeder.name}:`, err.message);
-    // Ici on continue quand même avec les seeders suivants
   }
 }
 

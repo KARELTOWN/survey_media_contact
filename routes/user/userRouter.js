@@ -10,21 +10,21 @@ import userController from "../../controllers/user/userController.js";
 import paginateData from "../../helpers/pagination.js";
 import { validatePaginationQuery } from "../../validator/generalValidator.js";
 import permissionCheck from "../../middleware/permissionCheck.js";
-const { addUserToCompany, retireFromCompany, getUsers, getAccountParams } =
+const { addUserCompany, changeUserInCompanyState, getUsers, getAccountParams } =
   userController();
 
 UserRouter.post(
-  "/create",
+  "/add_company",
   permissionCheck("IC"),
   validateAddUser,
-  addUserToCompany
+  addUserCompany
 );
 
 UserRouter.post(
-  "/retire_user",
+  "/update_user_company_state",
   permissionCheck("RRC"),
   validateUserCompanyId,
-  retireFromCompany
+  changeUserInCompanyState
 );
 
 UserRouter.get(

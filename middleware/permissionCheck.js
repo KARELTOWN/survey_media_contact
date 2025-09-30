@@ -1,6 +1,6 @@
-import Feature from "../models/Feature";
+import Feature from "../models/Feature.js";
 import Module from "../models/Module.js";
-import Permission from "../models/Permission";
+import Permission from "../models/Permission.js";
 import UserCompany from "../models/UserCompany.js";
 export default function permissionCheck(featureCode) {
   return async (req, res, next) => {
@@ -20,6 +20,11 @@ export default function permissionCheck(featureCode) {
         }).select("role_id");
         if (!user_company) {
           return res.status(403).json({ message: "Permission denied" });
+        }
+        if (featureCode === "RRC") {
+          if (user_company.user_id === req.user._id) {
+            next();
+          }
         }
         if (user_company.is_active === false) {
           return res.status(403).json({ message: "Permission denied" });

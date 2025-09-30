@@ -30,7 +30,7 @@ export default function surveyController() {
   const getSurveys = async (req, res, next) => {
     try {
       let surveys_templates = await SurveyTemplate.find({
-        owner_id: req.ownerId,
+        owner_id: req.ownerId
       })
         .select([
           "_id",

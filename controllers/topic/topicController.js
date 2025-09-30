@@ -9,10 +9,6 @@ import Category from "../../models/Category.js";
 export default function topicController() {
   const createCategory = async (req, res, next) => {
     try {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return res.status(422).json({ errors: errors.array() });
-      }
       const data = matchedData(req);
       let category = new Category({ ...data, created_by: req.user._id });
       await category.save();
@@ -33,10 +29,6 @@ export default function topicController() {
 
   const createTopic = async (req, res, next) => {
     try {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return res.status(422).json({ errors: errors.array() });
-      }
       const data = matchedData(req);
 
       let topic = new Topic({
@@ -70,7 +62,6 @@ export default function topicController() {
         owner_id: req.ownerId,
         account_type_ref: req.account_type_ref,
       };
-      console.log('query', query)
       const result = await TopicModelFilter(req, query, skip, limit);
       const { total_topic, topic_list } = result;
       data = {
@@ -92,10 +83,6 @@ export default function topicController() {
 
   const updateTopic = async (req, res, next) => {
     try {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return res.status(422).json({ errors: errors.array() });
-      }
       const data = matchedData(req);
       let topic = await Topic.findByIdAndUpdate(
         data.topic_id,
@@ -123,10 +110,6 @@ export default function topicController() {
 
   const filterTopics = async (req, res, next) => {
     try {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return res.status(422).json({ errors: errors.array() });
-      }
       const data = matchedData(req);
 
       const { limit, skip, page } = req.pagination;
@@ -155,10 +138,6 @@ export default function topicController() {
   };
 
   const getCategoryInTopic = async (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(422).json({ errors: errors.array() });
-    }
     const data = matchedData(req);
     let topics = await topicCategory(data.topic_id);
     return res.status(200).json({

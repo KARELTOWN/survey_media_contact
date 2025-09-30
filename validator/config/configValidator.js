@@ -1,5 +1,6 @@
 import { body, param, validationResult } from "express-validator";
 import _ from "lodash";
+import { expressResultValidator } from "../requestValidator.js";
 
 export const validateConfigUpdate = [
   body("logo")
@@ -44,11 +45,5 @@ export const validateConfigUpdate = [
       }
       return true;
     }),
-  (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(422).json({ errors: errors.array() });
-    }
-    next();
-  },
+  expressResultValidator,
 ];

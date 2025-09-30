@@ -10,6 +10,7 @@ import UserRouter from "./user/userRouter.js";
 import ConfigRouter from "./config/ConfigRouter.js";
 import SurveyRouter from "./survey/surveyRouter.js";
 import checkAccountHeaders from "../middleware/checkAccountHeaders.js";
+import RoleRouter from "./user/roleRouter.js";
 
 router.use("/auth/", AuthRouter);
 
@@ -34,6 +35,15 @@ router.use(
   blacklist,
   UserRouter
 );
+
+router.use(
+  "/roles/",
+  isauthentificate,
+  checkAccountHeaders,
+  blacklist,
+  RoleRouter
+);
+
 router.use("/survey/", SurveyRouter);
 
 router.use("/config/", ConfigRouter);

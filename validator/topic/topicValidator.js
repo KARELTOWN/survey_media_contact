@@ -1,8 +1,9 @@
-import { body, param } from "express-validator";
+import { body, param, validationResult } from "express-validator";
 import Topic from "../../models/Topic.js";
 import _ from "lodash";
 import topicService from "../../services/topic/topicService.js";
 import Category from "../../models/Category.js";
+import { expressResultValidator } from "../requestValidator.js";
 const { checkTopicExist } = topicService();
 
 export const validateStoreTopic = [
@@ -45,6 +46,7 @@ export const validateStoreCategory = [
       }
       return true;
     }),
+  expressResultValidator,
 ];
 
 export const validateIdTopic = [
@@ -58,6 +60,7 @@ export const validateIdTopic = [
       }
       return true;
     }),
+  expressResultValidator,
 ];
 
 export const validateUpdateTopic = [
@@ -76,6 +79,7 @@ export const validateUpdateTopic = [
       }
       return true;
     }),
+  expressResultValidator,
 ];
 
 export const validateFilterTopic = [
@@ -83,4 +87,5 @@ export const validateFilterTopic = [
     .optional()
     .isString()
     .withMessage("Un chaine de caractère est attendu"),
+  expressResultValidator,
 ];
