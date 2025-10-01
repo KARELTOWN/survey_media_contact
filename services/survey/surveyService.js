@@ -2,7 +2,8 @@ import { mean, mode, modeFast } from "simple-statistics";
 import mongoose from "../../config/mongodb.js";
 import Answer from "../../models/Answer.js";
 import Question from "../../models/Question.js";
-
+import SurveyHistoric from "../../models/SurveyHistoric.js";
+import xlsx from "xlsx";
 export default function surveyService() {
   const getAnswers = async (survey_id) => {
     const responses = await Answer.aggregate([
@@ -10,6 +11,9 @@ export default function surveyService() {
         $match: {
           survey_id: new mongoose.Types.ObjectId(survey_id),
         },
+      },
+      {
+        $sort: { createdAt: -1 },
       },
       {
         $lookup: {
@@ -148,8 +152,63 @@ export default function surveyService() {
     return { responsesOptions, countsResponses, ratingMean };
   };
 
+  const saveSurveyHistoric = async (survey_template) => {
+    try {
+      // let data = {
+      //   survey_template_id: survey_template._id,
+      // };
+      // delete survey_template._id;
+      // data.template = survey_template;
+      // let historic = new SurveyHistoric({ ...data });
+      // await historic.save();
+    } catch (err) {
+      throw new Error(err);
+    }
+  };
+
+  const exportExcel = async (survey_id) => {
+    try {
+      let result = await getAnswers(survey_id);
+      let answers = [];
+      if (Array.isArray(result) && result.length > 0) {
+        for (const r of result) {
+          let answerPerUser = [];
+          if (Array.isArray(r.answers) && r.answers.length > 0) {
+            for (const a of r.answers) {
+              answerPerUser.push({
+                [a.question_label]: a.response,
+              });
+            }
+            const merged = answerPerUser.reduce(
+              (acc, obj) => ({ ...acc, ...obj }),
+              {}
+            );
+            answers.push(merged);
+          } else {
+            continue;
+          }
+        }
+        const worksheet = xlsx.utils.json_to_sheet(answers);
+        const workbook = xlsx.utils.book_new();
+
+        xlsx.utils.book_append_sheet(workbook, worksheet, "Feuille 1");
+
+        let buffer = xlsx.write(workbook, {
+          type: "buffer",
+          bookType: "xlsx",
+        });
+        return buffer;
+      }
+      return "";
+    } catch (err) {
+      throw new Error(err);
+    }
+  };
+
   return {
     getAnswers,
     getStatistics,
+    saveSurveyHistoric,
+    exportExcel,
   };
 }

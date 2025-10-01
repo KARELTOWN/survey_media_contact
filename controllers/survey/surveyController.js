@@ -1,13 +1,14 @@
-import { matchedData, validationResult } from "express-validator";
+import { matchedData } from "express-validator";
 import surveyService from "../../services/survey/surveyService.js";
-const { getAnswers, getStatistics } = surveyService();
+const { getAnswers, getStatistics, saveSurveyHistoric, exportExcel } =
+  surveyService();
 import SurveyTemplate from "../../models/SurveyTemplate.js";
-import Survey from "../../models/Survey.js";
 import { surveyFields, surveyOperators } from "../../utils/survey.js";
 import Question from "../../models/Question.js";
 import Answer from "../../models/Answer.js";
 import { v4 } from "uuid";
 import mailingPug from "../../services/mailing.js";
+import moment from "moment";
 
 export default function surveyController() {
   const getSurveyParams = async (req, res, next) => {
@@ -30,7 +31,7 @@ export default function surveyController() {
   const getSurveys = async (req, res, next) => {
     try {
       let surveys_templates = await SurveyTemplate.find({
-        owner_id: req.owner_id
+        owner_id: req.owner_id,
       })
         .select([
           "_id",
@@ -55,7 +56,9 @@ export default function surveyController() {
   const showSurvey = async (req, res, next) => {
     try {
       const data = matchedData(req);
-      let survey_template = await SurveyTemplate.findById(data.survey_id);
+      let survey_template = await SurveyTemplate.findById(
+        data.survey_id
+      ).populate(["topic_id", "category_id"]);
 
       return res.status(200).json({
         data: survey_template,
@@ -72,7 +75,10 @@ export default function surveyController() {
       data.created_by = req.user._id;
       data.owner_id = req.owner_id;
       data.account_type_ref = req.account_type_ref;
-      let survey_template = await SurveyTemplate.insertOne(data);
+      if (!data.start_date) {
+        delete data.start_date;
+      }
+      let survey_template = await SurveyTemplate.create(data);
 
       let questions = data.questions.map((q) => ({
         ...q,
@@ -81,9 +87,51 @@ export default function surveyController() {
       }));
 
       await Question.insertMany(questions);
+
+      await saveSurveyHistoric(survey_template);
+
       return res.status(200).json({
         data: survey_template._id,
         message: "Survey créé avec succès",
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  const updateSurvey = async (req, res, next) => {
+    try {
+      const data = matchedData(req);
+      if (!data.start_date) {
+        delete data.start_date;
+      }
+      let survey_template = await SurveyTemplate.findByIdAndUpdate(
+        data.survey_id,
+        {
+          ...data,
+        }
+      );
+
+      let questions = data.questions.map((q) => ({
+        updateOne: {
+          filter: { _id: q.question_id },
+          update: {
+            $set: {
+              ...q,
+              survey_id: survey_template._id,
+            },
+          },
+          upsert: true, // optionnel : crée si ça n’existe pas
+        },
+      }));
+
+      await Question.bulkWrite(questions);
+
+      await saveSurveyHistoric(survey_template);
+
+      return res.status(200).json({
+        data: survey_template._id,
+        message: "Survey modifié avec succès",
       });
     } catch (error) {
       next(error);
@@ -139,12 +187,12 @@ export default function surveyController() {
       }
 
       let template = await SurveyTemplate.findById(result.survey_id)
-        .populate("created_by")
-        .select(["title", "description", "created_by"])
+        .populate(["created_by", "owner_id"])
+        .select(["title", "description", "created_by", "owner_id"])
         .exec();
 
       mailingPug(
-        template.created_by.email,
+        template.owner_id.email,
         `Réponse d'enquête : ${template.title.substring(0, 20)}`,
         "newresponse.pug",
         {
@@ -153,6 +201,7 @@ export default function surveyController() {
           description: template.description,
         }
       );
+
       return res.status(200).json({
         message: "Données envoyées",
       });
@@ -170,6 +219,34 @@ export default function surveyController() {
       return res.status(200).json({
         message: "Données récupérées",
         data: responses,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  const createExcel = async (req, res, next) => {
+    try {
+      const data = matchedData(req);
+
+      const sheet = await exportExcel(data.survey_id);
+      if (sheet) {
+        let survey = await SurveyTemplate.findById(data.survey_id).select(
+          "title"
+        );
+        res.setHeader(
+          "Content-Disposition",
+          `attachment; filename="${survey.title}.xlsx"`
+        );
+        res.setHeader(
+          "Content-Type",
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        );
+
+        return res.send(sheet);
+      }
+      return res.status(500).json({
+        message: "Aucune donnée à télécharger",
       });
     } catch (error) {
       next(error);
@@ -203,5 +280,7 @@ export default function surveyController() {
     showSurvey,
     surveyResponses,
     getSurveysStatistics,
+    updateSurvey,
+    createExcel,
   };
 }

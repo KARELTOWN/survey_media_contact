@@ -5,6 +5,7 @@ import { surveyFields, surveyOperators } from "../../utils/survey.js";
 import SurveyTemplate from "../../models/SurveyTemplate.js";
 import Question from "../../models/Question.js";
 import { expressResultValidator } from "../requestValidator.js";
+import moment from "moment";
 /**
  * Validator pour SurveyTemplate
  */
@@ -24,12 +25,35 @@ export const validateSurveyId = [
 ];
 
 export const surveyValidator = [
-  // Champs principaux du survey
   body("form_id")
     .exists({ checkFalsy: true })
     .withMessage("form_id est requis")
     .isString()
     .withMessage("form_id doit être une chaîne de caractères"),
+
+  body("start_date")
+    .optional()
+    .custom((value) => {
+      if (value && value !== undefined) {
+        let date = moment(value).isValid();
+        if (!date) {
+          throw new Error("Une date est attendue");
+        }
+      }
+      return true;
+    }),
+
+  body("end_date")
+    .optional()
+    .custom((value) => {
+      if (value && value !== undefined) {
+        let date = moment(value).isValid();
+        if (!date) {
+          throw new Error("Une date est attendue");
+        }
+      }
+      return true;
+    }),
 
   body("title")
     .exists({ checkFalsy: true })
@@ -39,7 +63,9 @@ export const surveyValidator = [
 
   body("description")
     .optional()
-    .isString().trim().escape()
+    .isString()
+    .trim()
+    .escape()
     .withMessage("description doit être une chaîne de caractères"),
 
   body("topic_id")
@@ -70,7 +96,11 @@ export const surveyValidator = [
       }
       return true;
     }),
-
+  body("multiple_submission")
+    .notEmpty()
+    .withMessage("Le nombre de soumission est requis")
+    .isBoolean()
+    .withMessage("Le nombre de soumission doit être un boolean"),
   body("lastEdit")
     .exists({ checkFalsy: true })
     .withMessage("lastEdit est requis")

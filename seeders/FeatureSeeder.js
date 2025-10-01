@@ -89,6 +89,16 @@ const FeatureSeeder = async () => {
             module_id: foundModule._id,
           },
           {
+            libelle: "Modification d'enquête",
+            code: "UPE",
+            module_id: foundModule._id,
+          },
+          {
+            libelle: "Export en excel",
+            code: "SURVEY_EXCEL",
+            module_id: foundModule._id,
+          },
+          {
             libelle: "Détail d'enquête",
             code: "DE",
             module_id: foundModule._id,

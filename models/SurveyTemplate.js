@@ -1,6 +1,7 @@
 import { SchemaTypes } from "mongoose";
 import mongoose from "../config/mongodb.js";
 import QuestionTemplateSchema from "./SurveyElementSchema/QuestionTemplateSchema.js";
+import moment from "moment";
 
 const SurveyTemplateSchema = new mongoose.Schema(
   {
@@ -51,6 +52,18 @@ const SurveyTemplateSchema = new mongoose.Schema(
       type: SchemaTypes.ObjectId,
       ref: "User",
       required: true,
+    },
+    multiple_submission: {
+      type: Boolean,
+      required: true,
+      default: true,
+    },
+    start_date: {
+      type: Date,
+      default: () => moment().toDate(),
+    },
+    end_date: {
+      type: Date,
     },
   },
   {

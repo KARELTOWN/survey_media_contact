@@ -16,12 +16,14 @@ import permissionCheck from "../../middleware/permissionCheck.js";
 const {
   getSurveyParams,
   createSurvey,
+  updateSurvey,
   getSurveyForm,
   createResponseToSurvey,
   getSurveys,
   showSurvey,
   surveyResponses,
   getSurveysStatistics,
+  createExcel,
 } = surveyController();
 
 SurveyRouter.get(
@@ -41,6 +43,27 @@ SurveyRouter.post(
   permissionCheck("AE"),
   surveyValidator,
   createSurvey
+);
+
+SurveyRouter.put(
+  "/update/:survey_id",
+  isauthentificate,
+  checkAccountHeaders,
+  blacklist,
+  permissionCheck("UPE"),
+  validateSurveyId,
+  surveyValidator,
+  updateSurvey
+);
+
+SurveyRouter.get(
+  "/export_excel/:survey_id",
+  isauthentificate,
+  checkAccountHeaders,
+  blacklist,
+  permissionCheck("SURVEY_EXCEL"),
+  validateSurveyId,
+  createExcel
 );
 
 SurveyRouter.get(
