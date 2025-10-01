@@ -93,7 +93,7 @@ const handleSubmit = async () => {
             }
         }
     } catch (err) {
-        console.log(err)
+        console.error(err)
     }
 }
 </script>

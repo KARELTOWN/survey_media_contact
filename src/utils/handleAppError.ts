@@ -59,7 +59,7 @@ export const handleCatchError = (err) => {
       })
       return errors
     } else {
-      console.log('handleCatchError', err)
+      console.error('handleCatchError', err)
       errorNotify("Une erreur inattendue s'est produite")
     }
   }

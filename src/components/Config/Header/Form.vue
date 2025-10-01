@@ -89,7 +89,6 @@ const handleFile = async (event) => {
             const file = event.target.files[0]
             const file64 = await convertToBase64(file)
             form.logo = file64
-            console.log('form', form)
         }
         else {
             infoNotify('Taille de fichier trop volumineux. Taille maximale acceptée: 10 MB')

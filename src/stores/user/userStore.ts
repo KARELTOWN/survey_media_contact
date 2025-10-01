@@ -48,7 +48,6 @@ export const userStore = defineStore('user-store', () => {
           page.value = response.data.page
           limit.value = response.data.limit
           totalPages.value = response.data.totalPages
-          console.log('response.data', response.data)
         }
       }
     } catch (err) {
@@ -91,9 +90,6 @@ export const userStore = defineStore('user-store', () => {
         let index = users.value.findIndex((item) => item._id === data.user_company)
         users.value.splice(index, 1)
         updatePagination('add')
-        console.log('DSFSFFSFSF')
-                console.log('DSFSFFSFSF', response?.data)
-
         if (response?.data && response?.data?.self === true) {
           removeLocalStorage('survey_mc_account_type')
           removeLocalStorage('survey_mc_account_id')

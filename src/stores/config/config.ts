@@ -14,7 +14,6 @@ export const configStore = defineStore('config-store', () => {
     try {
       configSuccess.value = false
       errors.value = {}
-      console.log('form', form)
       const schemaValidation = validateHeaderConfig()
       const data = await schemaValidation.validate(
         {
@@ -41,7 +40,6 @@ export const configStore = defineStore('config-store', () => {
     } catch (err) {
       const result = handleCatchError(err)
       if (result) {
-        console.log('result', result)
         errors.value = result
       }
     }

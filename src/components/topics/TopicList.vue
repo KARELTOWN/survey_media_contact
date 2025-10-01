@@ -56,7 +56,6 @@ const selectedCard = ref(null)
 
 onMounted(async () => {
     await handleTopics()
-    console.log('formSurvey.value.topic', formSurvey.value.topic)
     if (formSurvey.value.topic) {
         getTopic(formSurvey.value.topic)
     }

@@ -115,9 +115,9 @@ const saveQuestion = (question) => {
 
 setTimeout(() => {
     saveFormInstance().then(() => {
-        console.log('Sauvergarde local effectuée', formSurvey)
+        console.log('Sauvergarde local effectuée')
     }).catch((err) => {
-        console.log("Erreur de sauvegarde en local", err)
+        console.error("Erreur de sauvegarde en local", err)
     })
 }, 5000)
 

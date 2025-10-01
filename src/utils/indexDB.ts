@@ -10,7 +10,6 @@ export default function indexDBTransaction() {
           if (!db.objectStoreNames.contains(table)) {
             db.createObjectStore(table)
           }
-          console.log(`Object store '${table}' is ready.`)
         }
       }
 
@@ -85,7 +84,7 @@ export default function indexDBTransaction() {
       if (!data) {
         return resolve('Nothing to save') // rien à enregistrer, on résout quand même
       }
-      console.log('Saving to IndexedDB:', table)
+      console.log('Saving to IndexedDB')
 
       const transaction = db.transaction(table, 'readwrite')
       const store = transaction.objectStore(table)

@@ -319,7 +319,6 @@ export const surveyStore = defineStore('survey-store', () => {
     try {
       const result = await fetchGet(`survey/export_excel/${survey_id}`)
       const blob = await result.blob()
-      console.log('blob', blob)
       saveAs(blob, `${title}.xlsx`)
     } catch (err) {
       handleCatchError(err)

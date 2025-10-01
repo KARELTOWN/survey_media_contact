@@ -45,8 +45,6 @@ const selectedCard = ref(null)
 
 const getCategory = (category) => {
     selectedCard.value = category._id
-    console.log('selectTopic', selectedCard.value)
-
     emit('select', category)
 }
 
@@ -58,7 +56,6 @@ const handleCategory = async (topic) => {
 
         if (formSurvey.value.category) {
             let find = topicCategory.value.find((e) => (e.topic_id == selectTopic.value._id && e._id == formSurvey.value.category._id))
-            console.log('find', find)
             if (find && find !== undefined) {
                 selectCategory.value = null
                 getCategory(formSurvey.value.category)

@@ -194,7 +194,7 @@ const handleCompanyList = async () => {
     await getCompanies()
   }
   catch (err) {
-    console.log(err)
+    console.error(err)
   }
 }
 
@@ -220,7 +220,7 @@ const handleSubmit = async () => {
     }
 
   } catch (err) {
-    console.log('Error', err)
+    console.error('Error', err)
     disabledBtn.value = false
   }
 }

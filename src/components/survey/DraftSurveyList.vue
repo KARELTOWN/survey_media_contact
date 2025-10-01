@@ -46,7 +46,6 @@ const surveysDraft = ref([])
 onMounted(async () => {
     const allData = await getAllDataInDBStorage(get_account_id())
     surveysDraft.value = allData
-    console.log('alldata', allData)
 })
 
 const router = useRouter()

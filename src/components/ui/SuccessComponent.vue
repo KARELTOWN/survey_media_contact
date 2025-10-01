@@ -83,7 +83,6 @@ const mailShare = ref('')
 watchEffect(() => {
     if (props.link && props.link !== undefined) {
         const surveyUrl = encodeURIComponent(props.link)
-        console.log('surveyUrl', surveyUrl)
         // Génération des liens de partage
         linkedinShare.value = `https://www.linkedin.com/shareArticle?mini=true&url=${surveyUrl}`
         whatsappShare.value = `https://api.whatsapp.com/send?text=Participez à mon enquête : ${surveyUrl}`

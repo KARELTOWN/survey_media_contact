@@ -63,7 +63,6 @@ onMounted(async () => {
     await getSurveyConfig(route.params.id).then(() => {
         if (configSuccess.value === true) {
             const header = config.value
-            console.log('header', header)
             if (header) {
                 form.phone = header.phone
                 form.logo = header.logo
