@@ -4,6 +4,7 @@ import { successNotify } from '@/utils/notification'
 import { deleteIndexDBStorage, getLocalStorage, setIndexDBStorage } from '@/utils/storage'
 import { defaultQuestion } from '@/utils/survey'
 import { getUUID } from '@/utils/uuid'
+import { saveAs } from 'file-saver'
 import { defineStore } from 'pinia'
 import { reactive, ref } from 'vue'
 export const surveyStore = defineStore('survey-store', () => {
@@ -48,6 +49,9 @@ export const surveyStore = defineStore('survey-store', () => {
           question_id: getUUID(),
         },
       ],
+    multiple_submission: true,
+    start_date: '',
+    end_date: '',
     }
   }
 
@@ -67,6 +71,9 @@ export const surveyStore = defineStore('survey-store', () => {
         question_id: getUUID(),
       },
     ],
+    multiple_submission: true,
+    start_date: '',
+    end_date: '',
   })
 
   const getSurveyParams = async () => {
@@ -175,6 +182,47 @@ export const surveyStore = defineStore('survey-store', () => {
     }
   }
 
+  const updateSurvey = async () => {
+    try {
+      surveyID.value = ''
+      surveySuccess.value = false
+      errors.value = {}
+      formSurvey.value.questions.forEach((question) => {
+        if (question.condition.display == '') {
+          question.condition.display = 'show'
+        }
+      })
+      const data = {
+        ...formSurvey.value,
+        topic: '',
+        category: '',
+        topic_id: formSurvey.value.topic?._id,
+        category_id: formSurvey.value.category?._id,
+      }
+
+      const result = await fetchPut(`survey/update/${formSurvey.value._id}`, data)
+
+      const response = await handleAppError(result)
+      if (response.status === true) {
+        if (response.errors) {
+          errors.value = response.errors
+        }
+      } else {
+        if (response?.data) {
+          surveySuccess.value = true
+          surveyID.value = response?.data
+          successNotify("Questionnaire d'enquête modifié")
+          await deleteIndexDBStorage(`survey_form_${data.form_id}@${get_account_id()}`)
+        }
+      }
+    } catch (err) {
+      const result = handleCatchError(err)
+      if (result) {
+        errors.value = result
+      }
+    }
+  }
+
   const saveSurveyResponse = async (answers, survey_id) => {
     try {
       surveySuccess.value = false
@@ -267,6 +315,17 @@ export const surveyStore = defineStore('survey-store', () => {
     return `${import.meta.env.VITE_FRONT_URL}/forms/${surveyID}`
   }
 
+  const exportToExcel = async (survey_id, title) => {
+    try {
+      const result = await fetchGet(`survey/export_excel/${survey_id}`)
+      const blob = await result.blob()
+      console.log('blob', blob)
+      saveAs(blob, `${title}.xlsx`)
+    } catch (err) {
+      handleCatchError(err)
+    }
+  }
+
   return {
     surveyFormLink,
     getSurveyParams,
@@ -289,5 +348,7 @@ export const surveyStore = defineStore('survey-store', () => {
     getInitialFormSurvey,
     getSurveyStatistics,
     statistics,
+    updateSurvey,
+    exportToExcel,
   }
 })

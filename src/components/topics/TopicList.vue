@@ -1,10 +1,10 @@
 <template>
 
     <div class="my-10 grid grid-cols-1 md:flex md:justify-start ">
-        <SearchPanel class="me-4 mb-2 md:mb-0"/>
-        
-            <Button @click="openAddModal = true" variant="danger">Ajouter une thématique</Button>
-        
+        <SearchPanel class="me-4 mb-2 md:mb-0" />
+
+        <Button @click="openAddModal = true" variant="danger">Ajouter une thématique</Button>
+
     </div>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -31,7 +31,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import { topicStore } from "@/stores/topic/topicStore";
 import { storeToRefs } from "pinia";
 import Pagination from "@/components/pagination/Pagination.vue";
@@ -56,11 +56,17 @@ const selectedCard = ref(null)
 
 onMounted(async () => {
     await handleTopics()
+    console.log('formSurvey.value.topic', formSurvey.value.topic)
     if (formSurvey.value.topic) {
         getTopic(formSurvey.value.topic)
     }
 })
 
+watch(() => formSurvey.value.topic, (newV) => {
+    
+        getTopic(newV)
+    
+})
 
 const handleTopics = async () => {
     try {

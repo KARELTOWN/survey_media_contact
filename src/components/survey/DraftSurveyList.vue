@@ -3,7 +3,7 @@
         <h2 class="text-2xl font-bold mb-4">📋 Liste des brouillons</h2>
 
         <div v-if="surveysDraft.length" class="space-y-4">
-            <div v-for="survey in surveysDraft" :key="survey.key" @click="seeDetail(survey.value.form_id)"
+            <div v-for="survey in surveysDraft" :key="survey.key" @click="seeDetail(survey)"
                 class="border cursor-pointer rounded-lg p-4 shadow-sm hover:shadow-md transition bg-white dark:bg-gray-900">
                 <div class="flex justify-between items-center">
                     <h3 class="text-lg font-semibold text-gray-800 dark:text-white">
@@ -51,7 +51,13 @@ onMounted(async () => {
 
 const router = useRouter()
 
-const seeDetail = (survey_id) => {
-    router.push({ name: 'Create-Survey', params: { id: survey_id } })
+const seeDetail = (survey) => {
+    if (survey.value.publish === true && survey.value._id) {
+        router.push({ name: 'Update-Survey', params: { survey_id: survey.value._id } })
+        return
+    }
+    else {
+        router.push({ name: 'Create-Survey', params: { id: survey.value.form_id } })
+    }
 }
 </script>

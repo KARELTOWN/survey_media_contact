@@ -2,7 +2,7 @@
     <pre>{{ formSurvey }}</pre>
 </template> -->
 <script setup>
-import { onMounted, ref, watch, watchEffect } from "vue"
+import { computed, onMounted, ref, watch, watchEffect } from "vue"
 import { surveyStore } from "@/stores/survey/surveyStore";
 import { storeToRefs } from "pinia";
 import { errorNotify, infoNotify, successNotify } from "@/utils/notification";
@@ -13,6 +13,7 @@ import { defaultFileImg } from "@/utils/survey";
 import { getSurveyCookie, setSurveyCookie } from "@/composables/cookie";
 import { flatpickrConfig, flatpickrTimeOnlyConfig } from "@/utils/format";
 import FileViewer from "@/components/viewer/FileViewer.vue";
+import moment from "moment";
 
 const previewMode = ref(false)
 
@@ -244,7 +245,9 @@ const saveForm = async () => {
       await saveSurveyResponse(answers.value, route.params.id)
       if (surveySuccess.value === true) {
         disabledBtn.value = false
-        setSurveyCookie(route.params.id)
+        if (formSurvey.value.multiple_submission === false) {
+          setSurveyCookie(route.params.id)
+        }
         router.push({ name: 'Response-Send' })
       }
       else {
@@ -303,11 +306,7 @@ watchEffect(async () => {
   else if (props.preview === false) {
     previewMode.value = false
     formSurvey.value = {}
-    cookieExist.value = getSurveyCookie(route.params.id)
-    if (cookieExist.value === true) {
-      return
-    }
-    formSurvey.value = {}
+
     await getSurveyForm(route.params.id)
     if (liveFormSurvey.value?.publish === false) {
       publish.value = false
@@ -321,6 +320,26 @@ watchEffect(async () => {
   }
 })
 
+watchEffect(() => {
+  if (formSurvey.value.multiple_submission === false) {
+    cookieExist.value = getSurveyCookie(route.params.id)
+    if (cookieExist.value === true) {
+      return
+    }
+  }
+})
+
+const canResponseToForm = computed(() => {
+  const start_date = moment(formSurvey.value.start_date)
+  const end_date = moment(formSurvey.value.end_date)
+  const today = moment()
+  if (today.isBefore(start_date) || today.isAfter(end_date)) {
+    return false
+  }
+  return true
+})
+
+
 </script>
 
 <template>
@@ -328,7 +347,7 @@ watchEffect(async () => {
     <SurveyFormHeader />
   </div>
   <div class="max-w-3xl mx-auto p-6 bg-gray-50 rounded-xl shadow-md mt-5"
-    v-if="(previewMode === true) || (previewMode === false && cookieExist === false && publish === true)">
+    v-if="(previewMode === true) || (previewMode === false && cookieExist === false && publish === true && canResponseToForm)">
     <!-- ✅ En-tête du formulaire -->
     <h1 class="text-2xl font-bold mb-2">{{ formSurvey.title }}</h1>
     <p class="text-gray-600 mb-6">{{ formSurvey.description }}</p>
@@ -396,7 +415,8 @@ watchEffect(async () => {
           <div v-if="filesList[question.question_id]?.length > 0"
             class="grid grid-cols-1 lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-1">
             <div v-for="(file, fIndex) in filesList[question.question_id]" :key="fIndex" class="mt-4 relative">
-              <img :src="file.img" @click="openFile(answers[question.question_id][fIndex])" alt="Prévisualisation" class="w-48 h-48 object-cover rounded cursor-pointer" />
+              <img :src="file.img" @click="openFile(answers[question.question_id][fIndex])" alt="Prévisualisation"
+                class="w-48 h-48 object-cover rounded cursor-pointer" />
               <div class="text-muted font-bold">{{ file.name }}</div>
               <button @click="deleteFile(fIndex, question.question_id)"
                 class="absolute top-2 right-2 bg-white rounded-full p-1 shadow-md hover:bg-red-100 transition">
@@ -413,7 +433,7 @@ watchEffect(async () => {
 
       <!-- Date -->
       <flat-pickr v-else-if="question.type_field === 'date' && displayField(question.condition)"
-        v-model="answers[question.question_id]" :config="flatpickrConfig" placeholder="Date"
+        v-model="answers[question.question_id]" :config="flatpickrConfig()" placeholder="Date"
         class="dark:bg-dark-900 h-11 appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 pl-4 pr-11 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800" />
       <!-- Heure -->
       <flat-pickr v-else-if="question.type_field === 'hour' && displayField(question.condition)"
@@ -458,10 +478,11 @@ watchEffect(async () => {
       Soumettre
     </button>
   </div>
-  <!-- <div v-if="publish === false">
+  
+  <div v-if="!canResponseToForm" class="py-5 text-center">
     <h2 class="text-2xl font-bold mb-2">Vous ne pouvez pas accéder à ce formulaire</h2>
-  </div> -->
-  <div v-if="cookieExist === true" class="text-center mt-6">
+  </div>
+  <div v-else-if="cookieExist === true && formSurvey.multiple_submission === false" class="text-center py-5">
     <h2 class="text-xl font-bold mb-2">Vous avez déjà soumis cette enquête</h2>
   </div>
 

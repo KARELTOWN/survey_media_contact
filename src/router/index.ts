@@ -44,11 +44,11 @@ const router = createRouter({
       },
     },
     {
-      path: '/continue-enquete/:id',
-      name: 'Continue-Survey',
-      component: () => import('../views/Pages/Survey/ContinueSurvey.vue'),
+      path: '/update-survey/:survey_id',
+      name: 'Update-Survey',
+      component: () => import('../views/Pages/Survey/Update.vue'),
       meta: {
-        title: "Poursuite d'enquête",
+        title: "Modification d'enquête",
         requiredAuth: true,
       },
     },
