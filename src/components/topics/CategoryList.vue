@@ -10,7 +10,7 @@
         <div v-for="(category, cIndex) in categoryFiltered" :key="cIndex" @click="getCategory(category)" :class="[
             'p-4 border rounded shadow-lg transition cursor-pointer',
             selectedCard === category._id
-                ? 'bg-brand-500 text-white shadow-xl'
+                ? 'border-red-500 border-3 text-dark shadow-xl'
                 : 'bg-white hover:shadow-xl'
         ]">
             <h3 class="text-lg font-semibold mb-2">{{ category.libelle }}</h3>

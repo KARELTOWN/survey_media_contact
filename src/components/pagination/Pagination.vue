@@ -24,7 +24,7 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 export default {
   props: {
     paginator: {
@@ -43,7 +43,7 @@ export default {
   },
   computed: {
     pages() {
-      let pages = [];
+      const pages = [];
       const currentPage = this.current_page;
       const lastPage = this.totalPages;
       if (lastPage <= 7) {
@@ -64,8 +64,8 @@ export default {
           }
 
           // Calculate the start and end pages for the middle range
-          let startPage = Math.max(currentPage - 2, 3);
-          let endPage = Math.min(currentPage + 2, lastPage - 2);
+          const startPage = Math.max(currentPage - 2, 3);
+          const endPage = Math.min(currentPage + 2, lastPage - 2);
           // Add ellipsis if needed
           if (startPage > 3) {
             pages.push('...');
@@ -91,7 +91,7 @@ export default {
     }
   },
   methods: {
-    changePage(page) {
+    changePage(page: number) {
       if (page === '...') return;
       this.$emit('page-change', page);
     }

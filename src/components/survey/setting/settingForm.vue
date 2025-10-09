@@ -11,7 +11,7 @@
                     </svg>
                 </button>
                 <h5 class="mb-5 font-semibold text-gray-800 modal-title text-theme-xl dark:text-white/90 lg:text-2xl">
-                    Configuration enquête
+                    Paramètres d'enquête
                 </h5>
                 <div class="grid grid-cols-2">
                     <div class="mb-3 col-span-2">

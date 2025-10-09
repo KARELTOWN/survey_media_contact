@@ -62,11 +62,10 @@
 </template>
 
 <script setup>
-import { copyInClipInBoard } from "@/utils/general"
+import { copyInClipInBoard, socialShareLinks } from "@/utils/general"
 import { infoNotify } from "@/utils/notification"
 import { ref, watchEffect } from "vue"
 import { useRouter } from "vue-router"
-
 const router = useRouter()
 const props = defineProps({
     title: String,
@@ -74,6 +73,7 @@ const props = defineProps({
     link: String,
     path: String
 })
+
 // URL à partager (tu peux passer la vraie URL de ton enquête)
 
 const linkedinShare = ref('')
@@ -83,11 +83,10 @@ const mailShare = ref('')
 watchEffect(() => {
     if (props.link && props.link !== undefined) {
         const surveyUrl = encodeURIComponent(props.link)
-        // Génération des liens de partage
-        linkedinShare.value = `https://www.linkedin.com/shareArticle?mini=true&url=${surveyUrl}`
-        whatsappShare.value = `https://api.whatsapp.com/send?text=Participez à mon enquête : ${surveyUrl}`
-        facebookShare.value = `https://www.facebook.com/sharer/sharer.php?u=${surveyUrl}`
-        mailShare.value = `mailto:?subject=Nouvelle enquête&body=Participez à mon enquête : ${surveyUrl}`
+        linkedinShare.value = `${socialShareLinks.linkedin}${surveyUrl}`
+        whatsappShare.value = `${socialShareLinks.whatsapp}Participez à mon enquête : ${surveyUrl}`
+        facebookShare.value = `${socialShareLinks.facebook}${surveyUrl}`
+        mailShare.value = `${socialShareLinks.mail}Nouvelle enquête&body=Participez à mon enquête : ${surveyUrl}`
     }
 })
 
@@ -99,6 +98,6 @@ const copyLink = () => {
 
 // Retour à l’accueil
 const goBack = () => {
-    router.push({path: props.path})
+    router.push({ path: props.path })
 }
 </script>

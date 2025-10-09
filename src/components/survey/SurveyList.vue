@@ -9,9 +9,17 @@
                     <h3 class="text-lg font-semibold text-gray-800 dark:text-white">
                         {{ survey.title }}
                     </h3>
-                    <span :class="survey.publish ? 'text-green-600' : 'text-yellow-500'" class="text-sm font-medium">
-                        {{ survey.publish ? 'Publié' : 'Brouillon' }}
-                    </span>
+                    <div class="flex flex-col">
+                        <span :class="survey.publish ? 'text-green-600' : 'text-yellow-500'"
+                            class="text-sm font-medium">
+                            {{ survey.publish ? 'Publié' : 'Brouillon' }}
+                        </span>
+                        <div class="text-sm text-gray-500 dark:text-gray-400">
+                            <span>Réponses : </span>
+                            <span class="font-semibold">{{ survey.count_responses || 0 }}</span>
+                        </div>
+                    </div>
+
                 </div>
 
                 <p v-if="survey.description" class="text-gray-600 dark:text-gray-300 mt-1">

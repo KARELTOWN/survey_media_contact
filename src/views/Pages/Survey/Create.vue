@@ -8,11 +8,11 @@
                     <div class="flex justify-end mb-4 space-x-2">
                         <Button variant="outline" @click="openSurveySetting = true" v-if="currentPage > 0" size="sm"
                             title="Paramétrer">
-                            <SettingsIcon />
+                            <SettingsIcon /> Paramètres
                         </Button>
                         <Button variant="outline" @click="saveForm" v-if="currentPage > 0" size="sm"
                             title="Sauvegarder en brouillon">
-                            <DraftIcon />
+                            <DraftIcon /> Sauvegarder en brouillon
                         </Button>
                     </div>
 

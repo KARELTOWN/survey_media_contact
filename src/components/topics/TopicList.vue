@@ -11,7 +11,7 @@
         <div v-for="(topic, cIndex) in topics" :key="cIndex" @click="getTopic(topic)" :class="[
             'p-4 border rounded shadow-lg transition cursor-pointer',
             selectedCard === topic._id
-                ? 'bg-brand-500 text-white shadow-xl'
+                ? 'border-red-500 border-3 text-dark shadow-xl'
                 : 'bg-white hover:shadow-xl'
         ]">
             <h3 class="text-lg font-semibold mb-2">{{ topic.libelle }}</h3>
