@@ -205,10 +205,20 @@ export default function surveyService() {
     }
   };
 
+  const countSurveyResponse = async (survey_id) => {
+    try {
+      let count = await Answer.countDocuments({ survey_id: survey_id });
+      return count;
+    } catch (err) {
+      throw new Error(err);
+    }
+  };
+
   return {
     getAnswers,
     getStatistics,
     saveSurveyHistoric,
     exportExcel,
+    countSurveyResponse,
   };
 }

@@ -9,6 +9,7 @@ const mailingWorker = new Worker(
   async (job) => {
     try {
       let mailinfo = job.data;
+      console.log('mailifno', mailinfo)
       const info = await mailTransporter.sendMail({
         from: process.env.MAIL_FROM,
         to: mailinfo.to,

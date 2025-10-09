@@ -1,7 +1,12 @@
 import { matchedData } from "express-validator";
 import surveyService from "../../services/survey/surveyService.js";
-const { getAnswers, getStatistics, saveSurveyHistoric, exportExcel } =
-  surveyService();
+const {
+  getAnswers,
+  getStatistics,
+  saveSurveyHistoric,
+  exportExcel,
+  countSurveyResponse,
+} = surveyService();
 import SurveyTemplate from "../../models/SurveyTemplate.js";
 import { surveyFields, surveyOperators } from "../../utils/survey.js";
 import Question from "../../models/Question.js";
@@ -41,8 +46,27 @@ export default function surveyController() {
           "createdAt",
           "updatedAt",
         ])
-        .populate(["topic_id", "category_id", "created_by"])
-        .sort({ createdAt: -1 });
+        .populate([
+          {
+            path: "topic_id",
+            select: "libelle",
+          },
+          {
+            path: "category_id",
+            select: "libelle",
+          },
+          {
+            path: "created_by",
+            select: "firstname lastname",
+          },
+        ])
+        .sort({ createdAt: -1 })
+        .lean();
+
+      for (const survey of surveys_templates) {
+        survey.count_responses = await countSurveyResponse(survey._id);
+        console.log(survey.count_responses);
+      }
 
       return res.status(200).json({
         data: surveys_templates,
@@ -187,10 +211,21 @@ export default function surveyController() {
       }
 
       let template = await SurveyTemplate.findById(result.survey_id)
-        .populate(["created_by", "owner_id"])
-        .select(["title", "description", "created_by", "owner_id"])
+        .populate(["created_by"])
+        .populate({
+          path: "owner_id",
+          model: "Company",
+        })
+        .select([
+          "title",
+          "description",
+          "created_by",
+          "owner_id",
+          "account_type_ref",
+        ])
         .exec();
 
+      console.log("template.owner_id.email", template.owner_id);
       mailingPug(
         template.owner_id.email,
         `Réponse d'enquête : ${template.title.substring(0, 20)}`,

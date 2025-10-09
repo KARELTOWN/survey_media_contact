@@ -43,6 +43,8 @@ const corsOption = {
     "http://localhost:5173",
     "https://surveymc.bugreveal.com",
     "http://localhost:5175",
+    "http://192.168.141.91:5175",
+    "http://172.30.96.1:5175"
   ],
   methods: ["GET", "POST", "DELETE", "PUT", "PATCH"],
   credentials: true,
