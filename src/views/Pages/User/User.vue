@@ -37,7 +37,7 @@ const currentPageTitle = ref("Collaborateurs");
 import InviteUser from '@/components/user/InviteUser.vue'
 import Pagination from "@/components/pagination/Pagination.vue";
 
-import { userStore } from "@/stores/user/userStore.ts";
+import { userStore } from "@/stores/user/userStore.js";
 import { storeToRefs } from "pinia";
 const store = userStore()
 const { errors,

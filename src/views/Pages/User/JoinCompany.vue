@@ -22,7 +22,7 @@ import PageBreadcrumb from "@/components/common/PageBreadcrumb.vue";
 import AdminLayout from "@/components/layout/AdminLayout.vue";
 import ComponentCard from "@/components/common/ComponentCard.vue";
 import { onMounted, ref } from 'vue'
-import { userStore } from "@/stores/user/userStore";
+import { userStore } from "@/stores/user/userStore.js";
 import { storeToRefs } from "pinia";
 import { useRoute } from 'vue-router';
 import { errorNotify } from '@/utils/notification';

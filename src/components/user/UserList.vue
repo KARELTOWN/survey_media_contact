@@ -81,7 +81,7 @@
 import { onMounted, ref } from 'vue'
 import Button from '../ui/Button.vue';
 import SettingsIcon from '@/icons/SettingsIcon.vue'
-import { userStore } from "@/stores/user/userStore";
+import { userStore } from "@/stores/user/userStore.js";
 import { storeToRefs } from "pinia";
 import Swal from 'sweetalert2'
 

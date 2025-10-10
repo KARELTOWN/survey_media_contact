@@ -52,10 +52,10 @@
 
 import { ref, onMounted, watchEffect, reactive } from 'vue'
 import Modal from '@/components/profile/Modal.vue'
-import { userStore } from "@/stores/user/userStore";
+import { userStore } from "@/stores/user/userStore.js";
 import { storeToRefs } from "pinia";
 import SimpleSelect from '../forms/FormElements/SimpleSelect.vue';
-import { roleStore } from '@/stores/user/roleStore';
+import { roleStore } from '@/stores/user/roleStore.js';
 const role_store = roleStore()
 const store = userStore()
 const { errors,
