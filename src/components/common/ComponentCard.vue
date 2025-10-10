@@ -1,10 +1,8 @@
 <template>
-  <div
-    :class="[
-      'rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]',
-      className,
-    ]"
-  >
+  <div :class="[
+    'rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]',
+    className,
+  ]">
     <!-- Card Header -->
     <div class="px-6 py-5">
       <h3 class="text-base font-medium text-gray-800 dark:text-white/90">
@@ -24,14 +22,12 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup>
 import { defineProps } from 'vue'
 
-interface Props {
-  title: string
-  className?: string
-  desc?: string
-}
-
-defineProps<Props>()
+defineProps({
+  title: String,
+  className: String,
+  desc: String
+})
 </script>

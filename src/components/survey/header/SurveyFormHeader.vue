@@ -39,7 +39,7 @@
     </header>
 </template>
 
-<script setup lang="ts">
+<script setup>
 import { computed, onMounted, reactive, ref } from 'vue';
 import { configStore } from '@/stores/config/config';
 import { storeToRefs } from 'pinia';
@@ -48,7 +48,7 @@ const store = configStore()
 const { config, configSuccess } = storeToRefs(store)
 const { getSurveyConfig } = store
 
-const displayHeader = computed(()=> (form.logo))
+const displayHeader = computed(() => (form.logo))
 
 const form = reactive({
     adress: '',

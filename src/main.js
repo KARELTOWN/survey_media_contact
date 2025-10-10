@@ -10,7 +10,7 @@ import { createPinia } from 'pinia'
 
 import flatPickr from 'vue-flatpickr-component'
 
-import indexDBTransaction from "@/utils/indexDB";
+import indexDBTransaction from "@/utils/IndexDB.js";
 const { initDB } = indexDBTransaction();
 
 

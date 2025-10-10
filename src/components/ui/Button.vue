@@ -16,25 +16,37 @@
   </button>
 </template>
 
-<script setup lang="ts">
+<script setup>
 import { computed } from 'vue'
 
-interface ButtonProps {
-  size?: 'sm' | 'md'
-  variant?: 'primary' | 'outline'
-  startIcon?: object
-  endIcon?: object
-  onClick?: () => void
-  className?: string
-  disabled?: boolean
-}
+const props = defineProps({
+  size: {
+    type: String,
+    default: 'md',
+  },
+  variant: {
+    type: String,
+    default: 'primary',
+  },
+  startIcon: {
+    type: Object,
+  },
+  endIcon: {
+    type: Object,
+  },
+  onClick: {
+    type: Function,
+  },
+  className: {
+    type: String,
+    default: '',
+  },
+  disabled: {
+    type: Boolean,
+    default: false,
+  },
+});
 
-const props = withDefaults(defineProps<ButtonProps>(), {
-  size: 'md',
-  variant: 'primary',
-  className: '',
-  disabled: false,
-})
 
 const sizeClasses = {
   sm: 'px-4 py-3 text-sm',

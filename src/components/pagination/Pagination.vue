@@ -24,7 +24,7 @@
   </div>
 </template>
 
-<script lang="ts">
+<script>
 export default {
   props: {
     paginator: {
@@ -91,7 +91,7 @@ export default {
     }
   },
   methods: {
-    changePage(page: number) {
+    changePage(page) {
       if (page === '...') return;
       this.$emit('page-change', page);
     }

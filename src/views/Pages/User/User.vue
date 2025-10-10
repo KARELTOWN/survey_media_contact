@@ -6,14 +6,14 @@
         <div class="flex justify-end">
           <button type="button" @click="open()"
             class="flex items-center justify-center w-64 px-4 py-3 text-sm font-medium text-white transition rounded-lg bg-red-500 shadow-theme-xs hover:bg-red-600">
-            Inviter un collaborateur 
+            Inviter un collaborateur
 
           </button>
         </div>
         <UserList />
         <div class="grid grid-cols-2">
           <div>
-           
+
             <Pagination :paginator="users" :current_page="page" :totalPages="totalPages" @page-change="fetchNext" />
           </div>
           <div>
@@ -27,7 +27,7 @@
   </AdminLayout>
 </template>
 
-<script setup lang="ts">
+<script setup>
 import { ref } from "vue";
 import PageBreadcrumb from "@/components/common/PageBreadcrumb.vue";
 import AdminLayout from "@/components/layout/AdminLayout.vue";

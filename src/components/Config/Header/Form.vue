@@ -42,7 +42,7 @@
         </div>
     </form>
 </template>
-<script setup lang="ts">
+<script setup>
 import Button from '@/components/ui/Button.vue';
 import { convertToBase64, isFileSizeAllowed } from '@/utils/file';
 import { infoNotify } from '@/utils/notification';

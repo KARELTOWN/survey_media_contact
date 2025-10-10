@@ -24,11 +24,7 @@ export const configStore = defineStore('config-store', () => {
 
       const result = await fetchPost(`config/update`, data)
 
-      const response = (await handleAppError(result)) as {
-        status: boolean
-        data?: any
-        errors: any
-      }
+      const response = await handleAppError(result)
       if (response.status === true) {
         if (response.errors) {
           errors.value = response.errors
@@ -69,7 +65,7 @@ export const configStore = defineStore('config-store', () => {
     }
   }
 
-  const getSurveyConfig = async (survey_id:any) => {
+  const getSurveyConfig = async (survey_id) => {
     try {
       configSuccess.value = false
       const result = await fetchGet(`config/survey_config/${survey_id}`)

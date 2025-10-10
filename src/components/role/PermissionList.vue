@@ -29,7 +29,7 @@
         </div>
     </div>
 </template>
-<script setup lang="ts">
+<script setup>
 
 import { roleStore } from "@/stores/user/roleStore";
 import { errorNotify } from "@/utils/notification";

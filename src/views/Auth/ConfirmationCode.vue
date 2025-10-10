@@ -72,7 +72,7 @@
     </FullScreenLayout>
 </template>
 
-<script setup lang="ts">
+<script setup>
 import { onMounted, reactive, ref, useTemplateRef } from 'vue'
 import CommonGridShape from '@/components/common/CommonGridShape.vue'
 import FullScreenLayout from '@/components/layout/FullScreenLayout.vue'

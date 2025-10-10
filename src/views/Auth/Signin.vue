@@ -19,7 +19,7 @@
                 <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-5">
 
                 </div>
-    
+
                 <form @submit.prevent="handleSubmit">
                   <div class="space-y-5">
                     <!-- Email -->
@@ -63,7 +63,7 @@
                       <div>
                         <label for="keepLoggedIn"
                           class="flex items-center text-sm font-normal text-gray-700 cursor-pointer select-none dark:text-gray-400">
-                         
+
                         </label>
                       </div>
                       <router-link to="/forgot-password"
@@ -108,7 +108,7 @@
   </FullScreenLayout>
 </template>
 
-<script setup lang="ts">
+<script setup>
 import { ref } from 'vue'
 import CommonGridShape from '@/components/common/CommonGridShape.vue'
 import FullScreenLayout from '@/components/layout/FullScreenLayout.vue'

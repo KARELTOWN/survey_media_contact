@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup>
 import PreviewPanel from '@/components/survey/preview/PreviewPanel.vue';
 import { errorNotify } from '@/utils/notification';
 import { onMounted } from 'vue';

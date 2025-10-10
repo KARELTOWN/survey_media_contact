@@ -40,14 +40,14 @@
   </div>
 </template>
 
-<script lang="ts" setup>
+<script setup>
 import { useStatStore } from '@/stores/stat/stat.store';
 import { storeToRefs } from 'pinia';
 import { onMounted } from 'vue';
 const store = useStatStore()
 const { stat } = storeToRefs(store)
 const { getStats } = store
-onMounted(()=> {
+onMounted(() => {
   getStats()
 })
 </script>

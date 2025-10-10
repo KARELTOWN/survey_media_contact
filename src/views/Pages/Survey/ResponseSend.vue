@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup>
 import SuccessComponent from '@/components/ui/SuccessComponent.vue';
 
 </script>

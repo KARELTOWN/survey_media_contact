@@ -1,7 +1,7 @@
 import { ValidationError } from 'yup'
 import { errorNotify } from './notification'
 
-export const handleLoginError = async (response: Response): Promise<object> => {
+export const handleLoginError = async (response)=> {
   const res = await response.json()
   if (!response.ok) {
     const errors = []
@@ -24,7 +24,7 @@ export const handleLoginError = async (response: Response): Promise<object> => {
   }
 }
 
-export const handleAppError = async (response: Response): Promise<object> => {
+export const handleAppError = async (response)=> {
   const res = await response.json()
   if (!response.ok) {
     const errors = []

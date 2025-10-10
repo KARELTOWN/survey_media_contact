@@ -1,15 +1,15 @@
-export const convertToBase64 = (file: File | Blob): Promise<string> => {
+export const convertToBase64 = (file) => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader()
     reader.readAsDataURL(file)
     reader.onload = () => {
-      resolve(reader.result as string)
+      resolve(reader.result)
     }
     reader.onerror = (error) => reject(error)
   })
 }
 
-export const convertObjectUrlToBase64 = async (url: string): Promise<string> => {
+export const convertObjectUrlToBase64 = async (url) => {
   const response = await fetch(url)
   const blob = await response.blob()
   let base64 = await convertToBase64(blob)

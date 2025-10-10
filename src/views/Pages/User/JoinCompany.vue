@@ -17,7 +17,7 @@
     </AdminLayout>
 </template>
 
-<script setup lang="ts">
+<script setup>
 import PageBreadcrumb from "@/components/common/PageBreadcrumb.vue";
 import AdminLayout from "@/components/layout/AdminLayout.vue";
 import ComponentCard from "@/components/common/ComponentCard.vue";

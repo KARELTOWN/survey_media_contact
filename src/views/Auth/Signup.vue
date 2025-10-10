@@ -141,7 +141,7 @@
   </FullScreenLayout>
 </template>
 
-<script setup lang="ts">
+<script setup>
 import FullScreenLayout from '@/components/layout/FullScreenLayout.vue'
 import CommonGridShape from '@/components/common/CommonGridShape.vue'
 import { ref } from 'vue'

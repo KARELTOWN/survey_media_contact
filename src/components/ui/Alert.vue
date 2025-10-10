@@ -12,11 +12,8 @@
 
         <p class="text-sm text-gray-500 dark:text-gray-400">{{ message }}</p>
 
-        <router-link
-          v-if="showLink"
-          :to="linkHref"
-          class="inline-block mt-3 text-sm font-medium text-gray-500 underline dark:text-gray-400"
-        >
+        <router-link v-if="showLink" :to="linkHref"
+          class="inline-block mt-3 text-sm font-medium text-gray-500 underline dark:text-gray-400">
           {{ linkText }}
         </router-link>
       </div>
@@ -24,23 +21,24 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup>
 import { SuccessIcon, ErrorIcon, WarningIcon, InfoCircleIcon } from '@/icons'
 import { computed } from 'vue'
 
-interface AlertProps {
-  variant: 'success' | 'error' | 'warning' | 'info'
-  title: string
-  message: string
-  showLink?: boolean
-  linkHref?: string
-  linkText?: string
-}
+const props = defineProps( {
 
-const props = withDefaults(defineProps<AlertProps>(), {
-  showLink: false,
-  linkHref: '#',
-  linkText: 'Learn more',
+  showLink: {
+    type: Boolean,
+    default: false
+  },
+  linkHref: {
+    type: String,
+    default: '#'
+  },
+  linkText: {
+    type: String,
+    default: 'Learn more'
+  }
 })
 
 const variantClasses = {

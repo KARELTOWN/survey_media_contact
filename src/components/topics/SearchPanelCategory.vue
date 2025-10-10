@@ -9,7 +9,7 @@
 </template>
 
 
-<script setup lang="ts">
+<script setup>
 
 import { topicStore } from '@/stores/topic/topicStore';
 import { storeToRefs } from 'pinia';

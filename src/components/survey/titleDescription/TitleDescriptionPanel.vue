@@ -10,7 +10,7 @@
 
 </template>
 
-<script setup lang="ts">
+<script setup>
 
 import { surveyStore } from "@/stores/survey/surveyStore";
 import { computed, onMounted, reactive, ref, watch, watchEffect } from "vue";

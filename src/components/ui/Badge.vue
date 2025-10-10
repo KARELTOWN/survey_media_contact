@@ -10,26 +10,26 @@
   </span>
 </template>
 
-<script setup lang="ts">
+<script setup>
 import { computed } from 'vue'
 
-type BadgeVariant = 'light' | 'solid'
-type BadgeSize = 'sm' | 'md'
-type BadgeColor = 'primary' | 'success' | 'error' | 'warning' | 'info' | 'light' | 'dark'
-
-interface BadgeProps {
-  variant?: BadgeVariant
-  size?: BadgeSize
-  color?: BadgeColor
-  startIcon?: object
-  endIcon?: object
-}
-
-const props = withDefaults(defineProps<BadgeProps>(), {
-  variant: 'light',
-  color: 'primary',
-  size: 'md',
+const props = defineProps({
+  variant: {
+    type: string,
+    default: 'light'
+  },
+    color: {
+    type: string,
+    default: 'primary'
+  },
+    size: {
+    type: string,
+    default: 'md'
+  },
+  startIcon: object,
+  endIcon: object
 })
+
 
 const baseStyles =
   'inline-flex items-center px-2.5 py-0.5 justify-center gap-1 rounded-full font-medium capitalize'

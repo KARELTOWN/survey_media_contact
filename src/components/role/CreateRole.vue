@@ -37,7 +37,7 @@
     </Modal>
 </template>
 
-<script setup lang="ts">
+<script setup>
 
 import { ref, onMounted, watchEffect, watch } from 'vue'
 import Modal from '@/components/profile/Modal.vue'

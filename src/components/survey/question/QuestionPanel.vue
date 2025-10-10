@@ -30,9 +30,11 @@
             <div v-for="(option, index) in field_params.options" class="my-2">
                 <div class="grid grid-cols-6 gap-4">
                     <div class="col-span-1 flex flex-rows items-center gap-5">
-                        <AddIcon class="tooltip scale-300 md:scale-150" @click="addOption()"><span class="tooltiptext">Ajouter une
+                        <AddIcon class="tooltip scale-300 md:scale-150" @click="addOption()"><span
+                                class="tooltiptext">Ajouter une
                                 option</span></AddIcon>
-                        <DeleteIcon class="tooltip scale-300 md:scale-150" @click="deleleOption(index)"><span class="tooltiptext">Supprimer l'option</span></DeleteIcon>
+                        <DeleteIcon class="tooltip scale-300 md:scale-150" @click="deleleOption(index)"><span
+                                class="tooltiptext">Supprimer l'option</span></DeleteIcon>
                     </div>
 
                     <div class="col-span-3">
@@ -159,7 +161,7 @@
     <ConditionPanel @save="saveCondition" :open="openCondition" @close="openCondition = false" />
 </template>
 
-<script setup lang="ts">
+<script setup>
 
 import { surveyStore } from "@/stores/survey/surveyStore";
 import { convertToBase64 } from "@/utils/file";

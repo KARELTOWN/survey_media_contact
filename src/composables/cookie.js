@@ -1,4 +1,4 @@
-export const setSurveyCookie = (survey_id:string) => {
+export const setSurveyCookie = (survey_id) => {
   let cookie = document.cookie.split('; ').find((item) => item.startsWith(`survey_mc_${survey_id}`))
   if (!cookie) {
     let date = new Date()
@@ -8,7 +8,7 @@ export const setSurveyCookie = (survey_id:string) => {
   return true
 }
 
-export const getSurveyCookie = (survey_id:string) => {
+export const getSurveyCookie = (survey_id) => {
   let cookie = document.cookie.split('; ').find((item) => item.startsWith(`survey_mc_${survey_id}`))
   if (!cookie) {
     return false

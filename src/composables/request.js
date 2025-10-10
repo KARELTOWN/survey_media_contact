@@ -1,6 +1,6 @@
 import { removeLocalStorage } from '@/utils/storage'
 
-export const api: string = import.meta.env.VITE_API_URL
+export const api = import.meta.env.VITE_API_URL
 export const getToken = () => {
   const survey_mc_token = localStorage.getItem('survey_mc_token')
   const data = survey_mc_token !== null ? JSON.parse(survey_mc_token) : null
@@ -17,11 +17,7 @@ export const get_account_id = () => {
   return account_id !== null ? JSON.parse(account_id) : ''
 }
 
-interface BodyData {
-  [key: string]: unknown
-}
-
-export async function customFetch(path: string, options: RequestInit): Promise<Response> {
+export async function customFetch(path, options) {
   const response = await fetch(`${api}/${path}`, options)
   if (response.status === 401) {
     removeLocalStorage('survey_mc_token')
@@ -33,7 +29,7 @@ export async function customFetch(path: string, options: RequestInit): Promise<R
   return response
 }
 
-export const fetchPost = async (path: string, body: BodyData): Promise<Response> => {
+export const fetchPost = async (path, body)=> {
   return customFetch(`${path}`, {
     method: 'POST',
     headers: {
@@ -46,8 +42,7 @@ export const fetchPost = async (path: string, body: BodyData): Promise<Response>
     body: JSON.stringify(body),
   })
 }
-
-export const fetchGet = async (path: string): Promise<Response> => {
+export const fetchGet = async (path) => {
   return customFetch(`${path}`, {
     method: 'GET',
     headers: {
@@ -60,7 +55,7 @@ export const fetchGet = async (path: string): Promise<Response> => {
   })
 }
 
-export const fetchPut = async (path: string, body: BodyData): Promise<Response> => {
+export const fetchPut = async (path, body) => {
   return customFetch(`${path}`, {
     method: 'PUT',
     headers: {
@@ -74,7 +69,7 @@ export const fetchPut = async (path: string, body: BodyData): Promise<Response> 
   })
 }
 
-export const fetchPatch = async (path: string, body: BodyData): Promise<Response> => {
+export const fetchPatch = async (path, body) => {
   return customFetch(`${path}`, {
     method: 'PATCH',
     headers: {
@@ -88,7 +83,7 @@ export const fetchPatch = async (path: string, body: BodyData): Promise<Response
   })
 }
 
-export const fetchDestroy = async (path: string): Promise<Response> => {
+export const fetchDestroy = async (path) => {
   return customFetch(`${path}`, {
     method: 'DELETE',
     headers: {

@@ -1,30 +1,38 @@
 <template>
   <div :class="['relative rounded-full', sizeClasses[size]]">
     <img :src="src" :alt="alt" class="object-cover rounded-full" />
-    <span
-      v-if="status !== 'none'"
-      :class="[
-        'absolute bottom-0 right-0 rounded-full border-[1.5px] border-white dark:border-gray-900',
-        statusSizeClasses[size],
-        statusColorClasses[status] || '',
-      ]"
-    ></span>
+    <span v-if="status !== 'none'" :class="[
+      'absolute bottom-0 right-0 rounded-full border-[1.5px] border-white dark:border-gray-900',
+      statusSizeClasses[size],
+      statusColorClasses[status] || '',
+    ]"></span>
   </div>
 </template>
 
-<script setup lang="ts">
-interface AvatarProps {
-  src: string
-  alt?: string
-  size?: 'xsmall' | 'small' | 'medium' | 'large' | 'xlarge' | 'xxlarge'
-  status?: 'online' | 'offline' | 'busy' | 'none'
-}
+<script setup>
+const props = defineProps({
+  src: {
+    type: String,
+    required: true,
+  },
+  alt: {
+    type: String,
+    default: 'User Avatar',
+  },
+  size: {
+    type: String,
+    default: 'medium',
+    validator: (value) =>
+      ['xsmall', 'small', 'medium', 'large', 'xlarge', 'xxlarge'].includes(value),
+  },
+  status: {
+    type: String,
+    default: 'none',
+    validator: (value) =>
+      ['online', 'offline', 'busy', 'none'].includes(value),
+  },
+});
 
-const props = withDefaults(defineProps<AvatarProps>(), {
-  alt: 'User Avatar',
-  size: 'medium',
-  status: 'none',
-})
 
 const sizeClasses = {
   xsmall: 'h-6 w-6 max-w-6',

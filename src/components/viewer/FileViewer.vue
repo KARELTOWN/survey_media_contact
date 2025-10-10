@@ -26,7 +26,7 @@
     </Modal>
 </template>
 
-<script setup lang="ts">
+<script setup>
 
 import { ref, watchEffect } from 'vue';
 import Modal from '../profile/Modal.vue';
