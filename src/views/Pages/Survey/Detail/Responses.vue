@@ -1,4 +1,5 @@
 <template>
+   
     <div v-if="responsesToSurvey.length > 0 && loading === false" class="space-y-4">
         <div class="text-2xl text-bold">Réponses <Badge color="primary"> {{ responsesToSurvey.length }}</Badge>
         </div>
@@ -19,16 +20,18 @@
                 <p v-if="response.question_type_field == 'checkbox'" class="text-gray-600 dark:text-gray-300 mt-1">
                     {{ response.response.join(', ') }}
                 </p>
+                
 
                 <div v-else-if="response.question_type_field == 'file'" class="text-gray-600 dark:text-gray-300 mt-1">
                     <div v-if="Array.isArray(response.response) && response.response.length > 0"
                         class="grid grid-cols-1 lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-1">
+                        {{ response.response }}
                         <div v-for="(file, fIndex) in response.response" :key="fIndex" class="mt-4 relative">
-                            <a :href="base64ToTempUrl(file)" v-if="fileType(file) == 'image'"><img :src="file"
-                                    alt="Prévisualisation" class="w-48 h-48 object-cover rounded" /></a>
-                            <a :href="base64ToTempUrl(file)" target="_blank" v-else-if="fileType(file) !== null"> <img
-                                    alt="Prévisualisation" :src="defaultFileImg"
-                                    class="w-48 h-48 object-cover rounded" /></a>
+                            <a :href="base64ToTempUrl(file.encode)" v-if="fileType(file.mimetype) == 'image'"><img
+                                    :src="file" alt="Prévisualisation" class="w-48 h-48 object-cover rounded" /></a>
+                            <a :href="base64ToTempUrl(file.encode)" target="_blank"
+                                v-else-if="fileType(file.mimetype) !== null"> <img alt="Prévisualisation"
+                                    :src="defaultFileImg" class="w-48 h-48 object-cover rounded" /></a>
                         </div>
                     </div>
                 </div>
@@ -65,7 +68,7 @@
 <script setup>
 import Badge from '@/components/ui/Badge.vue';
 import { surveyStore } from '@/stores/survey/surveyStore';
-import { base64ToTempUrl, getFileType } from '@/utils/file';
+import { base64ToTempUrl, getFileType, convertToTempURL, getFileCategoryFromMime } from '@/utils/file';
 import { formatTimestampToDate, formatTO_DMY } from '@/utils/format';
 import { defaultFileImg } from '@/utils/survey';
 import { storeToRefs } from 'pinia';
@@ -91,6 +94,6 @@ onMounted(async () => {
 })
 
 const fileType = (file) => {
-    return getFileType(file)
+    return getFileCategoryFromMime(file)
 }
 </script>

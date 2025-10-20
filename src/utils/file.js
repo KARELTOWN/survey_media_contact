@@ -16,7 +16,14 @@ export const convertObjectUrlToBase64 = async (url) => {
   return base64
 }
 
+export const convertUrlToBlob = async (url) => {
+  const response = await fetch(url)
+  const blob = await response.blob()
+  return blob
+}
+
 export const convertToTempURL = (data) => {
+  console.log('convertToTempURL', data)
   return URL.createObjectURL(data)
 }
 
@@ -64,6 +71,23 @@ export function base64ToTempUrl(base64) {
 
   const blob = new Blob([new Uint8Array(byteArrays)], { type: mimeType })
   return URL.createObjectURL(blob)
+}
+
+export function base64ToBlob(base64) {
+  // Remove the prefix if present
+  const [prefix, data] = base64.split(',')
+  const mimeMatch = prefix.match(/data:(.*);base64/)
+  const mimeType = mimeMatch ? mimeMatch[1] : 'application/octet-stream'
+
+  const byteCharacters = atob(data)
+  const byteArrays = []
+
+  for (let i = 0; i < byteCharacters.length; i++) {
+    byteArrays.push(byteCharacters.charCodeAt(i))
+  }
+
+  const blob = new Blob([new Uint8Array(byteArrays)], { type: mimeType })
+  return blob
 }
 
 export function isFileSizeAllowed(file, maxMB = 10) {

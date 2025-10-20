@@ -95,3 +95,16 @@ export const fetchDestroy = async (path) => {
     },
   })
 }
+
+
+export const fetchPutWithFile = async (path, body) => {
+  return customFetch(`${path}`, {
+    method: 'PUT',
+    headers: {
+      'x-account-type': get_account_type(),
+      'x-account-id': get_account_id(),
+      Authorization: `Bearer ${getToken()}`,
+    },
+    body: body,
+  })
+}

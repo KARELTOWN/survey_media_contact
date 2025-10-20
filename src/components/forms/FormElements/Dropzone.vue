@@ -1,7 +1,7 @@
 <template>
   <div class="file-uploader">
     <form ref="dropzoneForm" :id="dropzoneId" :action="uploadUrl"
-      class="border-gray-300 border-dashed dropzone rounded-xl bg-gray-50 p-7 hover:border-brand-500 dark:border-gray-700 dark:bg-gray-900 dark:hover:border-brand-500 lg:p-10">
+      class="border-gray-300 border-dashed dropzone rounded-xl bg-gray-50 p-3 hover:border-brand-500 dark:border-gray-700 dark:bg-gray-900 dark:hover:border-brand-500 lg:p-10">
       <div class="dz-message m-0!">
         <div class="mb-[22px] flex justify-center">
           <div
@@ -34,12 +34,27 @@
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import Dropzone from 'dropzone'
 import 'dropzone/dist/dropzone.css'
-
+import { errorNotify } from "@/utils/notification";
+import { getToken } from '@/composables/request.js'
+const emit = defineEmits(['afterUpload'])
 const props = defineProps({
   uploadUrl: {
     type: String,
     default: '/upload',
   },
+  multiple: {
+    type: Boolean,
+    default: false
+  },
+  acceptedFiles: {
+    type: String
+  },
+  maxSize: {
+    type: Number
+  },
+  question_id: {
+    type: String
+  }
 })
 
 const dropzoneForm = ref(null)
@@ -50,18 +65,31 @@ onMounted(() => {
   Dropzone.autoDiscover = false
 
   dropzoneInstance = new Dropzone(`#${dropzoneId}`, {
-    url: props.uploadUrl,
-    thumbnailWidth: 150,
-    maxFilesize: 0.5,
-    acceptedFiles: 'image/jpeg,image/png,image/gif,image/webp,image/svg+xml',
-    headers: { 'My-Awesome-Header': 'header value' },
-    dictDefaultMessage: '',
+    autoProcessQueue: false,
+    url: `${import.meta.env.VITE_API_URL + props.uploadUrl}`,
+    maxFiles: props.multiple === true ? -1 : 1,
+    method: 'post',
+    paramName: "file",
+    maxFilesize: props.maxSize,
+    acceptedFiles: props.acceptedFiles,
+    addRemoveLinks: true,
+    dictInvalidFileType: "Type de fichier non pris en charge.",
+    dictFileTooBig: "Fichier trop grand ({{filesize}} Mo). Taille maximale: {{maxFilesize}} Mo.",
     init: function () {
       this.on('addedfile', (file) => {
       })
       this.on('success', (file, response) => {
+        if (response.data) {
+          dropzoneInstance.removeFile(file)
+          emit('afterUpload', {
+            file_id: response.data,
+            question_id: props.question_id,
+            file: file
+          })
+        }
       })
       this.on('error', (file, error) => {
+        errorNotify("Une erreur s'est produite durant le téléversement")
         console.error('An error occurred during upload', file, error)
       })
     },

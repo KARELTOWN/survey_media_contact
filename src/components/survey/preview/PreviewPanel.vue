@@ -6,7 +6,7 @@ import { computed, onMounted, ref, watch, watchEffect } from "vue"
 import { surveyStore } from "@/stores/survey/surveyStore";
 import { storeToRefs } from "pinia";
 import { errorNotify, infoNotify, successNotify } from "@/utils/notification";
-import { convertToBase64, convertToTempURL, getFileCategory, isFileSizeAllowed } from "@/utils/file";
+import { convertToBase64, getFileCategory, isFileSizeAllowed, base64ToTempUrl } from "@/utils/file";
 import { useRoute, useRouter } from "vue-router";
 import SurveyFormHeader from "../header/SurveyFormHeader.vue";
 import { defaultFileImg } from "@/utils/survey";
@@ -14,6 +14,8 @@ import { getSurveyCookie, setSurveyCookie } from "@/composables/cookie";
 import { flatpickrConfig, flatpickrTimeOnlyConfig } from "@/utils/format";
 import FileViewer from "@/components/viewer/FileViewer.vue";
 import moment from "moment";
+import { convertUrlToBlob } from "../../../utils/file";
+import Dropzone from "../../forms/FormElements/Dropzone.vue";
 
 const previewMode = ref(false)
 
@@ -43,42 +45,59 @@ const filesSize = ref([])
 const filesList = ref([])
 const filesAcceptTypes = ref([])
 
+let uploadFile = ref(false)
+// SIMPLE FILE INPUT HANDLE
+// const handleFile = async (event, question_id) => {
+//   uploadFile.value = true
+//   // event.target.files
+//   filesList.value[question_id] = []
+//   let files = event.target.files
+//   answers.value[question_id] = []
+//   for (const e of files) {
 
-const handleFile = async (event, question_id) => {
-  // event.target.files
-  filesList.value[question_id] = []
-  let files = event.target.files
-  answers.value[question_id] = []
-  for (const e of files) {
+//     let type = getFileCategory(e)
+//     if (filesAcceptTypes.value[question_id].includes(type)) {
+//       if (isFileSizeAllowed(e, filesSize.value[question_id])) {
+//         let file = ''
+//         let img = ''
+//         if (type == "image") {
+//           let file_base_64 = await convertToBase64(e)
+//           file = base64ToTempUrl(file_base_64)
+//           img = file
+//         }
+//         else {
+//           let file_base_64 = await convertToBase64(e)
+//           file = base64ToTempUrl(file_base_64)
+//           img = defaultFileImg
+//         }
+//         filesList.value[question_id].push({ name: e.name, img: img })
+//         answers.value[question_id].push(e)
+//       }
+//       else {
+//         infoNotify("La taille du fichier" + e.name + "est trop grande")
+//       }
+//     }
+//     else {
+//       infoNotify("Le format du fichier" + e.name + "n'est pas autorisé")
+//     }
+//   }
+//   const input = document.getElementById(`file_input_${question_id}`)
+//   if (input) {
+//     input.value = "" // reset le champ
+//   }
+// }
 
-    let type = getFileCategory(e)
-    if (filesAcceptTypes.value[question_id].includes(type)) {
-      if (isFileSizeAllowed(e, filesSize.value[question_id])) {
-        let file = ''
-        let img = ''
-        if (type == "image") {
-          file = await convertToBase64(e)
-          img = file
-        }
-        else {
-          file = await convertToBase64(e)
-          img = defaultFileImg
-        }
-        filesList.value[question_id].push({ name: e.name, img: img })
-        answers.value[question_id].push(file)
-      }
-      else {
-        infoNotify("La taille du fichier" + e.name + "est trop grande")
-      }
-    }
-    else {
-      infoNotify("Le format du fichier" + e.name + "n'est pas autorisé")
-    }
+
+// DROPZONE FILE HANDLE
+
+const handleFile = (data) => {
+  if (data.question_id && data.question_id !== undefined) {
+    filesList.value[data.question_id] = []
+    answers.value[data.question_id] = []
+    filesList.value[data.question_id].push({ name: data.file.name, img: data.file.dataURL })
+    answers.value[data.question_id].push(data.file_id)
   }
-  const input = document.getElementById(`file_input_${question_id}`)
-  if (input) {
-    input.value = "" // reset le champ
-  }
+
 }
 
 const deleteFile = (index, question_id) => {
@@ -242,7 +261,7 @@ const saveForm = async () => {
     else if (previewMode.value === false && publish.value === true) {
       infoNotify('Enregistrement en cours')
       disabledBtn.value = true
-      await saveSurveyResponse(answers.value, route.params.id)
+      await saveSurveyResponse(answers.value, route.params.id, uploadFile.value)
       if (surveySuccess.value === true) {
         disabledBtn.value = false
         if (formSurvey.value.multiple_submission === false) {
@@ -408,9 +427,12 @@ const canResponseToForm = computed(() => {
       <div v-else-if="question.type_field === 'file' && displayField(question.condition)">
         <pre class="bold">Types de fichiers : {{ question.field_params?.accept.length > 0 ? question.field_params?.accept.join(', ')
           : 'image' }}</pre>
-        <input type="file" :multiple="question.field_params?.multiple"
+        <!-- <input type="file" :multiple="question.field_params?.multiple"
           :accept="filesAcceptInputAttributes[question.question_id]" @change="handleFile($event, question.question_id)"
-          :id="`file_input_${question.question_id}`" class="block w-full text-sm text-gray-500 border rounded-lg p-2" />
+          :id="`file_input_${question.question_id}`" class="block w-full text-sm text-gray-500 border rounded-lg p-2" /> -->
+        <Dropzone upload-url="/file/upload" :multiple="question.field_params?.multiple"
+          :accepted-files="filesAcceptInputAttributes[question.question_id]" :max-size="filesSize[question.question_id]"
+          :question_id="question.question_id" @after-upload="handleFile" />
         <div>
           <div v-if="filesList[question.question_id]?.length > 0"
             class="grid grid-cols-1 lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-1">
@@ -473,12 +495,17 @@ const canResponseToForm = computed(() => {
     </div>
 
     <!-- ✅ Bouton de soumission -->
-    <button @click="saveForm" class="mt-6 bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700"
+    <!-- <button @click="saveForm" class="mt-6 bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700"
       :disabled="disabledBtn">
       Soumettre
+    </button> -->
+    <button v-if="previewMode === false" @click="saveForm"
+      class="mt-6 bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700" :disabled="disabledBtn">
+      Soumettre
     </button>
+
   </div>
-  
+
   <div v-if="!canResponseToForm" class="py-5 text-center">
     <h2 class="text-2xl font-bold mb-2">Vous ne pouvez pas accéder à ce formulaire</h2>
   </div>
