@@ -214,7 +214,6 @@ export default function surveyController() {
         .populate(["created_by"])
         .populate({
           path: "owner_id",
-          model: "Company",
         })
         .select([
           "title",
@@ -224,8 +223,8 @@ export default function surveyController() {
           "account_type_ref",
         ])
         .exec();
+            console.log("template.owner_id.email",template );
 
-      console.log("template.owner_id.email", template.owner_id);
       mailingPug(
         template.owner_id.email,
         `Réponse d'enquête : ${template.title.substring(0, 20)}`,
@@ -250,7 +249,6 @@ export default function surveyController() {
       const data = matchedData(req);
 
       const responses = await getAnswers(data.survey_id);
-
       return res.status(200).json({
         message: "Données récupérées",
         data: responses,

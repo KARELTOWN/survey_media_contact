@@ -56,6 +56,8 @@ const corsOption = {
     "Authorization",
     "x-account-type",
     "x-account-id",
+    "cache-control",
+    "x-requested-with"
   ],
 };
 
@@ -82,6 +84,7 @@ app.use(express.static(path.join(__dirname, "public/files")));
 app.use(morgan("dev"));
 app.use(helmet());
 app.use(express.json());
+app.use(express.urlencoded({extended: true}))
 app.use("/api", router);
 
 const port = process.env.PORT;
