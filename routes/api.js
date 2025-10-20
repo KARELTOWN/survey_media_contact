@@ -11,9 +11,10 @@ import ConfigRouter from "./config/ConfigRouter.js";
 import SurveyRouter from "./survey/surveyRouter.js";
 import checkAccountHeaders from "../middleware/checkAccountHeaders.js";
 import RoleRouter from "./user/roleRouter.js";
+import fileRouter from "./file/fileRouter.js";
 
 router.use("/auth/", AuthRouter);
-
+router.use('/file/', fileRouter)
 router.use(
   "/company/",
   isauthentificate,

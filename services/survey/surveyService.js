@@ -2,8 +2,10 @@ import { mean, mode, modeFast } from "simple-statistics";
 import mongoose from "../../config/mongodb.js";
 import Answer from "../../models/Answer.js";
 import Question from "../../models/Question.js";
-import SurveyHistoric from "../../models/SurveyHistoric.js";
 import xlsx from "xlsx";
+import fileService from "../file/fileService.js";
+import FileUpload from "../../models/File.js";
+const { getFileOnLocal } = fileService();
 export default function surveyService() {
   const getAnswers = async (survey_id) => {
     const responses = await Answer.aggregate([
@@ -42,6 +44,32 @@ export default function surveyService() {
         },
       },
     ]);
+
+    for (const response of responses) {
+      for (const answer of response.answers) {
+        if (answer.question_type_field === "file") {
+          if (Array.isArray(answer.response) && answer.response.length > 0) {
+            answer.response = await Promise.all(
+              answer.response.map(async (fileId) => {
+                const file_found = await FileUpload.findById(fileId);
+                if (file_found) {
+                  const buffer = await getFileOnLocal(file_found.path);
+                  const base64 = Buffer.from(buffer.data).toString("base64");
+                  return {
+                    mimetype: file_found.mimetype,
+                    filename: file_found.original_name,
+                    encode: base64,
+                  };
+                }
+                return null;
+              })
+            );
+            // Supprimer les nulls si nécessaire
+            answer.response = answer.response.filter(Boolean);
+          }
+        }
+      }
+    }
     return responses;
   };
 

@@ -12,6 +12,7 @@ import isauthentificate from "../../middleware/isAuthentificate.js";
 import { blacklist } from "../../middleware/blacklist.js";
 import checkAccountHeaders from "../../middleware/checkAccountHeaders.js";
 import permissionCheck from "../../middleware/permissionCheck.js";
+import { uploadHelper } from "../../helpers/uploadHelper.js";
 
 const {
   getSurveyParams,
