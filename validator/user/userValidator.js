@@ -6,6 +6,7 @@ import { expressResultValidator } from "../requestValidator.js";
 import { decrypt } from "../../helpers/encrypt.js";
 import moment from "moment";
 import { redisClient } from "../../config/redis.js";
+import Company from "../../models/Company.js";
 
 export const validateAddUser = [
   body("email")
@@ -50,8 +51,14 @@ export const validateUserCompanyId = [
     .withMessage("User company obligatoire")
     .custom(async (value) => {
       if (value && value !== null) {
-        let user = await UserCompany.findById(value);
-        if (!user) {
+        let user_company = await UserCompany.findById(value);
+        let company = await Company.findById(user_company.company_id).select(
+          "created_by"
+        );
+        if (user_company.user_id.toString() == company.created_by.toString()) {
+          throw new Error("Vous ne pouvez pas retirer cet utilisateur");
+        }
+        if (!user_company) {
           throw new Error("User company n'existe pas");
         }
         return true;

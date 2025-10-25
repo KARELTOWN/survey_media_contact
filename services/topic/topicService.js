@@ -10,14 +10,7 @@ export default function topicService() {
     let total_topics = await Topic.countDocuments(query);
     let topics;
     if (skip == 0 && limit == 0) {
-      topics = await topic_finder
-        .populate({
-          path: "created_by",
-          model: User,
-          select: "firstname lastname",
-        })
-        .sort({ createdAt: -1 })
-        .exec();
+      topics = await topic_finder.sort({ createdAt: -1 }).exec();
     } else {
       topics = await topic_finder
         .populate({
@@ -61,14 +54,18 @@ export default function topicService() {
     }
   };
 
+  const checkCategoryExist = async (category_id) => {
+    try {
+      let exist = await Category.exists({ _id: category_id }).exec();
+      return exist;
+    } catch (err) {
+      throw new Error(err);
+    }
+  };
+
   const topicCategory = async (topic_id) => {
     try {
       let category = await Category.find({ topic_id: topic_id })
-        .populate({
-          path: "created_by",
-          model: User,
-          select: "firstname lastname",
-        })
         .sort({ createdAt: -1 })
         .exec();
       return category;
@@ -77,10 +74,39 @@ export default function topicService() {
     }
   };
 
+  const CategoryModelFilter = async (req, query, skip = 0, limit = 0) => {
+    let categ_finder;
+    categ_finder = Category.find(query);
+
+    let total_category = await Category.countDocuments(query);
+    let category;
+    if (skip == 0 && limit == 0) {
+      category = await categ_finder.sort({ createdAt: -1 }).exec();
+    } else {
+      category = await categ_finder
+        .select(["-account_type_ref", "-created_by"])
+        .populate({
+          path: "topic_id",
+          select: "libelle",
+        })
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .exec();
+    }
+
+    return {
+      total_category: total_category,
+      category_list: category,
+    };
+  };
+
   return {
     checkTopicExist,
     topicData,
     TopicModelFilter,
     topicCategory,
+    checkCategoryExist,
+    CategoryModelFilter,
   };
 }

@@ -34,6 +34,7 @@ export const surveyOperators = [
 ]
 export const surveyFields = [
   { libelle: "Réponse courte", field: "text" },
+  { libelle: "Email", field: "email" },
   { libelle: "Paragraphe", field: "textarea" },
   { libelle: "Choix multiple", field: "radio" },
   { libelle: "Case à cocher", field: "checkbox" },

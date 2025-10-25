@@ -6,12 +6,12 @@ import FeatureSeeder from "./FeatureSeeder.js";
 import PermissionSeeder from "./PermissionSeeder.js";
 
 const seeders = [
-  QuestionFieldTypeSeeder,
-  NotificationModelSeeder,
-  ModuleSeeder,
-  UserSeeder,
-  FeatureSeeder,
-  PermissionSeeder,
+  // QuestionFieldTypeSeeder,
+  // NotificationModelSeeder,
+  // ModuleSeeder,
+  // UserSeeder,
+  // FeatureSeeder,
+  // PermissionSeeder,
 ];
 
 for (const seeder of seeders) {

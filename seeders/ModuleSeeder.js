@@ -3,7 +3,7 @@ import Module from "../models/Module.js";
 async function ModuleSeeder() {
   try {
     let data = [
-      { libelle: "Societe" },
+      { libelle: "Centre de formation" },
       { libelle: "Configuration enquête" },
       { libelle: "Collaborateur" },
       { libelle: "Thématique" },

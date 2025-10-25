@@ -19,11 +19,11 @@ export default function companyController() {
       await company.save();
 
       let created_by = { created_by: req.user._id };
-      
+
       let role = await createRoleFn({
         libelle: "Administrateur",
         owner_id: company._id,
-        account_type_ref: 'Company',
+        account_type_ref: "Company",
         ...created_by,
       });
 
@@ -60,11 +60,14 @@ export default function companyController() {
       let user_companies = await UserCompany.find({
         user_id: req.user._id,
         is_active: true,
-      }).populate("company_id");
+      }).populate({
+        path: "company_id",
+        select: "denomination email logo adress phone open_hours",
+      });
       let companies = user_companies.map((e) => e.company_id);
 
       return res.status(200).json({
-        message: "Sociétés",
+        message: "Sociétésdd",
         data: companies,
       });
     } catch (error) {

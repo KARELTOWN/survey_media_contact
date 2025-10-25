@@ -6,15 +6,15 @@ const FeatureSeeder = async () => {
     let modules = await Module.find({}).exec();
     for (const foundModule of modules) {
       let features = [];
-      if (foundModule.libelle == "Societe") {
+      if (foundModule.libelle == "Centre de formation") {
         features = [
           {
-            libelle: "Détail société",
+            libelle: "Détail centre de formation",
             code: "DS",
             module_id: foundModule._id,
           },
           {
-            libelle: "Modification société",
+            libelle: "Modification centre de formation",
             code: "MS",
             module_id: foundModule._id,
           },
@@ -65,6 +65,11 @@ const FeatureSeeder = async () => {
             code: "MT",
             module_id: foundModule._id,
           },
+          {
+            libelle: "Supprimer thématique",
+            code: "ST",
+            module_id: foundModule._id,
+          },
         ];
       }
       if (foundModule.libelle == "Catégorie") {
@@ -77,6 +82,11 @@ const FeatureSeeder = async () => {
           {
             libelle: "Modification catégorie",
             code: "MC",
+            module_id: foundModule._id,
+          },
+          {
+            libelle: "Supprimer catégorie",
+            code: "SC",
             module_id: foundModule._id,
           },
         ];

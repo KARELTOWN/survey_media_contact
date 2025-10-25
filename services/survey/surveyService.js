@@ -3,7 +3,10 @@ import mongoose from "../../config/mongodb.js";
 import Answer from "../../models/Answer.js";
 import Question from "../../models/Question.js";
 import SurveyHistoric from "../../models/SurveyHistoric.js";
+import fileService from "../file/fileService.js";
+const {getFileOnS3} = fileService()
 import xlsx from "xlsx";
+import FileUpload from "../../models/FileUpload.js";
 export default function surveyService() {
   const getAnswers = async (survey_id) => {
     const responses = await Answer.aggregate([
@@ -42,6 +45,32 @@ export default function surveyService() {
         },
       },
     ]);
+
+     for (const response of responses) {
+      for (const answer of response.answers) {
+        if (answer.question_type_field === "file") {
+          if (Array.isArray(answer.response) && answer.response.length > 0) {
+            answer.response = await Promise.all(
+              answer.response.map(async (fileId) => {
+                const file_found = await FileUpload.findById(fileId);
+                if (file_found) {
+                  const url = await getFileOnS3(file_found.path);
+                  return {
+                    mimetype: file_found.mimetype,
+                    filename: file_found.original_name,
+                    encode: url,
+                  };
+                }
+                return null;
+              })
+            );
+            // Supprimer les nulls si nécessaire
+            answer.response = answer.response.filter(Boolean);
+          }
+        }
+      }
+    }
+    
     return responses;
   };
 

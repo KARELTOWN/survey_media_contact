@@ -3,6 +3,7 @@ const SurveyRouter = express.Router();
 
 import {
   surveyValidator,
+  surveyModelValidator,
   validateSurveyId,
   surveyResponseValidator,
 } from "../../validator/survey/surveyValidator.js";
@@ -16,10 +17,12 @@ import permissionCheck from "../../middleware/permissionCheck.js";
 const {
   getSurveyParams,
   createSurvey,
+  createSurveyModel,
   updateSurvey,
   getSurveyForm,
   createResponseToSurvey,
   getSurveys,
+  getSurveysModels,
   showSurvey,
   surveyResponses,
   getSurveysStatistics,
@@ -44,6 +47,17 @@ SurveyRouter.post(
   surveyValidator,
   createSurvey
 );
+
+SurveyRouter.post(
+  "/create/model",
+  isauthentificate,
+  checkAccountHeaders,
+  blacklist,
+  permissionCheck("AE"),
+  surveyModelValidator,
+  createSurveyModel
+);
+
 
 SurveyRouter.put(
   "/update/:survey_id",
@@ -72,6 +86,15 @@ SurveyRouter.get(
   checkAccountHeaders,
   blacklist,
   getSurveys
+);
+
+
+SurveyRouter.get(
+  "/get/models",
+  isauthentificate,
+  checkAccountHeaders,
+  blacklist,
+  getSurveysModels
 );
 
 SurveyRouter.get(

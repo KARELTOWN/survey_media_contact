@@ -4,7 +4,7 @@ import _ from "lodash";
 import topicService from "../../services/topic/topicService.js";
 import Category from "../../models/Category.js";
 import { expressResultValidator } from "../requestValidator.js";
-const { checkTopicExist } = topicService();
+const { checkTopicExist, checkCategoryExist } = topicService();
 
 export const validateStoreTopic = [
   body("libelle")
@@ -63,6 +63,20 @@ export const validateIdTopic = [
   expressResultValidator,
 ];
 
+export const validateIdCategory = [
+  param("category_id")
+    .notEmpty()
+    .withMessage("La catégorie est obligatoire")
+    .custom(async (value) => {
+      let exist = await checkCategoryExist(value);
+      if (!exist) {
+        throw new Error("La catégorie n'existe pas");
+      }
+      return true;
+    }),
+  expressResultValidator,
+];
+
 export const validateUpdateTopic = [
   body("libelle")
     .notEmpty()
@@ -82,6 +96,37 @@ export const validateUpdateTopic = [
   expressResultValidator,
 ];
 
+export const validateUpdateCategory = [
+  body("libelle")
+    .notEmpty()
+    .withMessage("Le libelle est obligatoire")
+    .trim()
+    .custom(async (value, { req }) => {
+      const { topic_id } = req.params;
+      const { category_id } = req.body;
+      const categ = await Category.exists({
+        libelle: value,
+        topic_id: topic_id,
+        _id: { $nin: [category_id] },
+      });
+      if (categ) {
+        throw new Error("Existe déjà");
+      }
+      return true;
+    }),
+  body("topic_id")
+    .notEmpty()
+    .withMessage("La catégorie est obligatoire")
+    .custom(async (value) => {
+      let exist = await checkTopicExist(value);
+      if (!exist) {
+        throw new Error("La thématique n'existe pas");
+      }
+      return true;
+    }),
+  expressResultValidator,
+];
+
 export const validateFilterTopic = [
   body("search")
     .optional()
@@ -89,3 +134,12 @@ export const validateFilterTopic = [
     .withMessage("Un chaine de caractère est attendu"),
   expressResultValidator,
 ];
+
+export const validateFilterCategory = [
+  body("search")
+    .optional()
+    .isString()
+    .withMessage("Un chaine de caractère est attendu"),
+  expressResultValidator,
+];
+

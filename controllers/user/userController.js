@@ -4,6 +4,7 @@ import userService from "../../services/user/userService.js";
 import UserCompany from "../../models/UserCompany.js";
 import Role from "../../models/Role.js";
 import { redisClient } from "../../config/redis.js";
+import Company from "../../models/Company.js";
 
 const { invitationNotification } = userService();
 
@@ -15,12 +16,36 @@ export default function userController() {
       let total_users = await UserCompany.countDocuments(query);
 
       let users = await UserCompany.find(query)
-        .populate(["user_id", "role_id"])
+        .populate([
+          {
+            path: "user_id",
+            select: "email code firstname is_active lastname username phone", // tu peux ajouter d’autres champs
+          },
+          {
+            path: "role_id",
+            select: "libelle name", // tu peux ajouter d’autres champs
+          },
+          {
+            path: "company_id",
+            select: "created_by name", // tu peux ajouter d’autres champs
+          },
+        ])
         .select(["user_id", "role_id", "_id", "is_active"])
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit)
         .exec();
+
+   
+
+      users = users.map((uc) => {
+        const isCreator =
+          uc?.user_id._id?.toString() === uc?.company_id?.created_by?.toString();
+        return {
+          ...uc.toObject(),
+          isCreator,
+        };
+      });
 
       res.status(200).json({
         message: "Utilisateurs récupérés",
@@ -78,7 +103,7 @@ export default function userController() {
         res.status(200).json({
           message: "Modify successfully",
           data: {
-            self: user_company.user_id.toString() === req.user._id.toString()
+            self: user_company.user_id.toString() === req.user._id.toString(),
           },
         });
       }

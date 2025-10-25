@@ -8,12 +8,15 @@ const {
   countSurveyResponse,
 } = surveyService();
 import SurveyTemplate from "../../models/SurveyTemplate.js";
+import SurveyModel from "../../models/SurveyModel.js";
 import { surveyFields, surveyOperators } from "../../utils/survey.js";
 import Question from "../../models/Question.js";
 import Answer from "../../models/Answer.js";
 import { v4 } from "uuid";
 import mailingPug from "../../services/mailing.js";
 import moment from "moment";
+import fileService from "../../services/file/fileService.js";
+const { uploadTempFileOnS3 } = fileService();
 
 export default function surveyController() {
   const getSurveyParams = async (req, res, next) => {
@@ -77,12 +80,66 @@ export default function surveyController() {
     }
   };
 
+  const getSurveysModels = async (req, res, next) => {
+    try {
+      console.log(" req.owner_id", req.owner_id.toString());
+      let surveys_templates = await SurveyModel.find({
+        $or: [
+          { owner_id: req.owner_id.toString() },
+          { owner_id: { $exists: false } },
+        ],
+      })
+        .select([
+          "_id",
+          "title",
+          "description",
+          "questions",
+          "multiple_submission",
+          "theme",
+        ])
+        .populate([
+          {
+            path: "topic_id",
+            select: "libelle",
+          },
+          {
+            path: "category_id",
+            select: "libelle",
+          },
+        ])
+        .sort({ createdAt: -1 })
+        .lean();
+
+      return res.status(200).json({
+        data: surveys_templates,
+        message: "Surveys models récupérés",
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
   const showSurvey = async (req, res, next) => {
     try {
       const data = matchedData(req);
-      let survey_template = await SurveyTemplate.findById(
-        data.survey_id
-      ).populate(["topic_id", "category_id"]);
+      let survey_template = await SurveyTemplate.findById(data.survey_id)
+        .populate([
+          {
+            path: "topic_id",
+            select: "libelle",
+          },
+          {
+            path: "category_id",
+            select: "topic_id libelle",
+          },
+        ])
+        .select([
+          "-account_type_ref",
+          "-createdAt",
+          "-created_by",
+          "-lastEdit",
+          "-updatedAt",
+        ]);
 
       return res.status(200).json({
         data: survey_template,
@@ -123,6 +180,34 @@ export default function surveyController() {
     }
   };
 
+  const createSurveyModelAdmin = async (req, res, next) => {
+    try {
+      const data = matchedData(req);
+      let survey_model = await SurveyModel.create(data);
+      return res.status(200).json({
+        data: survey_model._id,
+        message: "Survey Model créé avec succès",
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  const createSurveyModel = async (req, res, next) => {
+    try {
+      const data = matchedData(req);
+      data.owner_id = req.owner_id;
+      data.account_type_ref = req.account_type_ref;
+      let survey_model = await SurveyModel.create(data);
+      return res.status(200).json({
+        data: survey_model._id,
+        message: "Survey Model créé avec succès",
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
   const updateSurvey = async (req, res, next) => {
     try {
       const data = matchedData(req);
@@ -136,18 +221,21 @@ export default function surveyController() {
         }
       );
 
-      let questions = data.questions.map((q) => ({
-        updateOne: {
-          filter: { _id: q.question_id },
-          update: {
-            $set: {
-              ...q,
-              survey_id: survey_template._id,
+      let questions = data.questions.map((q) => {
+        const { _id, ...rest } = q; // on retire _id
+        return {
+          updateOne: {
+            filter: { _id: q.question_id },
+            update: {
+              $set: {
+                ...rest,
+                survey_id: survey_template._id,
+              },
             },
+            upsert: true,
           },
-          upsert: true, // optionnel : crée si ça n’existe pas
-        },
-      }));
+        };
+      });
 
       await Question.bulkWrite(questions);
 
@@ -184,18 +272,44 @@ export default function surveyController() {
       if (Array.isArray(result.responses) && result.responses.length > 0) {
         for (const data of result.responses) {
           let question_id = data.question;
-
           if (
             (Array.isArray(data.response) && data.response.length > 0) ||
             (!Array.isArray(data.response) && data.response)
           ) {
-            instances.push({
-              survey_id: result.survey_id,
-              question_id: question_id,
-              response: data.response,
-              metadata: result.metadata,
-              created_by: user_id,
-            });
+            let data_to_save = {};
+            let question_instance = await Question.findById(
+              data.question
+            ).select("type_field");
+            console.log("result.responses", question_instance.type_field);
+
+            if (question_instance.type_field === "file") {
+              console.log("result.responses222");
+
+              // Créer un tableau de Promises
+              const uploadPromises = data.response.map((filename) => {
+                return uploadTempFileOnS3(filename, "survey_reveal/responses");
+              });
+
+              // Attendre que tous les uploads soient terminés
+              const files_ids = await Promise.all(uploadPromises);
+              data_to_save = {
+                survey_id: result.survey_id,
+                question_id: question_id,
+                response: files_ids,
+                metadata: result.metadata,
+                created_by: user_id,
+              };
+              console.log("Tous les fichiers uploadés :", files_ids);
+            } else {
+              data_to_save = {
+                survey_id: result.survey_id,
+                question_id: question_id,
+                response: data.response,
+                metadata: result.metadata,
+                created_by: user_id,
+              };
+            }
+            instances.push(data_to_save);
             let question_data = await Question.findById(question_id).select([
               "title",
               "type_field",
@@ -223,7 +337,7 @@ export default function surveyController() {
           "account_type_ref",
         ])
         .exec();
-            console.log("template.owner_id.email",template );
+      console.log("template.owner_id.email", template);
 
       mailingPug(
         template.owner_id.email,
@@ -315,5 +429,8 @@ export default function surveyController() {
     getSurveysStatistics,
     updateSurvey,
     createExcel,
+    createSurveyModel,
+    createSurveyModelAdmin,
+    getSurveysModels,
   };
 }
