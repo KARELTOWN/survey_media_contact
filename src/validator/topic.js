@@ -20,8 +20,30 @@ export default function topicValidator() {
     })
   }
 
+  const valideCreateCategory = () => {
+    return yup.object({
+      libelle: yup
+        .string()
+        .required('Le nom de la thématique est obligatoire')
+        .min(1, 'Minimum un caractère'),
+      topic_id: yup.string().required('Le topic est obligatoire'),
+    })
+  }
+  const valideUpdateCategory = () => {
+    return yup.object({
+      libelle: yup
+        .string()
+        .required('Le nom de la thématique est obligatoire')
+        .min(1, 'Minimum un caractère'),
+      topic_id: yup.string().required('Le topic est obligatoire'),
+      category_id: yup.string().required('La catégorie est obligatoire'),
+    })
+  }
+
   return {
     validateCreate,
-    validateUpdate
+    validateUpdate,
+    valideCreateCategory,
+    valideUpdateCategory
   }
 }

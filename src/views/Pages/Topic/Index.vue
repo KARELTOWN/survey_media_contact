@@ -1,19 +1,25 @@
 <template>
     <admin-layout>
-        <PageBreadcrumb pageTitle="Configuration" />
+        <PageBreadcrumb pageTitle="Thématiques" />
 
         <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
-            <div class="w-1/3 flex flex-col">
+            <div class="w-2/3 flex justify-start gap-6">
                 <div class="flex border-b">
-                    <button @click="activeTab = 'en-tete'" :class="tabClass('en-tete')">Logo</button>
+                    <button @click="activeTab = 'topic'" :class="tabClass('topic')">Thématiques</button>
+                </div>
+                <div class="flex border-b">
+                    <button @click="activeTab = 'category'" :class="tabClass('category')">Catégories</button>
                 </div>
             </div>
 
             <div class="w-3/3 flex flex-col">
 
                 <div class="flex-1 overflow-y-auto p-4">
-                    <div v-if="activeTab === 'en-tete'" class="space-y-4">
-                        <Form />
+                    <div v-if="activeTab === 'topic'" class="space-y-4">
+                        <TopicList />
+                    </div>
+                    <div v-if="activeTab === 'category'" class="space-y-4">
+                        <CategoryList />
                     </div>
                 </div>
             </div>
@@ -24,9 +30,11 @@
 <script setup>
 import AdminLayout from '@/components/layout/AdminLayout.vue'
 import PageBreadcrumb from '@/components/common/PageBreadcrumb.vue'
-import Form from '@/components/Config/Header/Form.vue'
 import { ref } from 'vue'
-const activeTab = ref("en-tete")
+import TopicList from '@/components/topics/TopicList.vue'
+import CategoryList from '@/components/topics/CategoryList.vue'
+
+const activeTab = ref("topic")
 function tabClass(tab) {
     return activeTab.value === tab
         ? 'flex-1 text-sm font-semibold text-blue-600 border-b-2 border-blue-600 py-2'

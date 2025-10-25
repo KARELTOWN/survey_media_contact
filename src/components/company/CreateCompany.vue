@@ -8,8 +8,8 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
-        <h5 class="mb-2 font-semibold text-gray-800 modal-title text-theme-xl dark:text-white/90 lg:text-2xl">
-          {{ selectCompany ? 'Modifier la société' : 'Ajouter une société' }}
+        <h5 class="mb-4 font-semibold text-gray-800 modal-title text-theme-xl dark:text-white/90 lg:text-2xl">
+          {{ selectCompany ? 'Modifier le centre de formation' : 'Ajouter un centre de formation' }}
         </h5>
         <form @submit.prevent="handleSubmit">
           <div class="space-y-5">

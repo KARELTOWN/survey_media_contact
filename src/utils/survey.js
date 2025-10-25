@@ -92,6 +92,28 @@ export const defaultQuestion = {
   },
 }
 
+export const emailQuestionField = {
+  question_id: getUUID(),
+  category: 'question',
+  title: 'Email',
+  type_field: 'email',
+  field_libelle: 'Email',
+  required: true,
+  field_params: {
+    maxlength: 255,
+    disabled: true,
+    value: '',
+    placeholder: 'Ecrivez votre adresse email ici ...',
+    class:'pointer-events-none'
+  },
+  condition: {
+    display: 'show',
+    compareTo: '',
+    operator: '',
+    target: '',
+  },
+}
+
 export const defaultTitleAndDesription = {
   question_id: getUUID(),
   category: 'title_description',

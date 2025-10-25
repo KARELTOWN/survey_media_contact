@@ -1,14 +1,13 @@
 import { toast } from 'vue3-toastify'
 import 'vue3-toastify/dist/index.css'
 
-
 export const successNotify = (msg) => {
   toast.success(msg, {
     autoClose: 2000,
     position: 'top-right',
     hideProgressBar: true,
     transition: 'flip',
-    theme: "colored"
+    theme: 'colored',
   })
 }
 
@@ -18,17 +17,17 @@ export const errorNotify = (msg) => {
     position: 'top-right',
     hideProgressBar: true,
     transition: 'flip',
-    theme: "colored"
+    theme: 'colored',
   })
 }
 
-export const infoNotify = (msg) => {
+export const infoNotify = (msg, timeout = 2000) => {
   toast.info(msg, {
-    autoClose: 2000,
+    autoClose: timeout,
     position: 'top-right',
     hideProgressBar: true,
     transition: 'flip',
-    theme: "colored"
+    theme: 'colored',
   })
 }
 
@@ -38,7 +37,7 @@ export const warningNotify = (msg) => {
     position: 'top-right',
     hideProgressBar: true,
     transition: 'flip',
-    theme: "colored"
+    theme: 'colored',
   })
 }
 

@@ -1,9 +1,8 @@
 <template>
-    <div class="action-panel-mobile flex justify-end">
+    <div class="action-panel-mobile flex justify-end" v-if="props.type_field !== 'email'">
         <Button @click="open = !open" variant="outline" :end-icon="SettingsIcon">
             <span>Configurer</span>
         </Button>
-
     </div>
     <div class="relative">
         <div v-if="open"
@@ -103,6 +102,7 @@ const props = defineProps({
     have_params: Boolean,
     have_required: Boolean,
     required: Boolean,
+    type_field: String
 });
 
 const open = ref(false)

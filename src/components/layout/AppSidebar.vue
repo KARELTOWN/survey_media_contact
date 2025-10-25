@@ -208,12 +208,13 @@ const menuGroups = [
         name: "Paramètres",
         subItems: [
           {
-            name: "Configurations d'enquête", path: "/configurations", pro: false,
+            name: "Centres de Formations", path: "/centres-formations", pro: false,
             require_account: 'any',
             account_type: 'any'
           },
           {
-            name: "Sociétés", path: "/societes", pro: false,
+            name: "Thématiques", path: "/thematiques", 
+            pro: false,
             require_account: 'any',
             account_type: 'any'
           },
@@ -221,6 +222,11 @@ const menuGroups = [
             name: "Roles", path: "/roles", pro: false,
             require_account: 'enterprise',
             account_type: get_account_type()
+          },
+          {
+            name: "Configurations", path: "/configurations", pro: false,
+            require_account: 'any',
+            account_type: 'any'
           },
         ],
       },

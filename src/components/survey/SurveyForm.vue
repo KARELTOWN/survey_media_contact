@@ -119,7 +119,7 @@ setTimeout(() => {
     }).catch((err) => {
         console.error("Erreur de sauvegarde en local", err)
     })
-}, 5000)
+}, 10000)
 
 async function onDragChange(event) {
     if (event.moved) {

@@ -5,8 +5,13 @@ import { deleteIndexDBStorage, getLocalStorage, setIndexDBStorage } from '@/util
 import { defaultQuestion } from '@/utils/survey'
 import { getUUID } from '@/utils/uuid'
 import { saveAs } from 'file-saver'
-import { defineStore } from 'pinia'
+import { defineStore, storeToRefs } from 'pinia'
 import { reactive, ref } from 'vue'
+
+import { configStore } from '@/stores/config/config.js'
+const config_store = configStore()
+const { themeProperties } = storeToRefs(config_store)
+
 export const surveyStore = defineStore('survey-store', () => {
   const questionsFieldType = ref([])
   const logicOperators = ref([])
@@ -34,11 +39,12 @@ export const surveyStore = defineStore('survey-store', () => {
 
   function getInitialFormSurvey() {
     return {
+      capture_mail: false,
       form_id: '',
       title: '',
       description: '',
-      topic: {},
-      category: {},
+      topic: null,
+      category: null,
       topic_id: '',
       category_id: '',
       lastEdit: 0,
@@ -49,18 +55,21 @@ export const surveyStore = defineStore('survey-store', () => {
           question_id: getUUID(),
         },
       ],
-    multiple_submission: true,
-    start_date: '',
-    end_date: '',
+      multiple_submission: true,
+      start_date: '',
+      end_date: '',
     }
   }
 
+  const surveyModels = ref([])
+
   const formSurvey = ref({
+    capture_mail: false,
     form_id: '',
     title: '',
     description: '',
-    topic: {},
-    category: {},
+    topic: null,
+    category: null,
     topic_id: '',
     category_id: '',
     lastEdit: 0,
@@ -119,6 +128,20 @@ export const surveyStore = defineStore('survey-store', () => {
     }
   }
 
+  const getSurveysModels = async () => {
+    try {
+      const result = await fetchGet(`survey/get/models`)
+      const response = await handleAppError(result)
+      if (response.status === false) {
+        if (response?.data) {
+          surveyModels.value = response.data
+        }
+      }
+    } catch (err) {
+      handleCatchError(err)
+    }
+  }
+
   const getSurveyForm = async (id) => {
     try {
       const result = await fetchGet(`survey/form/${id}`)
@@ -135,22 +158,26 @@ export const surveyStore = defineStore('survey-store', () => {
 
   const saveFormInstance = async () => {
     formSurvey.value.lastEdit = Date.now()
+    formSurvey.value.theme = { ...themeProperties.value }
     await setIndexDBStorage(
       `survey_form_${formSurvey.value.form_id}@${get_account_id()}`,
       formSurvey.value,
     )
   }
 
-  const createSurvey = async () => {
+  const createSurvey = async (model = false) => {
     try {
+      formSurvey.value.lastEdit = Date.now()
       surveyID.value = ''
       surveySuccess.value = false
       errors.value = {}
       formSurvey.value.questions.forEach((question) => {
+        question.question_id = getUUID()
         if (question.condition.display == '') {
           question.condition.display = 'show'
         }
       })
+      formSurvey.value.theme = { ...themeProperties.value }
       const data = {
         ...formSurvey.value,
         topic: '',
@@ -158,8 +185,12 @@ export const surveyStore = defineStore('survey-store', () => {
         topic_id: formSurvey.value.topic?._id,
         category_id: formSurvey.value.category?._id,
       }
-
-      const result = await fetchPost(`survey/create`, data)
+      let result = null
+      if (model === false) {
+        result = await fetchPost(`survey/create`, data)
+      } else {
+        result = await fetchPost(`survey/create/model`, data)
+      }
 
       const response = await handleAppError(result)
       if (response.status === true) {
@@ -168,10 +199,14 @@ export const surveyStore = defineStore('survey-store', () => {
         }
       } else {
         if (response?.data) {
-          surveySuccess.value = true
-          surveyID.value = response?.data
-          successNotify("Questionnaire d'enquête créé")
-          await deleteIndexDBStorage(`survey_form_${data.form_id}@${get_account_id()}`)
+          if (model === false) {
+            surveySuccess.value = true
+            surveyID.value = response?.data
+            successNotify('Enquête créé')
+            await deleteIndexDBStorage(`survey_form_${data.form_id}@${get_account_id()}`)
+          } else {
+            successNotify('Enquête enregistrée comme modèle')
+          }
         }
       }
     } catch (err) {
@@ -182,8 +217,9 @@ export const surveyStore = defineStore('survey-store', () => {
     }
   }
 
-  const updateSurvey = async () => {
+  const updateSurvey = async (model = false) => {
     try {
+      formSurvey.value.lastEdit = Date.now()
       surveyID.value = ''
       surveySuccess.value = false
       errors.value = {}
@@ -199,8 +235,12 @@ export const surveyStore = defineStore('survey-store', () => {
         topic_id: formSurvey.value.topic?._id,
         category_id: formSurvey.value.category?._id,
       }
-
-      const result = await fetchPut(`survey/update/${formSurvey.value._id}`, data)
+      let result = null
+      if (model === false) {
+        result = await fetchPut(`survey/update/${formSurvey.value._id}`, data)
+      } else {
+        result = await fetchPost(`survey/create/model`, data)
+      }
 
       const response = await handleAppError(result)
       if (response.status === true) {
@@ -209,10 +249,14 @@ export const surveyStore = defineStore('survey-store', () => {
         }
       } else {
         if (response?.data) {
-          surveySuccess.value = true
-          surveyID.value = response?.data
-          successNotify("Questionnaire d'enquête modifié")
-          await deleteIndexDBStorage(`survey_form_${data.form_id}@${get_account_id()}`)
+          if (model === false) {
+            surveySuccess.value = true
+            surveyID.value = response?.data
+            successNotify("Questionnaire d'enquête modifié")
+            await deleteIndexDBStorage(`survey_form_${data.form_id}@${get_account_id()}`)
+          } else {
+            successNotify('Enquête enregistrée comme modèle')
+          }
         }
       }
     } catch (err) {
@@ -349,5 +393,7 @@ export const surveyStore = defineStore('survey-store', () => {
     statistics,
     updateSurvey,
     exportToExcel,
+    getSurveysModels,
+    surveyModels,
   }
 })

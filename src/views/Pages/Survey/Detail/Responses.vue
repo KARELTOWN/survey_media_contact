@@ -24,11 +24,13 @@
                     <div v-if="Array.isArray(response.response) && response.response.length > 0"
                         class="grid grid-cols-1 lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-1">
                         <div v-for="(file, fIndex) in response.response" :key="fIndex" class="mt-4 relative">
-                            <a :href="base64ToTempUrl(file)" v-if="fileType(file) == 'image'"><img :src="file"
+                            
+                            <a :href="file.encode" v-if="fileType(file.mimetype) == 'image'"><img :src="file.encode"
                                     alt="Prévisualisation" class="w-48 h-48 object-cover rounded" /></a>
-                            <a :href="base64ToTempUrl(file)" target="_blank" v-else-if="fileType(file) !== null"> <img
+                            <a :href="file.encode" target="_blank" v-else-if="fileType(file.mimetype) !== null"> <img
                                     alt="Prévisualisation" :src="defaultFileImg"
                                     class="w-48 h-48 object-cover rounded" /></a>
+                            <p class="text-gray-500 mt-3">{{ file.filename }}</p>
                         </div>
                     </div>
                 </div>
@@ -65,7 +67,7 @@
 <script setup>
 import Badge from '@/components/ui/Badge.vue';
 import { surveyStore } from '@/stores/survey/surveyStore';
-import { base64ToTempUrl, getFileType } from '@/utils/file';
+import { base64ToTempUrl, getFileType, getFileCategoryFromMime } from '@/utils/file';
 import { formatTimestampToDate, formatTO_DMY } from '@/utils/format';
 import { defaultFileImg } from '@/utils/survey';
 import { storeToRefs } from 'pinia';
@@ -90,7 +92,7 @@ onMounted(async () => {
     }
 })
 
-const fileType = (file) => {
-    return getFileType(file)
+const fileType = (mime) => {
+    return getFileCategoryFromMime(mime)
 }
 </script>

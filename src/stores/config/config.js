@@ -1,15 +1,22 @@
-import { defineStore } from 'pinia'
+import { defineStore, storeToRefs } from 'pinia'
 import { successNotify } from '@/utils/notification'
-import { ref } from 'vue'
+import { reactive, ref } from 'vue'
 import { fetchGet, fetchPost } from '@/composables/request'
 import { handleAppError, handleCatchError } from '@/utils/handleAppError'
 import configValidator from '@/validator/config'
+import { surveyDefaultThemes } from '../../config/theme'
 const { validateHeaderConfig } = configValidator()
 
 export const configStore = defineStore('config-store', () => {
   let errors = ref({})
   const config = ref({})
   const configSuccess = ref(false)
+  const themeProperties = ref({
+    header_bg_color: '',
+    container_bg_color: '',
+    header_text_color: '',
+    container_bg_img: '',
+  })
   const storeHeaderConfig = async (form) => {
     try {
       configSuccess.value = false
@@ -89,6 +96,14 @@ export const configStore = defineStore('config-store', () => {
     }
   }
 
+  const chooseTheme = (id) => {
+    let theme = surveyDefaultThemes.find((e) => e.id === parseInt(id))
+    if (theme !== undefined) {
+      themeProperties.value = { ...theme }
+    }
+    return true
+  }
+
   return {
     storeHeaderConfig,
     errors,
@@ -96,5 +111,7 @@ export const configStore = defineStore('config-store', () => {
     getConfig,
     getSurveyConfig,
     config,
+    themeProperties,
+    chooseTheme,
   }
 })

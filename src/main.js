@@ -1,4 +1,6 @@
 import './assets/main.css'
+import 'vue-select/dist/vue-select.css';
+
 // Import Swiper styles
 import 'swiper/css'
 import 'swiper/css/navigation'
@@ -7,6 +9,8 @@ import 'jsvectormap/dist/jsvectormap.css'
 import 'flatpickr/dist/flatpickr.css'
 import 'rrweb-player/dist/style.css'
 import { createPinia } from 'pinia'
+
+import vSelect from 'vue-select'
 
 import flatPickr from 'vue-flatpickr-component'
 
@@ -32,5 +36,5 @@ app.use(pinia)
 app.component('apexchart', VueApexCharts)
 
 app.component('flat-pickr', flatPickr)
-
+app.component('v-select', vSelect)
 app.mount('#app')

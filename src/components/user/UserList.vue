@@ -1,6 +1,7 @@
 <template>
     <div class="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
         <div class="max-w-full overflow-x-auto custom-scrollbar">
+
             <table class="min-w-full">
                 <thead>
                     <tr class="border-b border-gray-200 dark:border-gray-700">
@@ -24,6 +25,7 @@
                         </th>
                     </tr>
                 </thead>
+
                 <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
                     <tr v-for="(user_company, index) in users" :key="index"
                         class="border-t border-gray-100 dark:border-gray-800">
@@ -64,7 +66,7 @@
                         </td>
                         <td>
                             <div class="flex flex justify-center space-x-2">
-                                <Button @click="retireUser(user_company, index)" size="sm" variant="outline"
+                                <Button v-if="user_company.isCreator === false" @click="retireUser(user_company, index)" size="sm" variant="outline"
                                     :startIcon="SettingsIcon">
                                 </Button>
                             </div>

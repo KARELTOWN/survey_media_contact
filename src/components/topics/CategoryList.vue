@@ -1,83 +1,113 @@
 <template>
     <div class="my-10 grid grid-cols-1 md:flex md:justify-start ">
-        <SearchPanelCategory @filter="filter" class="me-4 mb-2 md:mb-0" />
-
-        <Button @click="openAddModal = true" variant="danger">Ajouter une catégorie</Button>
-
+        <SearchPanelCategory class="me-4 mb-2 md:mb-0" />
+        <Button @click="addCateg" variant="danger">Ajouter une catégorie</Button>
     </div>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <div v-for="(category, cIndex) in categoryFiltered" :key="cIndex" @click="getCategory(category)" :class="[
-            'p-4 border rounded shadow-lg transition cursor-pointer',
-            selectedCard === category._id
-                ? 'border-red-500 border-3 text-dark shadow-xl'
-                : 'bg-white hover:shadow-xl'
-        ]">
-            <h3 class="text-lg font-semibold mb-2">{{ category.libelle }}</h3>
+     <div>
+        <table class="min-w-full">
+            <thead>
+                <tr class="border-b border-gray-200 dark:border-gray-700">
+                    <th class="px-5 py-3 text-left w-3/11 sm:px-6">
+                        <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">Libelle</p>
+                    </th>
+                    <th class="px-5 py-3 text-right w-3/11 sm:px-6">
+                        <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">Actions</p>
+                    </th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                <tr v-for="(categ, cIndex) in category" :key="cIndex"
+                    class="border-t border-gray-100 dark:border-gray-800">
+                    <td class="px-5 py-4 sm:px-6"> {{ categ.libelle }} </td>
+                    <td class="px-5 py-4 sm:px-6"> {{ categ.topic_id?.libelle }} </td>
+                    <td class="px-5 py-4 sm:px-6">
+                        <div class="flex justify-end gap-5 sm:gap-4 md:gap-5 items-center action-panel">
+                            <Button variant="danger" size="xs" :start-icon="TrashIcon"
+                                @click="destroy(categ._id)"></Button>
+                            <Button variant="primary" size="xs" :start-icon="PlugInIcon"
+                                @click="editCateg(categ)"></Button>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="grid grid-cols-2 my-10">
+        <div>
+            <Pagination :paginator="category" :current_page="pageCateg" :totalPages="totalPagesCateg" @page-change="fetchNext" />
         </div>
+        <div>
+            <strong>Total : </strong> {{ totalCateg }}
+        </div>
+
     </div>
-    <CreateCategory :open="openAddModal" @close="openAddModal = false" />
+    <CreateCategory :open="openAddModal" @close="closeTopicModal" />
 
 </template>
 
 <script setup>
-import { onMounted, ref, watch, watchEffect } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import { topicStore } from "@/stores/topic/topicStore";
 import { storeToRefs } from "pinia";
 import SearchPanelCategory from '../topics/SearchPanelCategory.vue';
-import { getLocalStorage } from '@/utils/storage';
 const openAddModal = ref(false)
 const emit = defineEmits(["select"])
-
+import Pagination from "@/components/pagination/Pagination.vue";
+import TrashIcon from '../../icons/TrashIcon.vue'
+import PlugInIcon from '../../icons/PlugInIcon.vue'
 const store = topicStore()
 const {
-    topicCategory, selectTopic, selectCategory } = storeToRefs(store)
+    category, totalCateg, totalPagesCateg, pageCateg, selectCategory } = storeToRefs(store)
 
-const { getCategoryInTopic } = store
+const { getAllCategory, destroyCategory } = store
 
-import { surveyStore } from '@/stores/survey/surveyStore';
 import CreateCategory from './Modals/CreateCategory.vue';
 import Button from '../ui/Button.vue';
-const { formSurvey } = storeToRefs(surveyStore())
+import Swal from 'sweetalert2';
 
-const selectedCard = ref(null)
+onMounted(()=> {
+    handleCategory()
+})
 
-
-const getCategory = (category) => {
-    selectedCard.value = category._id
-    emit('select', category)
-}
-
-
-const handleCategory = async (topic) => {
+const handleCategory = async () => {
     try {
-        await getCategoryInTopic(topic)
-        categoryFiltered.value = topicCategory.value
-
-        if (formSurvey.value.category) {
-            let find = topicCategory.value.find((e) => (e.topic_id == selectTopic.value._id && e._id == formSurvey.value.category._id))
-            if (find && find !== undefined) {
-                selectCategory.value = null
-                getCategory(formSurvey.value.category)
-            }
-        }
+        await getAllCategory()
     } catch (err) {
     }
 }
 
-watchEffect(() => {
-    if (selectTopic.value) {
-        handleCategory(selectTopic.value._id)
-    }
-})
-
-
-
-const categoryFiltered = ref([])
-const filter = async (category) => {
-    categoryFiltered.value = category
+const destroy = async (categ_id) => {
+    Swal.fire({
+        title: "Voulez-vous supprimer cette catégorie ?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Oui, supprimer !",
+    }).then(async (result) => {
+        if (result.isConfirmed) {
+            await destroyCategory(categ_id)
+        }
+    });
 }
 
+
+const addCateg = () => {
+    openAddModal.value = true
+    selectCategory.value = null
+}
+
+const editCateg = (categ) => {
+    openAddModal.value = true
+    selectCategory.value = categ
+}
+
+const closeTopicModal = () => {
+    openAddModal.value = false
+    selectCategory.value = null
+}
 
 </script>
 

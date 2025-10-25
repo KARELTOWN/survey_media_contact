@@ -15,19 +15,19 @@ import { computed } from 'vue'
 
 const props = defineProps({
   variant: {
-    type: string,
+    type: String,
     default: 'light'
   },
     color: {
-    type: string,
+    type: String,
     default: 'primary'
   },
     size: {
-    type: string,
+    type: String,
     default: 'md'
   },
-  startIcon: object,
-  endIcon: object
+  startIcon: Object,
+  endIcon: Object
 })
 
 

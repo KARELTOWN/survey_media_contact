@@ -4,7 +4,7 @@
             <div
                 class="no-scrollbar relative w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11">
                 <h5 class="mb-2 font-semibold text-gray-800 modal-title text-theme-xl dark:text-white/90 lg:text-2xl">
-                    Ajouter une thématique
+                    {{ selectTopic !== null ? "Modifier la thématique" : "Ajouter une thématique" }}
                 </h5>
                 <form class="flex flex-col custom-scrollbar max-h-[458px] overflow-y-auto p-2"
                     @submit.prevent="handleSubmit">
@@ -16,7 +16,6 @@
                             <input v-model="libelle" type="text"
                                 class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800" />
                             <p v-if="errors.libelle" style="color: red">{{ errors.libelle }}</p>
-
                         </div>
 
                     </div>
@@ -40,7 +39,7 @@
 
 <script setup>
 
-import { ref, onMounted, watchEffect, watch } from 'vue'
+import { ref, onMounted, watchEffect, watch, onBeforeUnmount } from 'vue'
 import Modal from '@/components/profile/Modal.vue'
 
 import { topicStore } from "@/stores/topic/topicStore";
@@ -48,7 +47,7 @@ import { storeToRefs } from "pinia";
 const store = topicStore()
 const { errors,
     topicSuccess, selectTopic } = storeToRefs(store)
-const { createTopic, createCategory } = store
+const { createTopic, updateTopic } = store
 const isOpen = ref(false)
 const libelle = ref('')
 const props = defineProps({
@@ -85,9 +84,18 @@ const disableBtn = ref(false)
 const handleSubmit = async () => {
     try {
         disableBtn.value = true
-        await createTopic({
-            libelle: libelle.value,
-        })
+        if (selectTopic.value == null) {
+            await createTopic({
+                libelle: libelle.value,
+            })
+        }
+        else if (selectTopic.value !== null && selectTopic.value?._id) {
+            await updateTopic({
+                libelle: libelle.value,
+                topic_id: selectTopic.value._id
+            })
+        }
+
         disableBtn.value = false
 
         if (topicSuccess.value === true) {
@@ -98,6 +106,9 @@ const handleSubmit = async () => {
         disableBtn.value = false
     }
 }
-const copyText = ref('')
+
+watch(() => selectTopic.value, (newValue) => {
+    libelle.value = newValue?.libelle
+})
 
 </script>

@@ -2,7 +2,7 @@
     <h3 class="text-xl md:text-xl font-bold text-center text-gray-800 mb-6 drop-shadow-lg">Paramètres champ Fichier</h3>
     <div class="mb-3">
         <label for="max_size" class="form-label">Taille maximale (Mo)</label>
-        <input type="number" min="1" class="ms-4 border border-gray-200 focus:outline-none text-lg p-2 mb-3"
+        <input type="number" min="1" max="16" class="ms-4 border border-gray-200 focus:outline-none text-lg p-2 mb-3"
             id="max_size" v-model="questionSelect.field_params.max_size" />
     </div>
 
@@ -50,10 +50,16 @@ import { storeToRefs } from "pinia";
 import { ref, watch } from "vue";
 const store = surveyStore()
 const { questionSelect } = storeToRefs(store)
+import { infoNotify } from '@/utils/notification'
 
 const accept = ref([])
 const multiple = ref(false)
 
-// questionSelect.field_params.accept
-// questionSelect.field_params.multiple
+watch(() => questionSelect.value.field_params.max_size, (newValue, oldValue) => {
+    if (newValue !== '' && (newValue > 16 || newValue <= 0)) {
+        infoNotify("La taille doit être compris entre 1 et 16")
+        questionSelect.value.field_params.max_size = 10
+    }
+})
+
 </script>

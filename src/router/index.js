@@ -61,11 +61,11 @@ const router = createRouter({
       },
     },
     {
-      path: '/societes/',
-      name: 'Societes',
+      path: '/centres-formations',
+      name: 'CentreDeFormation',
       component: () => import('../views/Pages/Company/Company.vue'),
       meta: {
-        title: 'Societes',
+        title: 'Mes Centres de Formations',
         requiredAuth: true,
       },
     },
@@ -132,6 +132,16 @@ const router = createRouter({
         requiredAuth: true,
       },
     },
+    {
+      path: '/thematiques',
+      name: 'Thématiques',
+      component: () => import('../views/Pages/Topic/Index.vue'),
+      meta: {
+        title: 'Configurations',
+        requiredAuth: true,
+      },
+    },
+    
 
     // Profile
     {
