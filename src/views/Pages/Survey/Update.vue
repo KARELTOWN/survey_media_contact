@@ -130,7 +130,6 @@ onMounted(async () => {
         await showSurvey(route.params.survey_id)
         let storeData = await getSurveyDataStore()
         if (storeData) {
-            console.log('storeData', storeData)
             formSurvey.value = { ...storeData }
         }
         else {

@@ -16,7 +16,7 @@ export default function topicValidator() {
         .string()
         .required('Le nom de la thématique est obligatoire')
         .min(1, 'Minimum un caractère'),
-      topic_id: yup.string().required('Le topic est obligatoire'),
+      topic_id: yup.string().required('La thématique est obligatoire'),
     })
   }
 
@@ -26,7 +26,7 @@ export default function topicValidator() {
         .string()
         .required('Le nom de la thématique est obligatoire')
         .min(1, 'Minimum un caractère'),
-      topic_id: yup.string().required('Le topic est obligatoire'),
+      topic_id: yup.string().required('La thématique est obligatoire'),
     })
   }
   const valideUpdateCategory = () => {
@@ -35,7 +35,7 @@ export default function topicValidator() {
         .string()
         .required('Le nom de la thématique est obligatoire')
         .min(1, 'Minimum un caractère'),
-      topic_id: yup.string().required('Le topic est obligatoire'),
+      topic_id: yup.string().required('La thématique est obligatoire'),
       category_id: yup.string().required('La catégorie est obligatoire'),
     })
   }

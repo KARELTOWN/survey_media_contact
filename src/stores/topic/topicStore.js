@@ -299,8 +299,6 @@ export const topicStore = defineStore('topic-store', () => {
 
   const destroyCategory = async (category_id) => {
     try {
-      console.log('category_id', category_id)
-
       if (category_id && category_id !== undefined) {
         topicSuccess.value = false
         errors.value = {}

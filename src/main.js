@@ -34,7 +34,6 @@ const pinia = createPinia()
 app.use(router)
 app.use(pinia)
 app.component('apexchart', VueApexCharts)
-
 app.component('flat-pickr', flatPickr)
 app.component('v-select', vSelect)
 app.mount('#app')

@@ -63,7 +63,8 @@ onMounted(() => {
     dropzoneInstance = new Dropzone(`#${dropzoneId}`, {
         autoProcessQueue: true,
         url: `${import.meta.env.VITE_API_URL + props.uploadUrl}`,
-        maxFiles: props.multiple === true ? -1 : 1,
+        maxFiles: props.multiple === true ? null : 1,
+        parallelUploads: 1,
         method: 'post',
         paramName: "file",
         maxFilesize: props.maxSize,
@@ -77,7 +78,6 @@ onMounted(() => {
             this.on('success', (file, response) => {
                 if (response.data) {
                     dropzoneInstance.removeFile(file)
-                    console.log('file', file)
                     emit('afterUpload', {
                         filename: response.data,
                         question_id: props.question_id,

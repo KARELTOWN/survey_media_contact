@@ -45,7 +45,6 @@ const emit = defineEmits(['select'])
 const starterTemplate = [{ id: 1, libelle: "Créer à partir de zéro" }, { id: 2, libelle: "Créer à partir d'un modèle existant" }]
 onMounted(async () => {
     await getSurveysModels()
-    console.log('surveymodels', surveyModels.value)
 })
 const displayModels = ref(false)
 const chooseTemplate = (index) => {

@@ -4,7 +4,7 @@
             <div
                 class="no-scrollbar relative w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11">
                 <h5 class="mb-2 font-semibold text-gray-800 modal-title text-theme-xl dark:text-white/90 lg:text-2xl">
-                    {{ selectCategory !== null ? "Modiifer la catégorie" : "Ajouter une catégorie"}} 
+                    {{ selectCategory !== null ? "Modiifer la catégorie" : "Ajouter une catégorie" }}
                 </h5>
                 <form class="flex flex-col custom-scrollbar max-h-[458px] overflow-y-auto p-2"
                     @submit.prevent="handleSubmit">
@@ -14,7 +14,19 @@
                                 Thématique
                             </label>
                             <v-select label="libelle" :reduce="topics => topics._id" :options="topics" taggable
-                                v-model="form.topic_id" placeholder="Choisir la thématique"></v-select>
+                                v-model="form.topic_id" placeholder="Choisir la thématique">
+                                <template v-slot:no-options="{ search, searching, loading }">
+                                    <template v-if="loading">
+                                        Chargement en cours...
+                                    </template>
+                                    <template v-if="searching">
+                                        Aucun résultat pour : <em>{{ search }}</em>
+                                    </template>
+                                    <template v-else>
+                                        Aucun élément trouvé
+                                    </template>
+                                </template>
+                            </v-select>
                             <p v-if="errors.topic_id" style="color: red">{{ errors.topic_id }}</p>
                         </div>
                         <div>

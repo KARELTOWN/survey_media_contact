@@ -1,6 +1,17 @@
 <template>
-    <v-select label="libelle" :options="topics" taggable v-model="selectTopic"
-        placeholder="Choisir la Thématique"></v-select>
+    <v-select label="libelle" :options="topics" taggable v-model="selectTopic" placeholder="Choisir la Thématique">
+        <template v-slot:no-options="{ search, searching, loading }">
+            <template v-if="loading">
+                Chargement en cours...
+            </template>
+            <template v-if="searching">
+                Aucun résultat pour : <em>{{ search }}</em>
+            </template>
+            <template v-else>
+                Aucun élément trouvé
+            </template>
+        </template>
+    </v-select>
 </template>
 
 <script setup>
@@ -27,7 +38,7 @@ onMounted(async () => {
     }
 })
 
-watch(()=>formSurvey.value.topic, (newValue)=> {
+watch(() => formSurvey.value.topic, (newValue) => {
     selectTopic.value = newValue
 })
 

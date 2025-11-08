@@ -1,6 +1,18 @@
 <template>
     <v-select label="libelle" :options="topicCategory" taggable v-model="selectCategory"
-        placeholder="Choisir la Catégorie" :disabled="!selectTopic?._id"></v-select>
+        placeholder="Choisir la Catégorie" :disabled="!selectTopic?._id">
+        <template v-slot:no-options="{ search, searching, loading }">
+            <template v-if="loading">
+                Chargement en cours...
+            </template>
+            <template v-if="searching">
+                Aucun résultat pour : <em>{{ search }}</em>
+            </template>
+            <template v-else>
+                Aucun élément trouvé
+            </template>
+        </template>
+    </v-select>
 </template>
 
 <script setup>
@@ -16,11 +28,10 @@ const {
 const { getCategoryInTopic, createCategory } = store
 
 import { surveyStore } from '@/stores/survey/surveyStore';
+import Vselect from '../forms/FormElements/Vselect.vue';
 const { formSurvey } = storeToRefs(surveyStore())
 
 const getCategory = () => {
-            console.log('formSurvey.value.category', formSurvey.value)
-
     if (formSurvey.value.category) {
         let find = topicCategory.value.find((e) => (e.topic_id == selectTopic.value?._id && e._id == formSurvey.value?.category?._id))
         if (find && find !== undefined) {

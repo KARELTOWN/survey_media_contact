@@ -88,8 +88,13 @@ const filesAcceptTypes = ref([])
 // DROPZONE FILE HANDLE
 const handleFile = (data) => {
   if (data.question_id && data.question_id !== undefined) {
-    filesList.value[data.question_id] = []
-    answers.value[data.question_id] = []
+    if (formSurvey.value.multiple_submission === false || 
+    (formSurvey.value.multiple_submission === true && 
+    (!Array.isArray(filesList.value[data.question_id]) || 
+    !Array.isArray(answers.value[data.question_id])))) {
+      filesList.value[data.question_id] = []
+      answers.value[data.question_id] = []
+    }
     filesList.value[data.question_id].push({ name: data.file.name, img: data.file.dataURL || defaultFileImg })
     answers.value[data.question_id].push(data.filename)
   }
