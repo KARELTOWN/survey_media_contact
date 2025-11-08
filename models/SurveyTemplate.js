@@ -2,6 +2,7 @@ import { SchemaTypes } from "mongoose";
 import mongoose from "../config/mongodb.js";
 import QuestionTemplateSchema from "./SurveyElementSchema/QuestionTemplateSchema.js";
 import moment from "moment";
+import SurveyThemeSchema from "./SurveyElementSchema/SurveyTheme.js";
 
 const SurveyTemplateSchema = new mongoose.Schema(
   {
@@ -71,10 +72,7 @@ const SurveyTemplateSchema = new mongoose.Schema(
     end_date: {
       type: Date,
     },
-    theme: {
-      type: SchemaTypes.Mixed,
-      required: true
-    }
+    theme: SurveyThemeSchema
   },
   {
     timestamps: true,

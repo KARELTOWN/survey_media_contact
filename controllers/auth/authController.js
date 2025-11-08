@@ -343,8 +343,6 @@ export default function authController() {
         }
 
         const expired = await resetToken.isExpired();
-        console.log("expired", expired);
-
         if (expired === true) {
           return res.status(403).json({
             message: "Le lien de réinitialisation a expiré",
@@ -359,7 +357,6 @@ export default function authController() {
           { new: true }
         );
         if (user) {
-          console.log("user", user);
           await resetToken.updateOne({
             used_at: moment().toDate(),
           });

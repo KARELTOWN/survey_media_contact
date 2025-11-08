@@ -17,7 +17,6 @@ export const validateLogin = [
       const user = await User.findOne({ email: value })
         .select("+password")
         .exec();
-      console.log("user", user);
       if (user) {
         const isPassword = await bcrypt.compare(
           req.body.password,
@@ -190,8 +189,6 @@ export const validateUserId = [
 export const verificationResendCode = (req, res, next) => {
   try {
     const { user_id } = req.body;
-    console.log("req.body", req.body);
-    console.log("user_id", user_id);
 
     if (user_id) {
       let decryptData = decrypt(user_id);

@@ -2,6 +2,7 @@ import { body, param, validationResult } from "express-validator";
 import Role from "../../models/Role.js";
 import Permission from "../../models/Permission.js";
 import { expressResultValidator } from "../requestValidator.js";
+import striptags from "striptags";
 
 export const validateStoreRole = [
   body("libelle")
@@ -13,7 +14,7 @@ export const validateStoreRole = [
         throw new Error("Role existe déjà");
       }
       return true;
-    }),
+    }).trim().customSanitizer((value) => striptags(value)),
   expressResultValidator,
 ];
 
@@ -40,7 +41,7 @@ export const validateUpdateRole = [
         throw new Error("Role existe déjà");
       }
       return true;
-    }),
+    }).trim().customSanitizer((value) => striptags(value)),
   expressResultValidator,
 ];
 

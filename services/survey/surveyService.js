@@ -4,7 +4,7 @@ import Answer from "../../models/Answer.js";
 import Question from "../../models/Question.js";
 import SurveyHistoric from "../../models/SurveyHistoric.js";
 import fileService from "../file/fileService.js";
-const {getFileOnS3} = fileService()
+const { getFileOnS3 } = fileService();
 import xlsx from "xlsx";
 import FileUpload from "../../models/FileUpload.js";
 export default function surveyService() {
@@ -46,7 +46,7 @@ export default function surveyService() {
       },
     ]);
 
-     for (const response of responses) {
+    for (const response of responses) {
       for (const answer of response.answers) {
         if (answer.question_type_field === "file") {
           if (Array.isArray(answer.response) && answer.response.length > 0) {
@@ -70,7 +70,7 @@ export default function surveyService() {
         }
       }
     }
-    
+
     return responses;
   };
 
@@ -236,7 +236,7 @@ export default function surveyService() {
 
   const countSurveyResponse = async (survey_id) => {
     try {
-      let count = await Answer.countDocuments({ survey_id: survey_id });
+      let count = (await Answer.distinct("created_by", { survey_id })).length;
       return count;
     } catch (err) {
       throw new Error(err);

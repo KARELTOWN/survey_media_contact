@@ -3,12 +3,15 @@ import _ from "lodash";
 import companyService from "../../services/company/companyService.js";
 import Company from "../../models/Company.js";
 import { expressResultValidator } from "../requestValidator.js";
+import striptags from "striptags";
 const { checkCompanyExist } = companyService();
 
 export const validateStoreCompany = [
   body("denomination")
     .notEmpty()
-    .withMessage("La dénomination est obligatoire"),
+    .withMessage("La dénomination est obligatoire")
+    .trim()
+    .customSanitizer((value) => striptags(value)),
   body("logo")
     .notEmpty()
     .withMessage("Le logo est obligatoire")
@@ -18,17 +21,29 @@ export const validateStoreCompany = [
       }
       return true;
     }),
-  body("adress").notEmpty().withMessage("L'adresse est obligatoire"),
-  body("phone").notEmpty().withMessage("Le téléphone est obligatoire"),
+  body("adress")
+    .notEmpty()
+    .withMessage("L'adresse est obligatoire")
+    .trim()
+    .customSanitizer((value) => striptags(value)),
+  body("phone")
+    .notEmpty()
+    .withMessage("Le téléphone est obligatoire")
+    .trim()
+    .customSanitizer((value) => striptags(value)),
   body("email")
     .notEmpty()
     .withMessage("Le téléphone est obligatoire")
     .isEmail()
-    .withMessage("Email invalide"),
+    .withMessage("Email invalide")
+    .trim()
+    .normalizeEmail(),
 
   body("open_hours")
     .notEmpty()
-    .withMessage("L'heure de travaille est obligatoire"),
+    .withMessage("L'heure de travaille est obligatoire")
+    .trim()
+    .customSanitizer((value) => striptags(value)),
   expressResultValidator,
 ];
 
@@ -49,7 +64,9 @@ export const validateIdCompany = [
 export const validateUpdateCompany = [
   body("denomination")
     .notEmpty()
-    .withMessage("La dénomination est obligatoire"),
+    .withMessage("La dénomination est obligatoire")
+    .trim()
+    .customSanitizer((value) => striptags(value)),
   body("logo")
     .notEmpty()
     .withMessage("Le logo est obligatoire")
@@ -59,16 +76,28 @@ export const validateUpdateCompany = [
       }
       return true;
     }),
-  body("adress").notEmpty().withMessage("L'adresse est obligatoire"),
-  body("phone").notEmpty().withMessage("Le téléphone est obligatoire"),
+  body("adress")
+    .notEmpty()
+    .withMessage("L'adresse est obligatoire")
+    .trim()
+    .customSanitizer((value) => striptags(value)),
+  body("phone")
+    .notEmpty()
+    .withMessage("Le téléphone est obligatoire")
+    .trim()
+    .customSanitizer((value) => striptags(value)),
   body("email")
     .notEmpty()
     .withMessage("Le téléphone est obligatoire")
     .isEmail()
-    .withMessage("Email invalide"),
+    .withMessage("Email invalide")
+    .trim()
+    .normalizeEmail(),
 
   body("open_hours")
     .notEmpty()
-    .withMessage("L'heure de travaille est obligatoire"),
+    .withMessage("L'heure de travaille est obligatoire")
+    .trim()
+    .customSanitizer((value) => striptags(value)),
   expressResultValidator,
 ];

@@ -6,6 +6,11 @@ import SurveyTemplate from "../../models/SurveyTemplate.js";
 import Question from "../../models/Question.js";
 import { expressResultValidator } from "../requestValidator.js";
 import moment from "moment";
+import _ from "lodash";
+import SurveyThemeSchema from "../../models/SurveyElementSchema/SurveyTheme.js";
+import striptags from "striptags";
+import validator from "validator";
+let theme_attributes = SurveyThemeSchema.obj;
 /**
  * Validator pour SurveyTemplate
  */
@@ -30,6 +35,8 @@ export const surveyValidator = [
     .withMessage("form_id est requis")
     .isString()
     .withMessage("form_id doit être une chaîne de caractères")
+    .isUUID("4")
+    .withMessage("Un UUID est attendu")
     .custom(async (value, { req }) => {
       if (!req.body?.publish || req.body?.publish === false) {
         let form_id_exist = await SurveyTemplate.exists({ form_id: value });
@@ -40,7 +47,32 @@ export const surveyValidator = [
       return true;
     }),
 
-  body("theme").isObject().withMessage("Le thème est attendu"),
+  body("theme")
+    .isObject()
+    .withMessage("Le thème est attendu")
+    .custom((value) => {
+      let keys = Object.keys(value);
+      if (keys.length === 0) {
+        throw new Error("Le thème ne peut pas être vide");
+      }
+      for (const key of Object.keys(theme_attributes)) {
+        // Ignorer container_bg_img
+        if (key === "container_bg_img" && value[key]) {
+          if (!validator.isBase64(value[key])) {
+            throw new Error("Une image est base 64 est attendue");
+          }
+        }
+
+        // Vérifier que la clé existe et que la valeur est une couleur hex
+        if (
+          (!keys.includes(key) || !validator.isHexColor(value[key])) &&
+          key !== "container_bg_img" && value[key]
+        ) {
+          throw new Error(`La clé ${key} a une valeur invalide`);
+        }
+      }
+      return true;
+    }),
 
   body("start_date")
     .optional()
@@ -70,7 +102,9 @@ export const surveyValidator = [
     .exists({ checkFalsy: true })
     .withMessage("title est requis")
     .isString()
-    .withMessage("title doit être une chaîne de caractères"),
+    .withMessage("title doit être une chaîne de caractères")
+    .trim()
+    .customSanitizer((value) => striptags(value)),
 
   body("description")
     .optional()
@@ -149,25 +183,27 @@ export const surveyValidator = [
     .isString()
     .withMessage("Une chaine de caractère est attendue"),
 
-  body("questions.*.title").custom((value, { req, path }) => {
-    // Récupérer l’index de la question
-    const match = path.match(/questions\.(\d+)\./);
-    const index = match ? parseInt(match[1], 10) : null;
+  body("questions.*.title")
+    .custom((value, { req, path }) => {
+      // Récupérer l’index de la question
+      const match = path.match(/questions\.(\d+)\./);
+      const index = match ? parseInt(match[1], 10) : null;
 
-    if (index === null) return true; // sécurité
+      if (index === null) return true; // sécurité
 
-    const question = req.body.questions[index];
-    console.log(index, question.category);
-    if (question.category !== "image") {
-      if (!value || typeof value !== "string" || value.trim() === "") {
-        throw new Error(
-          "title est requis et doit être une chaîne si category n'est pas 'image'"
-        );
+      const question = req.body.questions[index];
+      if (question.category !== "image") {
+        if (!value || typeof value !== "string" || value.trim() === "") {
+          throw new Error(
+            "title est requis et doit être une chaîne si category n'est pas 'image'"
+          );
+        }
       }
-    }
 
-    return true;
-  }),
+      return true;
+    })
+    .trim()
+    .customSanitizer((value) => striptags(value)),
 
   body("questions.*.category")
     .exists({ checkFalsy: true })
@@ -273,13 +309,37 @@ export const surveyValidator = [
 ];
 
 export const surveyModelValidator = [
-  body("theme").isObject().withMessage("Le thème est attendu"),
+  body("theme")
+    .isObject()
+    .withMessage("Le thème est attendu")
+    .custom((value) => {
+      let keys = Object.keys(value);
+      if (keys.length === 0) {
+        throw new Error("Le thème ne peut pas être vide");
+      }
+      for (const key of Object.keys(theme_attributes)) {
+        if (key === "container_bg_img" && value[key]) {
+          if (!validator.isBase64(value[key])) {
+            throw new Error("Une image est base 64 est attendue");
+          }
+        }
+        if (
+          (!keys.includes(key) || !validator.isHexColor(value[key])) &&
+          key !== "container_bg_img"
+        ) {
+          throw new Error(`La clé ${key} a une valeur invalide`);
+        }
+      }
+      return true;
+    }),
 
   body("title")
     .exists({ checkFalsy: true })
     .withMessage("title est requis")
     .isString()
-    .withMessage("title doit être une chaîne de caractères"),
+    .withMessage("title doit être une chaîne de caractères")
+    .trim()
+    .customSanitizer((value) => striptags(value)),
 
   body("description")
     .optional()
@@ -349,25 +409,27 @@ export const surveyModelValidator = [
     .isString()
     .withMessage("Une chaine de caractère est attendue"),
 
-  body("questions.*.title").custom((value, { req, path }) => {
-    // Récupérer l’index de la question
-    const match = path.match(/questions\.(\d+)\./);
-    const index = match ? parseInt(match[1], 10) : null;
+  body("questions.*.title")
+    .custom((value, { req, path }) => {
+      // Récupérer l’index de la question
+      const match = path.match(/questions\.(\d+)\./);
+      const index = match ? parseInt(match[1], 10) : null;
 
-    if (index === null) return true; // sécurité
+      if (index === null) return true; // sécurité
 
-    const question = req.body.questions[index];
-    console.log(index, question.category);
-    if (question.category !== "image") {
-      if (!value || typeof value !== "string" || value.trim() === "") {
-        throw new Error(
-          "title est requis et doit être une chaîne si category n'est pas 'image'"
-        );
+      const question = req.body.questions[index];
+      if (question.category !== "image") {
+        if (!value || typeof value !== "string" || value.trim() === "") {
+          throw new Error(
+            "title est requis et doit être une chaîne si category n'est pas 'image'"
+          );
+        }
       }
-    }
 
-    return true;
-  }),
+      return true;
+    })
+    .trim()
+    .customSanitizer((value) => striptags(value)),
 
   body("questions.*.category")
     .exists({ checkFalsy: true })
@@ -490,7 +552,20 @@ export const surveyResponseValidator = [
     .notEmpty()
     .withMessage("La réponse est obligatoire"),
 
-  body("metadata").optional(),
+  body("metadata")
+    .notEmpty()
+    .withMessage("Metadata obligatoire")
+    .isObject()
+    .withMessage("Un objet est attendu")
+    .custom((value) => {
+      if (
+        value["user_agent"] == undefined ||
+        !_.isString(value["user_agent"])
+      ) {
+        throw new Error("Les métadata sont attendus");
+      }
+      return true
+    }),
 
   expressResultValidator,
 ];

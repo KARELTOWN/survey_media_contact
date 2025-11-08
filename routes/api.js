@@ -49,4 +49,7 @@ router.use(
 router.use("/survey/", SurveyRouter);
 
 router.use("/config/", ConfigRouter);
+router.get('/welcome', (req, res, next)=> {
+  return res.status(200).json({message: 'GOOD'})
+})
 export default router;

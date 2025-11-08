@@ -5,20 +5,21 @@ import topicService from "../../services/topic/topicService.js";
 import Category from "../../models/Category.js";
 import { expressResultValidator } from "../requestValidator.js";
 const { checkTopicExist, checkCategoryExist } = topicService();
+import striptags from "striptags";
 
 export const validateStoreTopic = [
   body("libelle")
     .notEmpty()
     .withMessage("Le libelle est obligatoire")
     .custom(async (value) => {
-      console.log("data", value);
-
       const topic = await Topic.exists({ libelle: value });
       if (topic) {
         throw new Error("Existe déjà");
       }
       return true;
-    }),
+    })
+    .trim()
+    .customSanitizer((value) => striptags(value)),
 ];
 
 export const validateStoreCategory = [
@@ -45,7 +46,8 @@ export const validateStoreCategory = [
         throw new Error("Existe déjà");
       }
       return true;
-    }),
+    })
+    .trim().customSanitizer((value) => striptags(value)),
   expressResultValidator,
 ];
 
@@ -81,7 +83,6 @@ export const validateUpdateTopic = [
   body("libelle")
     .notEmpty()
     .withMessage("Le libelle est obligatoire")
-    .trim()
     .custom(async (value, { req }) => {
       const { topic_id } = req.params;
       const topic = await Topic.exists({
@@ -92,7 +93,8 @@ export const validateUpdateTopic = [
         throw new Error("Existe déjà");
       }
       return true;
-    }),
+    })
+    .trim().customSanitizer((value) => striptags(value)),
   expressResultValidator,
 ];
 
@@ -113,7 +115,8 @@ export const validateUpdateCategory = [
         throw new Error("Existe déjà");
       }
       return true;
-    }),
+    })
+    .trim().customSanitizer((value) => striptags(value)),
   body("topic_id")
     .notEmpty()
     .withMessage("La catégorie est obligatoire")
@@ -131,7 +134,7 @@ export const validateFilterTopic = [
   body("search")
     .optional()
     .isString()
-    .withMessage("Un chaine de caractère est attendu"),
+    .withMessage("Un chaine de caractère est attendu").trim().customSanitizer((value) => striptags(value)),
   expressResultValidator,
 ];
 
@@ -139,7 +142,6 @@ export const validateFilterCategory = [
   body("search")
     .optional()
     .isString()
-    .withMessage("Un chaine de caractère est attendu"),
+    .withMessage("Un chaine de caractère est attendu").trim().customSanitizer((value) => striptags(value)),
   expressResultValidator,
 ];
-

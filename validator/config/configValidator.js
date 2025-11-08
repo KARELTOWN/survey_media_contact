@@ -12,38 +12,38 @@ export const validateConfigUpdate = [
       }
       return true;
     }),
-  body("adress")
-    .optional()
-    .custom((value, { req }) => {
-      if (
-        req.account_type_ref === "enterprise" &&
-        (!value || value == undefined)
-      ) {
-        throw new Error("Adresse obligatoire");
-      }
-      return true;
-    }),
-  body("phone")
-    .optional()
-    .custom((value, { req }) => {
-      if (
-        req.account_type_ref === "enterprise" &&
-        (!value || value == undefined)
-      ) {
-        throw new Error("Téléphone obligatoire");
-      }
-      return true;
-    }),
-  body("open_hours")
-    .optional()
-    .custom((value, { req }) => {
-      if (
-        req.account_type_ref === "enterprise" &&
-        (!value || value == undefined)
-      ) {
-        throw new Error("Horaires d'ouvertures obligatoires");
-      }
-      return true;
-    }),
+  // body("adress")
+  //   .optional()
+  //   .custom((value, { req }) => {
+  //     if (
+  //       req.account_type_ref === "enterprise" &&
+  //       (!value || value == undefined)
+  //     ) {
+  //       throw new Error("Adresse obligatoire");
+  //     }
+  //     return true;
+  //   }),
+  // body("phone")
+  //   .optional()
+  //   .custom((value, { req }) => {
+  //     if (
+  //       req.account_type_ref === "enterprise" &&
+  //       (!value || value == undefined)
+  //     ) {
+  //       throw new Error("Téléphone obligatoire");
+  //     }
+  //     return true;
+  //   }),
+  // body("open_hours")
+  //   .optional()
+  //   .custom((value, { req }) => {
+  //     if (
+  //       req.account_type_ref === "enterprise" &&
+  //       (!value || value == undefined)
+  //     ) {
+  //       throw new Error("Horaires d'ouvertures obligatoires");
+  //     }
+  //     return true;
+  //   }),
   expressResultValidator,
 ];

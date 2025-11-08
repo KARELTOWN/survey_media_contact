@@ -16,12 +16,17 @@ import { v4 } from "uuid";
 import mailingPug from "../../services/mailing.js";
 import moment from "moment";
 import fileService from "../../services/file/fileService.js";
+import { isValidObjectId } from "mongoose";
+import _ from "lodash";
 const { uploadTempFileOnS3 } = fileService();
+import { saveResponseFileJob } from "../../jobs/queue.js";
 
 export default function surveyController() {
   const getSurveyParams = async (req, res, next) => {
     try {
-      const questions_field_types = surveyFields;
+      const questions_field_types = surveyFields.filter(
+        (e) => e.field !== "email"
+      );
       const logic_operators = surveyOperators;
 
       return res.status(200).json({
@@ -68,7 +73,6 @@ export default function surveyController() {
 
       for (const survey of surveys_templates) {
         survey.count_responses = await countSurveyResponse(survey._id);
-        console.log(survey.count_responses);
       }
 
       return res.status(200).json({
@@ -96,6 +100,7 @@ export default function surveyController() {
           "questions",
           "multiple_submission",
           "theme",
+          "capture_mail",
         ])
         .populate([
           {
@@ -269,8 +274,10 @@ export default function surveyController() {
       let instances = [];
       let email_body_data = [];
       let user_id = v4();
+      let uploadFileJobData = [];
       if (Array.isArray(result.responses) && result.responses.length > 0) {
         for (const data of result.responses) {
+          let files_not_uploads = [];
           let question_id = data.question;
           if (
             (Array.isArray(data.response) && data.response.length > 0) ||
@@ -280,26 +287,15 @@ export default function surveyController() {
             let question_instance = await Question.findById(
               data.question
             ).select("type_field");
-            console.log("result.responses", question_instance.type_field);
 
             if (question_instance.type_field === "file") {
-              console.log("result.responses222");
-
-              // Créer un tableau de Promises
-              const uploadPromises = data.response.map((filename) => {
-                return uploadTempFileOnS3(filename, "survey_reveal/responses");
-              });
-
-              // Attendre que tous les uploads soient terminés
-              const files_ids = await Promise.all(uploadPromises);
               data_to_save = {
                 survey_id: result.survey_id,
                 question_id: question_id,
-                response: files_ids,
+                response: [],
                 metadata: result.metadata,
                 created_by: user_id,
               };
-              console.log("Tous les fichiers uploadés :", files_ids);
             } else {
               data_to_save = {
                 survey_id: result.survey_id,
@@ -309,7 +305,6 @@ export default function surveyController() {
                 created_by: user_id,
               };
             }
-            instances.push(data_to_save);
             let question_data = await Question.findById(question_id).select([
               "title",
               "type_field",
@@ -319,9 +314,21 @@ export default function surveyController() {
               question_field: question_data.type_field,
               response: data.response,
             });
+            let answer_save = await Answer.insertOne(data_to_save);
+            if (
+              question_instance.type_field === "file" &&
+              data.response.length > 0
+            ) {
+              for (const file_name of data.response) {
+                let jobData = {
+                  file_name,
+                  answer_id: answer_save._id,
+                };
+                saveResponseFileJob(jobData)
+              }
+            }
           }
         }
-        await Answer.insertMany(instances);
       }
 
       let template = await SurveyTemplate.findById(result.survey_id)
@@ -337,7 +344,6 @@ export default function surveyController() {
           "account_type_ref",
         ])
         .exec();
-      console.log("template.owner_id.email", template);
 
       mailingPug(
         template.owner_id.email,

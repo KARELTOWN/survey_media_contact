@@ -4,6 +4,16 @@ const FieldParamsTemplateSchema = new mongoose.Schema({
   rating: {
     type: String,
     required: false,
+    validate: {
+      validator: function (value) {
+        let val = parseInt(value)
+        if (Number.isInteger(val) && val <= 5) {
+          return true;
+        } else {
+          return false;
+        }
+      },
+    },
   },
   accept: {
     type: [String],
@@ -13,6 +23,15 @@ const FieldParamsTemplateSchema = new mongoose.Schema({
   max_size: {
     type: Number,
     required: false,
+    validate: {
+      validator: function (value) {
+        if (Number.isInteger(value) && value <= 16) {
+          return true;
+        } else {
+          return false;
+        }
+      },
+    },
   },
   multiple: { type: Boolean, required: false },
   options: [OptionSchema],

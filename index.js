@@ -61,7 +61,6 @@ const corsOption = {
   ],
 };
 
-console.log(corsOption.origin);
 app.use(cors(corsOption));
 
 app.use(async (error, req, res, next) => {

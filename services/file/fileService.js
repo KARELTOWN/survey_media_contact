@@ -23,7 +23,7 @@ export default function fileService() {
 
   const uploadTempFileOnS3 = async (temp_filename, filePath) => {
     try {
-      let file = await readFileFromFolder(temp_filename, "utf8");
+      let [file, tmpFilePath] = await readFileFromFolder(temp_filename, "utf8");
       const buffer = Buffer.from(file.base64, "base64");
       delete file.base64;
       file.buffer = buffer;
@@ -35,7 +35,10 @@ export default function fileService() {
           name: filename,
           mimetype: file.mimetype,
         });
-        return file_save._id;
+        if (file_save._id !== undefined && file_save._id) {
+          fs.unlinkSync(tmpFilePath);
+          return file_save._id;
+        }
       }
     } catch (err) {
       throw err;
@@ -117,7 +120,7 @@ export default function fileService() {
       let filePath = path.join(__dirname, "storage/tmp", temp_filename);
       const filedata = fs.readFileSync(filePath, format);
       let file = JSON.parse(filedata);
-      return file;
+      return [file, filePath];
     } catch (error) {
       throw new Error(error);
     }
@@ -138,6 +141,6 @@ export default function fileService() {
     readFileFromFolder,
     uploadInFileLocal,
     uploadTempFileOnS3,
-    deleteFile
+    deleteFile,
   };
 }
