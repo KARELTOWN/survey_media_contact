@@ -1,4 +1,5 @@
 <template>
+    <FilterDateResponses @filter="getData" />
     <div v-if="responsesToSurvey.length > 0 && loading === false" class="space-y-4">
         <div class="text-2xl text-bold">Réponses <Badge color="primary"> {{ responsesToSurvey.length }}</Badge>
         </div>
@@ -24,7 +25,7 @@
                     <div v-if="Array.isArray(response.response) && response.response.length > 0"
                         class="grid grid-cols-1 lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-1">
                         <div v-for="(file, fIndex) in response.response" :key="fIndex" class="mt-4 relative">
-                            
+
                             <a :href="file.encode" v-if="fileType(file.mimetype) == 'image'"><img :src="file.encode"
                                     alt="Prévisualisation" class="w-48 h-48 object-cover rounded" /></a>
                             <a :href="file.encode" target="_blank" v-else-if="fileType(file.mimetype) !== null"> <img
@@ -73,18 +74,21 @@ import { defaultFileImg } from '@/utils/survey';
 import { storeToRefs } from 'pinia';
 import { onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
+import FilterDateResponses from '@/components/survey/detail/FilterDateResponses.vue';
 const route = useRoute()
 const store = surveyStore()
 const { getSurveyResponses } = store
 const { responsesToSurvey } = storeToRefs(store)
 const loading = ref(false)
 
+const getData = async () => {
+    loading.value = true
+    await getSurveyResponses(route.params.id)
+    loading.value = false
+}
 onMounted(async () => {
     if (route.params.id) {
-        loading.value = true
-        await getSurveyResponses(route.params.id)
-        loading.value = false
-
+        await getData()
     }
     else {
         errorNotify('Impossible de charger les réponses')

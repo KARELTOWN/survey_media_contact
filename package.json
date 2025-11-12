@@ -23,6 +23,7 @@
     "@rrweb/rrweb-plugin-console-replay": "^2.0.0-alpha.18",
     "@tailwindcss/forms": "^0.5.10",
     "@tailwindcss/typography": "^0.5.16",
+    "@vuepic/vue-datepicker": "^12.0.3",
     "apexcharts": "^4.4.0",
     "chart.js": "^3.9.1",
     "dropzone": "^6.0.0-beta.2",

@@ -20,6 +20,14 @@ export const surveyStore = defineStore('survey-store', () => {
   const surveysList = ref('')
   const responsesToSurvey = ref([])
   const statistics = ref({})
+  const filterDateResponses = reactive({
+    start_date: '',
+    end_date: '',
+  })
+    const filterDateStatistics = reactive({
+    start_date: '',
+    end_date: '',
+  })
   const questionSelect = reactive({
     type_field: '',
     field_params: {},
@@ -308,7 +316,7 @@ export const surveyStore = defineStore('survey-store', () => {
       surveySuccess.value = false
       errors.value = {}
 
-      const result = await fetchGet(`survey/detail/responses/${survey_id}`)
+      const result = await fetchPost(`survey/detail/responses`, { survey_id, ...filterDateResponses })
 
       const response = await handleAppError(result)
       if (response.status === true) {
@@ -334,7 +342,7 @@ export const surveyStore = defineStore('survey-store', () => {
       surveySuccess.value = false
       errors.value = {}
 
-      const result = await fetchGet(`survey/statistics/${survey_id}`)
+      const result = await fetchPost(`survey/statistics`, { survey_id, ...filterDateStatistics })
 
       const response = await handleAppError(result)
       if (response.status === true) {
@@ -395,5 +403,7 @@ export const surveyStore = defineStore('survey-store', () => {
     exportToExcel,
     getSurveysModels,
     surveyModels,
+    filterDateResponses,
+    filterDateStatistics
   }
 })

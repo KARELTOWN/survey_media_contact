@@ -19,7 +19,7 @@
                         <button @click="activeTab = 'qrcode'" :class="tabClass('qrcode')">QR CODE</button>
                     </div>
 
-                    <div class="flex-1 overflow-y-auto p-4">
+                    <div class="flex-1 h-auto p-4">
                         <div v-if="activeTab === 'preview'" class="space-y-4">
                             <PreviewPanel :preview="true" />
                         </div>
@@ -63,6 +63,7 @@ import { copyInClipInBoard } from '@/utils/general';
 import Button from '@/components/ui/Button.vue';
 import Statistics from './Statistics.vue';
 import QrCode from './QrCode.vue';
+import FilterDate from '../../../../components/survey/detail/FilterDateResponses.vue';
 
 const route = useRoute()
 const store = surveyStore()

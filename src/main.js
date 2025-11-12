@@ -10,6 +10,9 @@ import 'flatpickr/dist/flatpickr.css'
 import 'rrweb-player/dist/style.css'
 import { createPinia } from 'pinia'
 
+import { VueDatePicker } from '@vuepic/vue-datepicker';
+import '@vuepic/vue-datepicker/dist/main.css'
+
 import vSelect from 'vue-select'
 
 import flatPickr from 'vue-flatpickr-component'
@@ -36,4 +39,5 @@ app.use(pinia)
 app.component('apexchart', VueApexCharts)
 app.component('flat-pickr', flatPickr)
 app.component('v-select', vSelect)
+app.component('VueDatePicker', VueDatePicker)
 app.mount('#app')

@@ -8,6 +8,11 @@
           </div>
           <!-- Form -->
           <div class="flex flex-col justify-center flex-1 w-full max-w-md mx-auto">
+            <div class="text-center align-middle justify-center flex">
+              <img class="dark:hidden lg:hidden" width="200" src="/images/logo/logo.png" alt="Logo" />
+              <img class="hidden dark:block scale-200 lg:hidden" width="80" src="/images/logo/auth-logo.png"
+                alt="Logo" />
+            </div>
             <div class="mb-5 sm:mb-8">
               <h1 class="mb-2 font-semibold text-gray-800 text-title-sm dark:text-white/90 sm:text-title-md">
                 Créer un compte
