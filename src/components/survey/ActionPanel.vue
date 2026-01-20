@@ -1,0 +1,124 @@
+<template>
+    <div class="action-panel-mobile flex justify-end" v-if="props.type_field !== 'email'">
+        <Button @click="open = !open" variant="outline" :end-icon="SettingsIcon">
+            <span>Configurer</span>
+        </Button>
+    </div>
+    <div class="relative">
+        <div v-if="open"
+            class="cursor-pointer border border-blue-500 p-3 absolute mt-1 w-56 rounded-lg shadow-lg bg-white ring-opacity-5 z-10 right-20 bottom-0">
+            <div class="flex flex-col justify-end gap-5 sm:gap-4 md:gap-5 items-center action-panel">
+                <div class="flex gap-2 items-center" v-if="props.have_required === true">
+                    <SwitchInput v-model="switchValue" id="Obligatoire" />
+                    <label for="Obligatoire">Rendre Obligatoire</label>
+                </div>
+                <div class="flex gap-2 items-center" @click="$emit('copy')">
+                    <svg viewBox="0 0 24 24" title="Dupliquer" fill="none" xmlns="http://www.w3.org/2000/svg"
+                        stroke="#2B7FFF">
+                        <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                        <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                        <g id="SVGRepo_iconCarrier">
+                            <path
+                                d="M6 11C6 8.17157 6 6.75736 6.87868 5.87868C7.75736 5 9.17157 5 12 5H15C17.8284 5 19.2426 5 20.1213 5.87868C21 6.75736 21 8.17157 21 11V16C21 18.8284 21 20.2426 20.1213 21.1213C19.2426 22 17.8284 22 15 22H12C9.17157 22 7.75736 22 6.87868 21.1213C6 20.2426 6 18.8284 6 16V11Z"
+                                stroke="#2B7FFF" stroke-width="1.5"></path>
+                            <path opacity="0.5"
+                                d="M6 19C4.34315 19 3 17.6569 3 16V10C3 6.22876 3 4.34315 4.17157 3.17157C5.34315 2 7.22876 2 11 2H15C16.6569 2 18 3.34315 18 5"
+                                stroke="#2B7FFF" stroke-width="1.5"></path>
+                        </g>
+                    </svg>
+                    <span class="mobile-help-text">Dupliquer</span>
+
+                </div>
+                <div class="flex gap-2 items-center" @click="$emit('delete')">
+                    <svg viewBox="0 0 1024 1024" title="Supprimer" class="icon" version="1.1"
+                        xmlns="http://www.w3.org/2000/svg" fill="#2B7FFF" stroke="#2B7FFF">
+                        <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                        <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                        <g id="SVGRepo_iconCarrier">
+                            <path
+                                d="M667.8 362.1H304V830c0 28.2 23 51 51.3 51h312.4c28.4 0 51.4-22.8 51.4-51V362.2h-51.3z"
+                                fill="#ffffff"></path>
+                            <path
+                                d="M750.3 295.2c0-8.9-7.6-16.1-17-16.1H289.9c-9.4 0-17 7.2-17 16.1v50.9c0 8.9 7.6 16.1 17 16.1h443.4c9.4 0 17-7.2 17-16.1v-50.9z"
+                                fill="#ffffff"></path>
+                            <path
+                                d="M733.3 258.3H626.6V196c0-11.5-9.3-20.8-20.8-20.8H419.1c-11.5 0-20.8 9.3-20.8 20.8v62.3H289.9c-20.8 0-37.7 16.5-37.7 36.8V346c0 18.1 13.5 33.1 31.1 36.2V830c0 39.6 32.3 71.8 72.1 71.8h312.4c39.8 0 72.1-32.2 72.1-71.8V382.2c17.7-3.1 31.1-18.1 31.1-36.2v-50.9c0.1-20.2-16.9-36.8-37.7-36.8z m-293.5-41.5h145.3v41.5H439.8v-41.5z m-146.2 83.1H729.5v41.5H293.6v-41.5z m404.8 530.2c0 16.7-13.7 30.3-30.6 30.3H355.4c-16.9 0-30.6-13.6-30.6-30.3V382.9h373.6v447.2z"
+                                fill="#ff2949"></path>
+                            <path
+                                d="M511.6 798.9c11.5 0 20.8-9.3 20.8-20.8V466.8c0-11.5-9.3-20.8-20.8-20.8s-20.8 9.3-20.8 20.8v311.4c0 11.4 9.3 20.7 20.8 20.7zM407.8 798.9c11.5 0 20.8-9.3 20.8-20.8V466.8c0-11.5-9.3-20.8-20.8-20.8s-20.8 9.3-20.8 20.8v311.4c0.1 11.4 9.4 20.7 20.8 20.7zM615.4 799.6c11.5 0 20.8-9.3 20.8-20.8V467.4c0-11.5-9.3-20.8-20.8-20.8s-20.8 9.3-20.8 20.8v311.4c0 11.5 9.3 20.8 20.8 20.8z"
+                                fill="#ff2949"></path>
+                        </g>
+                    </svg>
+                    <span class="mobile-help-text">Supprimer</span>
+                </div>
+                <div v-if="props.have_params === true" class="flex gap-2 items-center" @click="$emit('setting')">
+                    <svg viewBox="0 0 24 24" title="Configurer" fill="none" xmlns="http://www.w3.org/2000/svg"
+                        stroke="#2B7FFF">
+                        <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                        <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                        <g id="SVGRepo_iconCarrier">
+                            <path fill-rule="evenodd" clip-rule="evenodd"
+                                d="M9.75195 12.0128C9.75175 11.0587 10.4087 10.2372 11.3211 10.0509C12.2335 9.86458 13.1472 10.3652 13.5034 11.2467C13.8595 12.1282 13.559 13.1449 12.7856 13.6752C12.0121 14.2054 10.9812 14.1014 10.3233 13.4268C9.95757 13.0518 9.75206 12.5432 9.75195 12.0128Z"
+                                stroke="#2B7FFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            </path>
+                            <path fill-rule="evenodd" clip-rule="evenodd"
+                                d="M10.3077 5.46781C10.2943 4.94809 10.557 4.46185 10.9937 4.19793C11.4305 3.93402 11.9725 3.93402 12.4092 4.19793C12.8459 4.46185 13.1086 4.94809 13.0952 5.46781V6.18481C14.1532 6.45066 15.1177 7.01454 15.8798 7.81281L16.4346 7.47881C16.7552 7.28632 17.1379 7.23446 17.4962 7.33495C17.8545 7.43544 18.1583 7.6798 18.3388 8.01281C18.7238 8.70718 18.4973 9.58984 17.8288 9.99981L17.3121 10.3108C17.6296 11.4207 17.6296 12.6009 17.3121 13.7108L17.8288 14.0218C18.4996 14.4319 18.7264 15.3175 18.3388 16.0128C18.1579 16.3455 17.8541 16.5894 17.4958 16.6895C17.1375 16.7896 16.7549 16.7375 16.4346 16.5448L15.8798 16.2108C15.1177 17.01 14.1528 17.5746 13.0942 17.8408V18.5578C13.1076 19.0775 12.845 19.5638 12.4082 19.8277C11.9715 20.0916 11.4295 20.0916 10.9927 19.8277C10.556 19.5638 10.2933 19.0775 10.3067 18.5578V17.8408C9.24871 17.575 8.28422 17.0111 7.52212 16.2128L6.96735 16.5468C6.64684 16.739 6.26438 16.7907 5.90629 16.6902C5.5482 16.5897 5.24464 16.3455 5.06415 16.0128C4.67911 15.3184 4.90563 14.4358 5.57407 14.0258L6.09082 13.7148C5.77329 12.6049 5.77329 11.4247 6.09082 10.3148L5.57407 10.0038C4.90333 9.59369 4.67651 8.70808 5.06415 8.01281C5.24498 7.68014 5.54885 7.43621 5.90715 7.3361C6.26546 7.236 6.64797 7.28816 6.96832 7.48081L7.5231 7.81481C8.28484 7.01545 9.24936 6.4505 10.3077 6.18381V5.46781Z"
+                                stroke="#2B7FFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            </path>
+                        </g>
+                    </svg>
+                    <span class="mobile-help-text">Paramètres</span>
+
+                </div>
+                <div class="flex gap-2 items-center" @click="$emit('condition')">
+                    <svg fill="#2B7FFF" viewBox="0 0 32 32" version="1.1" xmlns="http://www.w3.org/2000/svg"
+                        stroke="#2B7FFF">
+                        <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                        <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                        <g id="SVGRepo_iconCarrier">
+                            <title>Condition</title>
+                            <path
+                                d="M0 16q0.064 0.128 0.16 0.352t0.48 0.928 0.832 1.344 1.248 1.536 1.664 1.696 2.144 1.568 2.624 1.344 3.136 0.896 3.712 0.352 3.712-0.352 3.168-0.928 2.592-1.312 2.144-1.6 1.664-1.632 1.248-1.6 0.832-1.312 0.48-0.928l0.16-0.352q-0.032-0.128-0.16-0.352t-0.48-0.896-0.832-1.344-1.248-1.568-1.664-1.664-2.144-1.568-2.624-1.344-3.136-0.896-3.712-0.352-3.712 0.352-3.168 0.896-2.592 1.344-2.144 1.568-1.664 1.664-1.248 1.568-0.832 1.344-0.48 0.928zM10.016 16q0-2.464 1.728-4.224t4.256-1.76 4.256 1.76 1.76 4.224-1.76 4.256-4.256 1.76-4.256-1.76-1.728-4.256zM12 16q0 1.664 1.184 2.848t2.816 1.152 2.816-1.152 1.184-2.848-1.184-2.816-2.816-1.184-2.816 1.184l2.816 2.816h-4z">
+                            </path>
+                        </g>
+                    </svg>
+                    <span class="mobile-help-text">Condition d'affichage</span>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</template>
+
+<script setup>
+import { onMounted, ref, watch, watchEffect } from 'vue';
+import SwitchInput from '@/components/forms/FormElements/SwitchInput.vue'
+import Button from '../ui/Button.vue';
+import { SettingsIcon } from '@/icons';
+
+const props = defineProps({
+    have_params: Boolean,
+    have_required: Boolean,
+    required: Boolean,
+    type_field: String
+});
+
+const open = ref(false)
+
+watchEffect(() => {
+    if (props.required && props.required !== undefined) {
+        switchValue.value = props.required
+    }
+})
+
+const switchValue = ref(false)
+
+const emit = defineEmits(['required', 'condition', 'setting', 'delete', 'copy'])
+
+watch(() => switchValue.value, (newValue) => {
+    emit('required', newValue)
+})
+
+</script>
