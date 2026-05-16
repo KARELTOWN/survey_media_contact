@@ -11,6 +11,20 @@ export const getSurveyStoreRefs = () => {
 
 export const survey_allowed_upload_types = ['image', 'video', 'pdf', 'word', 'excel', 'powerpoint']
 
+export const surveyDefaultFieldTypes = [
+  { libelle: 'Reponse courte', field: 'text' },
+  { libelle: 'Paragraphe', field: 'textarea' },
+  { libelle: 'Choix multiple', field: 'radio' },
+  { libelle: 'Case a cocher', field: 'checkbox' },
+  { libelle: 'Liste deroulante', field: 'select' },
+  { libelle: 'Fichier', field: 'file' },
+  { libelle: 'Avis', field: 'review' },
+  { libelle: 'Echelle de satisfaction', field: 'range' },
+  { libelle: 'Chiffre', field: 'number' },
+  { libelle: 'Date', field: 'date' },
+  { libelle: 'Heure', field: 'hour' },
+]
+
 export const surveyGetFieldParams = (type_field) => {
   let field_params = {}
   if (type_field == 'radio' || type_field == 'checkbox' || type_field == 'select') {
@@ -47,6 +61,14 @@ export const surveyGetFieldParams = (type_field) => {
     field_params.rating = 5
   }
 
+  if (type_field == 'range') {
+    field_params.min = 1
+    field_params.max = 5
+    field_params.step = 1
+    field_params.min_label = 'Pas satisfait'
+    field_params.max_label = 'Très satisfait'
+  }
+
   if (type_field == 'date') {
     field_params.max_date = null
     field_params.min_date = null
@@ -64,11 +86,13 @@ export const surveyGetFieldParams = (type_field) => {
 }
 
 export const surveyGetFieldFromType = (name) => {
-   const {questionsFieldType} = getSurveyStoreRefs()
-  let field = questionsFieldType.value.find((e) => e.libelle === name)
+  const { questionsFieldType } = getSurveyStoreRefs()
+  const fieldTypes = questionsFieldType.value?.length ? questionsFieldType.value : surveyDefaultFieldTypes
+  let field = fieldTypes.find((e) => e.libelle === name)
   if (field && field !== undefined) {
     return field.field
   }
+  return 'text'
 }
 
 export const defaultQuestion = {

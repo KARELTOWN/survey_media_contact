@@ -5,7 +5,7 @@
     variantClasses[variant],
     className,
     { 'cursor-not-allowed opacity-50': disabled },
-  ]" @click="onClick" :disabled="disabled">
+  ]" @click="handleClick" :disabled="disabled" type="button">
     <span v-if="startIcon" class="flex items-center">
       <component :is="startIcon" />
     </span>
@@ -17,7 +17,6 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
 
 const props = defineProps({
   size: {
@@ -47,6 +46,7 @@ const props = defineProps({
   },
 });
 
+const emit = defineEmits(['click'])
 
 const sizeClasses = {
   xs: 'px-1 py-1 text-sm',
@@ -62,7 +62,8 @@ const variantClasses = {
     'bg-white text-gray-700 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-400 dark:ring-gray-700 dark:hover:bg-white/[0.03] dark:hover:text-gray-300',
 }
 
-const onClick = () => {
+const handleClick = (event) => {
+  emit('click', event)
   if (!props.disabled && props.onClick) {
     props.onClick()
   }

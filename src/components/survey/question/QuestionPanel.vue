@@ -1,163 +1,109 @@
 <template>
-    <!-- Texte de la question -->
-    <input v-model="question.title"  :class="{ 'pointer-events-none opacity-50': question.type_field === 'email' }" type="text" placeholder="Ecrivez ici la question"
-        class="w-full border-b border-gray-200 focus:outline-none text-lg p-2 mb-3" />
-
-    <!-- Choix du type -->
-    <div v-if="question.type_field !== 'email'">
-        <div class="my-3">
-            <label for="" class="me-4 font-bold">Type de champ</label>
-            <select @change="changeField" v-model="question.field_libelle"
-                class="mt-2 md:mt-0 border border-gray-300 rounded-lg p-2">
-                <option :value="questionType.libelle" :selected="questionType.libelle == 'Réponse courte'"
-                    v-for="questionType in questionsFieldType">{{ questionType.libelle }}</option>
-            </select>
-        </div>
-
-
-        <!-- Aperçu -->
-
-        <div class="my-5">
-            <label for="" class="me-4 font-bold"
-                v-if="question.type_field !== 'select' && question.type_field !== 'radio' && question.type_field !== 'checkbox' && question.type_field !== 'email'">Aperçu
-                du champ</label>
-            <div
-                v-if="question.type_field === 'select' || question.type_field === 'radio' || question.type_field === 'checkbox'">
-                <div class="grid grid-cols-6">
-                    <div class="col-span-5">
-                        <div class="w-full">Liste des Options</div>
-                    </div>
+    <div class="space-y-4">
+        <div class="rounded-2xl border border-gray-100 bg-gray-50 p-4">
+            <div class="mb-4 grid gap-4 lg:grid-cols-[1fr,280px]">
+                <div>
+                    <label class="mb-2 block text-xs font-semibold uppercase text-gray-400">Question</label>
+                    <input v-model="question.title" :disabled="question.type_field === 'email'" type="text"
+                        placeholder="Ecrivez ici la question"
+                        class="w-full border-b border-gray-200 bg-transparent p-2 text-lg font-semibold focus:outline-none disabled:opacity-50" />
                 </div>
-                <div v-for="(option, index) in field_params.options" class="my-2">
-                    <div class="grid grid-cols-6 gap-4">
-                        <div class="col-span-1 flex flex-rows items-center gap-5">
-                            <AddIcon class="tooltip scale-300 md:scale-150" @click="addOption()"><span
-                                    class="tooltiptext">Ajouter une
-                                    option</span></AddIcon>
-                            <DeleteIcon class="tooltip scale-300 md:scale-150" @click="deleleOption(index)"><span
-                                    class="tooltiptext">Supprimer l'option</span></DeleteIcon>
-                        </div>
 
-                        <div class="col-span-3">
-                            <input class="w-full border border-gray-200 focus:outline-none text-lg p-2 mb-3"
-                                :value="option.value" type="text" :index="index" @change="setOption($event, index)" />
-                        </div>
+                <div v-if="question.type_field !== 'email'">
+                    <label class="mb-2 block text-xs font-semibold uppercase text-gray-400">Type de champ</label>
+                    <select v-model="question.field_libelle" @change="changeField"
+                        class="w-full rounded-xl border border-gray-300 bg-white p-3 text-sm shadow-sm">
+                        <option v-for="field in questionFieldTypes" :key="field.field" :value="field.libelle">
+                            {{ field.libelle }}
+                        </option>
+                    </select>
+                </div>
+            </div>
 
-                        <div class="col-span-1 flex flex-rows items-center">
-                            <div class="me-5">
-                                <input type="file" :name="`file_${question.question_id}_${index}`" accept="image/*"
-                                    class="hidden" @change="handleImageOption($event, index)" />
-
-                                <div class="tooltip">
-                                    <svg @click="openFileSelector(index)" v-if="question.type_field !== 'select'"
-                                        width="35px" height="35px" viewBox="0 0 24 24" fill="none"
-                                        xmlns="http://www.w3.org/2000/svg" stroke="#2B7FFF">
-                                        <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-                                        <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round">
-                                        </g>
-                                        <g id="SVGRepo_iconCarrier">
-                                            <path
-                                                d="M7 11C8.10457 11 9 10.1046 9 9C9 7.89543 8.10457 7 7 7C5.89543 7 5 7.89543 5 9C5 10.1046 5.89543 11 7 11Z"
-                                                stroke="#2B7FFF" stroke-width="1.5" stroke-linecap="round"
-                                                stroke-linejoin="round">
-                                            </path>
-                                            <path d="M5.56055 21C11.1305 11.1 15.7605 9.35991 21.0005 15.7899"
-                                                stroke="#2B7FFF" stroke-width="1.5" stroke-linecap="round"
-                                                stroke-linejoin="round"></path>
-                                            <path
-                                                d="M14.35 3H5C3.93913 3 2.92172 3.42136 2.17157 4.17151C1.42142 4.92165 1 5.93913 1 7V17C1 18.0609 1.42142 19.0782 2.17157 19.8284C2.92172 20.5785 3.93913 21 5 21H17C18.0609 21 19.0783 20.5785 19.8284 19.8284C20.5786 19.0782 21 18.0609 21 17V9"
-                                                stroke="#2B7FFF" stroke-width="1.5" stroke-linecap="round"
-                                                stroke-linejoin="round">
-                                            </path>
-                                            <path
-                                                d="M22.3098 3.16996L17.2098 8.26005C16.7098 8.77005 15.2098 8.99996 14.8698 8.66996C14.5298 8.33996 14.7598 6.82999 15.2698 6.31999L20.3599 1.23002C20.6171 0.964804 20.9692 0.812673 21.3386 0.807047C21.7081 0.80142 22.0646 0.942731 22.3298 1.19999C22.5951 1.45725 22.7472 1.8093 22.7529 2.17875C22.7585 2.5482 22.6171 2.90475 22.3599 3.16996H22.3098Z"
-                                                stroke="#2B7FFF" stroke-width="1.5" stroke-linecap="round"
-                                                stroke-linejoin="round">
-                                            </path>
-                                        </g>
-                                    </svg>
-                                    <span class="tooltiptext">Ajouter une image à l'option</span>
-
-                                </div>
-                            </div>
-
-
-                            <input v-if="question.type_field == 'select' || question.type_field === 'radio'"
-                                class=" scale-200 md:scale-100 border-b border-gray-200 focus:outline-none text-lg p-2 mb-3 w-10 h-10"
-                                type="radio" :data-value="index" @change="setDefaultOption($event, index)"
-                                :name="`default_option_${question.question_id}`">
-
-                            <input v-if="question.type_field == 'checkbox'"
-                                class="scale-200 md:scale-100 border-b border-gray-200 focus:outline-none text-lg p-2 mb-3 w-10 h-10"
-                                type="checkbox" :data-value="index" @change="setDefaultOption($event, index)"
-                                :name="`default_option_${question.question_id}`">
-
-                        </div>
-
-
-
-                    </div>
-
-
-                    <div v-if="option.img" class="mt-4 w-50 h-50 relative">
-                        <img :src="option.img" alt="Prévisualisation" class="w-48 h-48 object-cover rounded" />
-                        <button @click="deleteImg(index)"
-                            class="absolute top-2 right-2 bg-white rounded-full p-1 shadow-md hover:bg-red-100 transition">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                                class="w-5 h-5 text-red-500">
-                                <line x1="18" y1="6" x2="6" y2="18"></line>
-                                <line x1="6" y1="6" x2="18" y2="18"></line>
-                            </svg>
+            <div class="rounded-xl border border-dashed border-gray-200 bg-white p-4">
+                <div v-if="hasOptions">
+                    <div class="mb-3 flex items-center justify-between gap-3">
+                        <div class="text-sm font-semibold text-gray-700">Liste des options</div>
+                        <button type="button" @click="addOption"
+                            class="rounded-lg border border-blue-200 px-3 py-1.5 text-sm font-semibold text-blue-600 hover:bg-blue-50">
+                            + Ajouter
                         </button>
                     </div>
+                    <div class="space-y-2">
+                        <div v-for="(option, index) in field_params.options" :key="index"
+                            class="rounded-xl border border-gray-100 bg-gray-50 p-2.5">
+                        <div class="grid grid-cols-[1fr,auto] gap-2 md:grid-cols-[1fr,auto,auto,auto] md:items-center">
+                            <input v-model="option.value" type="text"
+                                class="h-10 w-full rounded-lg border border-gray-200 bg-white px-3 text-sm focus:outline-none" />
+                            <div class="flex items-center gap-2">
+                                <input :id="`option-image-${question.question_id}-${index}`" type="file" accept="image/*"
+                                    class="hidden" @change="uploadOptionImage($event, option)" />
+                                <button type="button" @click="openOptionImagePicker(index)"
+                                    class="h-10 rounded-lg border border-gray-200 bg-white px-3 text-xs font-semibold text-gray-600 hover:bg-gray-100">
+                                    Image
+                                </button>
+                                <button v-if="option.img" type="button" @click="clearOptionImage(option)"
+                                    class="h-10 rounded-lg border border-red-100 bg-white px-3 text-xs font-semibold text-red-600 hover:bg-red-50">
+                                    Retirer
+                                </button>
+                            </div>
+                            <input v-if="question.type_field === 'select' || question.type_field === 'radio'" type="radio"
+                                :name="`default_option_${question.question_id}`" :checked="option.default"
+                                @change="setDefaultOption(index)" class="h-5 w-5 justify-self-end" title="Option par defaut" />
+                            <input v-else-if="question.type_field === 'checkbox'" type="checkbox" v-model="option.default"
+                                class="h-5 w-5 justify-self-end" title="Coche par defaut" />
+                            <button type="button" @click="deleteOption(index)"
+                                class="h-10 rounded-lg border border-red-100 bg-white px-3 text-sm font-semibold text-red-600 hover:bg-red-50">
+                                Supprimer
+                            </button>
+                        </div>
+                        <div v-if="option.img" class="mt-2 flex items-center gap-2">
+                            <img :src="option.img" alt="Image option" class="h-12 w-16 rounded-lg border border-gray-200 object-cover" />
+                            <span class="text-xs text-gray-500">Image liee a cette option</span>
+                        </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
 
-
-            <div v-if="question.type_field === 'text'">
-                <input type="text" :placeholder="field_params.placeholder"
-                    class="w-full border-b border-gray-200 focus:outline-none text-lg p-2 mb-3"
-                    :disabled="field_params.disabled" />
-            </div>
-
-            <div v-if="question.type_field === 'textarea'">
-                <textarea :rows="field_params.rows" :cols="field_params.cols" :maxlength="field_params.maxlength"
+                <input v-else-if="question.type_field === 'text' || question.type_field === 'email'" disabled type="text"
                     :placeholder="field_params.placeholder"
-                    class="w-full border-b border-gray-200 focus:outline-none text-lg p-2 mb-3"
-                    :disabled="field_params.disabled"></textarea>
-            </div>
+                    class="w-full border-b border-gray-200 p-2 text-lg focus:outline-none" />
 
+                <textarea v-else-if="question.type_field === 'textarea'" disabled :rows="field_params.rows || 4"
+                    :placeholder="field_params.placeholder"
+                    class="w-full border-b border-gray-200 p-2 text-lg focus:outline-none"></textarea>
 
-            <div v-if="question.type_field === 'file'">
-                <input disabled type="file" class="w-full border border-gray-200 text-lg p-2 mb-3" />
-            </div>
+                <input v-else-if="question.type_field === 'file'" disabled type="file"
+                    class="w-full border border-gray-200 p-2 text-lg" />
 
-            <div v-if="question.type_field === 'date'">
-                <input disabled type="date" class="w-full border border-gray-200 focus:outline-none text-lg p-2 mb-3" />
-            </div>
+                <input v-else-if="question.type_field === 'date'" disabled type="date"
+                    class="w-full border border-gray-200 p-2 text-lg focus:outline-none" />
 
-            <div v-if="question.type_field === 'number'">
-                <input disabled type="number"
-                    class="w-full border border-gray-200 focus:outline-none text-lg p-2 mb-3" />
-            </div>
+                <input v-else-if="question.type_field === 'hour'" disabled type="time"
+                    class="w-full border border-gray-200 p-2 text-lg focus:outline-none" />
 
+                <input v-else-if="question.type_field === 'number'" disabled type="number"
+                    class="w-full border border-gray-200 p-2 text-lg focus:outline-none" />
 
-            <div v-if="question.type_field === 'hour'">
-                <input disabled type="time" class="w-full border border-gray-200 focus:outline-none text-lg p-2 mb-3" />
-            </div>
+                <div v-else-if="question.type_field === 'range'" class="rounded-xl border border-gray-200 p-4">
+                    <input disabled type="range" :min="field_params.min" :max="field_params.max" :step="field_params.step"
+                        :value="field_params.min" class="h-2 w-full rounded-lg bg-gray-200" />
+                    <div class="mt-3 flex items-center justify-between gap-3 text-sm text-gray-500">
+                        <span>{{ field_params.min_label || field_params.min }}</span>
+                        <span class="rounded-full bg-red-50 px-3 py-1 font-semibold text-red-600">
+                            {{ field_params.min }} a {{ field_params.max }}
+                        </span>
+                        <span>{{ field_params.max_label || field_params.max }}</span>
+                    </div>
+                </div>
 
-            <div v-if="question.type_field === 'review'">
-                <div class="flex items-center space-x-1">
-                    <span v-for="n in field_params.rating" :key="n"
-                        class="text-2xl cursor-pointer transition-colors text-gray-300">
-                        ★
-                    </span>
+                <div v-else-if="question.type_field === 'review'" class="flex items-center space-x-1">
+                    <span v-for="n in field_params.rating || 5" :key="n" class="text-2xl text-gray-300">*</span>
                 </div>
             </div>
-
         </div>
-        <ActionPanel @copy="copyQuestion" @delete="deleteQuestion" @save="saveQuestion" @setting="editSetting"
+
+        <ActionPanel @copy="copyQuestion" @delete="deleteQuestion" @setting="editSetting"
             @condition="setCondition" :have_params="fieldHaveSetting" @required="requiredQuestion" :have_required="true"
             :required="question.required" :type_field="question.type_field" />
         <SettingPanel @close="openSetting = false" :open="openSetting" @save="changeSetting" />
@@ -166,22 +112,16 @@
 </template>
 
 <script setup>
-
 import { surveyStore } from "@/stores/survey/surveyStore";
-import { convertToBase64 } from "@/utils/file";
 import { storeToRefs } from "pinia";
-import { computed, onMounted, reactive, ref, watch, watchEffect } from "vue";
-const store = surveyStore()
-const { questionsFieldType, questionSelect } = storeToRefs(store)
+import { computed, reactive, ref, watch } from "vue";
 import ActionPanel from "@/components/survey/ActionPanel.vue";
 import SettingPanel from "./questionSettingPanel/SettingPanel.vue";
-import { surveyGetFieldFromType, surveyGetFieldParams } from "@/utils/survey";
-import { warningNotify, errorNotify, infoNotify } from '@/utils/notification'
+import { surveyDefaultFieldTypes, surveyGetFieldFromType, surveyGetFieldParams } from "@/utils/survey";
+import { errorNotify, infoNotify } from '@/utils/notification'
 import ConditionPanel from "./condition/ConditionPanel.vue";
-import _ from 'lodash'
-import AddIcon from "@/icons/AddIcon.vue";
-import DeleteIcon from "@/icons/DeleteIcon.vue";
-import { isFileSizeAllowed } from "../../../utils/file";
+import { uploadSurveyImage } from "@/composables/request";
+
 const props = defineProps({
     question: {
         type: Object,
@@ -189,109 +129,41 @@ const props = defineProps({
     }
 })
 
+const emit = defineEmits(["data", 'copy', 'delete', 'save'])
+const store = surveyStore()
+const { questionsFieldType, questionSelect } = storeToRefs(store)
+
 let question = reactive({})
 let field_params = reactive({})
 
-
-onMounted(() => {
-    if (props.question && props.question.question_id) {
-
-        Object.entries(props.question).forEach(([key, value]) => {
-            question[key] = value
-        })
-
-        if (props.question.field_params) {
-            Object.entries(props.question.field_params).forEach(([key, value]) => {
-                field_params[key] = value
-            })
-        }
-    }
+const questionFieldTypes = computed(() => {
+    return questionsFieldType.value?.length ? questionsFieldType.value : surveyDefaultFieldTypes
 })
 
+const hasOptions = computed(() => ['select', 'radio', 'checkbox'].includes(question.type_field))
 
-// watchEffect(() => {
-//     if (props.question && props.question.question_id) {
-//         Object.entries(props.question).forEach(([key, value]) => {
-//             question[key] = value
-//         })
+const syncQuestionState = () => {
+    Object.keys(question).forEach((key) => delete question[key])
+    Object.keys(field_params).forEach((key) => delete field_params[key])
 
-//         // Copier toutes les clés de props.question.field_params dans field_params
-//         if (props.question.field_params) {
-//             Object.entries(props.question.field_params).forEach(([key, value]) => {
-//                 field_params[key] = value
-//             })
-//         }
+    Object.entries(props.question || {}).forEach(([key, value]) => {
+        question[key] = value
+    })
 
-//     }
-// })
-
-const emit = defineEmits(["data", 'copy', 'delete', 'save'])
-
-const changeField = () => {
-    Object.keys(field_params).forEach(key => delete field_params[key])
-    question.type_field = surveyGetFieldFromType(question.field_libelle)
-    getFieldParams(question.type_field)
-}
-
-const getFieldParams = (type_field) => {
-    let params = surveyGetFieldParams(type_field)
-
-    // On injecte les nouvelles clés dans l'objet réactif
+    const params = props.question?.field_params || surveyGetFieldParams(question.type_field || 'text')
     Object.entries(params).forEach(([key, value]) => {
         field_params[key] = value
     })
-}
 
-const setOption = (event, index) => {
-    field_params.options[index].value = event.target.value
-
-}
-
-const setDefaultOption = (event, index) => {
-    field_params.options[index].default = !field_params.options[index].default
-    if (question.type_field == 'select' || question.type_field === 'radio') {
-        field_params.options.map((option, i) => {
-            if (i != index) {
-                option.default = false
-            }
-        })
-    }
-
-}
-
-const fileInput = ref(null)
-const imageUrl = ref('')
-
-// Ouvre le sélecteur de fichiers
-const openFileSelector = (index) => {
-    document.querySelector(`input[name='file_${question.question_id}_${index}']`).click()
-}
-
-const acceptedImageTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif']
-
-
-const handleImageOption = async (event, index) => {
-    if (acceptedImageTypes.includes(event.target.files[0].type)) {
-        if (isFileSizeAllowed(event.target.files[0], 1)) {
-            const file = event.target.files[0]
-            imageUrl.value = await convertToBase64(file)
-            field_params.options[index] = {
-                ...field_params.options[index],
-                img: imageUrl.value
-            }
+    if (question.category === 'question' && question.type_field !== 'email') {
+        const matchingField = questionFieldTypes.value.find((field) => field.field === question.type_field)
+        if (!question.field_libelle || !questionFieldTypes.value.some((field) => field.libelle === question.field_libelle)) {
+            question.field_libelle = matchingField?.libelle || questionFieldTypes.value[0]?.libelle || 'Reponse courte'
         }
-        else {
-            warningNotify("La taille du fichier ne doit pas dépasser 2 Mo")
-        }
-
-    } else {
-        warningNotify('Type de fichier non supporté. Veuillez sélectionner une image (jpg, jpeg, png, gif).')
     }
 }
 
-const deleteImg = (index) => {
-    field_params.options[index].img = ''
-}
+watch(() => props.question, syncQuestionState, { immediate: true })
 
 const getQuestion = () => {
     return {
@@ -301,35 +173,83 @@ const getQuestion = () => {
         category: question.category,
         field_libelle: question.field_libelle,
         condition: question.condition,
-        field_params,
+        field_params: { ...field_params },
         required: question.required,
     }
 }
 
+const saveQuestion = () => {
+    emit("save", getQuestion())
+}
+
+watch(question, saveQuestion, { deep: true })
+watch(field_params, saveQuestion, { deep: true })
+
+const changeField = () => {
+    Object.keys(field_params).forEach(key => delete field_params[key])
+    question.type_field = surveyGetFieldFromType(question.field_libelle)
+    Object.entries(surveyGetFieldParams(question.type_field)).forEach(([key, value]) => {
+        field_params[key] = value
+    })
+}
+
+const addOption = () => {
+    if (!field_params.options) {
+        field_params.options = []
+    }
+    field_params.options.push({ value: '', img: '', default: false })
+}
+
+const deleteOption = (index) => {
+    if (field_params.options.length === 1) {
+        infoNotify('Impossible de supprimer le dernier element')
+        return
+    }
+    field_params.options.splice(index, 1)
+}
+
+const setDefaultOption = (index) => {
+    field_params.options.forEach((option, optionIndex) => {
+        option.default = optionIndex === index
+    })
+}
+
+const openOptionImagePicker = (index) => {
+    document.getElementById(`option-image-${question.question_id}-${index}`)?.click()
+}
+
+const uploadOptionImage = async (event, option) => {
+    const file = event.target.files?.[0]
+    event.target.value = ''
+    if (!file) return
+
+    if (!file.type.startsWith('image/')) {
+        errorNotify('Veuillez selectionner une image')
+        return
+    }
+
+    try {
+        infoNotify("Televersement de l'image en cours")
+        option.img = await uploadSurveyImage(file)
+    } catch (error) {
+        errorNotify(error.message || "Impossible de televerser l'image")
+    }
+}
+
+const clearOptionImage = (option) => {
+    option.img = ''
+}
+
 const copyQuestion = () => {
-    let question = getQuestion()
-    emit('copy', question)
+    emit('copy', getQuestion())
 }
 
 const deleteQuestion = () => {
-    let question = getQuestion()
-    emit("delete", question)
+    emit("delete", getQuestion())
 }
 
 const requiredQuestion = (value) => {
     question.required = value
-}
-
-watch(question,
-    () => {
-        saveQuestion()
-    },
-    { deep: true }
-)
-
-const saveQuestion = () => {
-    let question = getQuestion()
-    emit("save", question)
 }
 
 const openSetting = ref(false)
@@ -338,6 +258,14 @@ const editSetting = () => {
     openSetting.value = true
     questionSelect.value.type_field = question.type_field
     questionSelect.value.field_params = { ...field_params }
+}
+
+const changeSetting = () => {
+    Object.keys(field_params).forEach((key) => delete field_params[key])
+    Object.entries(questionSelect.value.field_params || {}).forEach(([key, value]) => {
+        field_params[key] = value
+    })
+    openSetting.value = false
 }
 
 const openCondition = ref(false)
@@ -351,34 +279,12 @@ const setCondition = () => {
     questionSelect.value.condition = { ...question.condition }
 }
 
+const saveCondition = () => {
+    question.condition = { ...questionSelect.value.condition }
+    openCondition.value = false
+}
 
 const fieldHaveSetting = computed(() => {
     return !(['select', 'radio', 'checkbox', 'hour', 'date'].includes(question.type_field))
 })
-
-const changeSetting = () => {
-    field_params = questionSelect.value.field_params
-    question.field_params = { ...field_params }
-    openSetting.value = false
-}
-
-const saveCondition = () => {
-    let conditions = questionSelect.value.condition
-    question.condition = { ...conditions }
-    openCondition.value = false
-}
-
-const addOption = () => {
-    field_params.options.push({ value: '', img: '', default: false })
-}
-
-const deleleOption = (index) => {
-    if (field_params.options.length == 1) {
-        infoNotify('Impossible de supprimer le dernier élément')
-        return
-    }
-    field_params.options.splice(index, 1)
-
-}
-
 </script>

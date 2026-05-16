@@ -1,12 +1,13 @@
 <template>
-    <h3 class="text-xl md:text-xl font-bold text-center text-gray-800 mb-6 drop-shadow-lg">Paramètres champ Avis</h3>
-    <div class="mb-3">
-        <label for="max_size" class="form-label">Date minimale</label>
-        <input type="date" class="ms-4 border border-gray-200 focus:outline-none text-lg p-2 mb-3" id="max_rating" v-model="questionSelect.field_params.min_date" />
-    </div>
-    <div class="mb-3">
-        <label for="max_size" class="form-label">Date maximale</label>
-        <input type="date" class="ms-4 border border-gray-200 focus:outline-none text-lg p-2 mb-3" id="max_rating" v-model="questionSelect.field_params.max_date" />
+    <div class="grid gap-4 md:grid-cols-2">
+        <div>
+            <label class="setting-label">Date minimale</label>
+            <input type="date" class="setting-input" v-model="questionSelect.field_params.min_date" />
+        </div>
+        <div>
+            <label class="setting-label">Date maximale</label>
+            <input type="date" class="setting-input" v-model="questionSelect.field_params.max_date" />
+        </div>
     </div>
 </template>
 
@@ -16,3 +17,23 @@ import { storeToRefs } from "pinia";
 const store = surveyStore()
 const { questionSelect } = storeToRefs(store)
 </script>
+
+<style scoped>
+.setting-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #374151;
+}
+
+.setting-input {
+    width: 100%;
+    border: 1px solid #d1d5db;
+    border-radius: 0.75rem;
+    background: white;
+    padding: 0.75rem 0.875rem;
+    font-size: 0.95rem;
+    outline: none;
+}
+</style>

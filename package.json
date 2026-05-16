@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite --port 5175 --host",
-    "build": "vite build",
+    "build": "esbuild server/index.js --bundle --target=es2020 --format=esm --outfile=dist/index.js",
     "build-preprod": "vite build --mode preprod",
     "preview": "vite preview",
     "build-only": "vite build",
@@ -57,6 +57,7 @@
     "vuedraggable": "^4.1.0",
     "vuevectormap": "^2.0.1",
     "world-countries": "^5.1.0",
+    "wrangler": "^4.59.2",
     "yup": "^1.6.1"
   },
   "devDependencies": {
@@ -66,6 +67,7 @@
     "@vitejs/plugin-vue-jsx": "^4.1.1",
     "@vue/eslint-config-prettier": "^10.1.0",
     "@vue/eslint-config-typescript": "^14.3.0",
+    "esbuild": "^0.27.2",
     "eslint": "^9.18.0",
     "eslint-plugin-vue": "^9.32.0",
     "jiti": "^2.4.2",

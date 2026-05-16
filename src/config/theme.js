@@ -5,6 +5,9 @@ export const surveyDefaultThemes = [
     header_bg_color: '#1abc9c',
     container_bg_color: '#ecf0f1',
     header_text_color: '#ffffff',
+    form_width: 'medium',
+    form_alignment: 'center',
+    form_spacing: 'normal',
   },
   {
     id: 2,

@@ -42,6 +42,46 @@ export const fetchPost = async (path, body)=> {
     body: JSON.stringify(body),
   })
 }
+
+export const fetchPostFormData = async (path, body) => {
+  return customFetch(`${path}`, {
+    method: 'POST',
+    headers: {
+      'x-account-type': get_account_type(),
+      'x-account-id': get_account_id(),
+      Accept: 'application/json;charset=utf-8',
+      Authorization: `Bearer ${getToken()}`,
+    },
+    body,
+  })
+}
+
+export const uploadSurveyImage = async (file) => {
+  const data = new FormData()
+  data.append('file', file)
+  const result = await fetchPostFormData('file/form/image', data)
+  const response = await result.json()
+
+  if (!result.ok) {
+    throw new Error(response?.message || "Impossible de televerser l'image")
+  }
+
+  return response?.data?.url
+}
+
+export const uploadSurveyDataUrl = async (dataUrl, filename = 'image.png') => {
+  if (!dataUrl?.startsWith?.('data:')) return dataUrl
+
+  const response = await fetch(dataUrl)
+  const blob = await response.blob()
+  const extension = blob.type?.split('/')?.[1] || 'png'
+  const file = new File([blob], filename.includes('.') ? filename : `${filename}.${extension}`, {
+    type: blob.type || 'image/png',
+  })
+
+  return uploadSurveyImage(file)
+}
+
 export const fetchGet = async (path) => {
   return customFetch(`${path}`, {
     method: 'GET',

@@ -1,13 +1,14 @@
 <template>
-    <h3 class="text-xl md:text-xl font-bold text-center text-gray-800 mb-6 drop-shadow-lg">Paramètres champ Nombre</h3>
-    <div class="mb-3">
-        <label for="max_size" class="form-label">Minimum</label>
-        <input type="number" min="0" class="ms-4 border border-gray-200 focus:outline-none text-lg p-2 mb-3" id="max_rating" v-model="questionSelect.field_params.min" />
-    </div>
-    <div class="mb-3">
-        <label for="max_size" class="form-label">Maximum</label>
-        <input type="number" :min="questionSelect.field_params.min" class="ms-4 border border-gray-200 focus:outline-none text-lg p-2 mb-3" id="max_rating"
-            v-model="questionSelect.field_params.max" />
+    <div class="grid gap-4 md:grid-cols-2">
+        <div>
+            <label class="setting-label">Minimum</label>
+            <input type="number" class="setting-input" v-model.number="questionSelect.field_params.min" />
+        </div>
+        <div>
+            <label class="setting-label">Maximum</label>
+            <input type="number" :min="questionSelect.field_params.min" class="setting-input"
+                v-model.number="questionSelect.field_params.max" />
+        </div>
     </div>
 </template>
 
@@ -17,3 +18,23 @@ import { storeToRefs } from "pinia";
 const store = surveyStore()
 const { questionSelect } = storeToRefs(store)
 </script>
+
+<style scoped>
+.setting-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #374151;
+}
+
+.setting-input {
+    width: 100%;
+    border: 1px solid #d1d5db;
+    border-radius: 0.75rem;
+    background: white;
+    padding: 0.75rem 0.875rem;
+    font-size: 0.95rem;
+    outline: none;
+}
+</style>

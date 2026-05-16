@@ -17,6 +17,7 @@ import { flatpickrConfig, flatpickrTimeOnlyConfig } from "@/utils/format";
 import FileViewer from "@/components/viewer/FileViewer.vue";
 import moment from "moment";
 import ResponseDropzone from "../../dropzone/ResponseDropzone.vue";
+import countries from "world-countries";
 
 const previewMode = ref(false)
 
@@ -107,6 +108,49 @@ const deleteFile = (index, question_id) => {
 
 // Réponses de l’utilisateur (lié à v-model sur chaque champ)
 const answers = ref([])
+const participant = ref({
+  lastname: '',
+  firstname: '',
+  phone_country: 'CI',
+  phone_country_code: '+225',
+  phone_number: '',
+})
+
+const countryOptions = computed(() => countries
+  .filter((country) => country.idd?.root)
+  .map((country) => {
+    const suffix = country.idd.suffixes?.[0] || ''
+    return {
+      code: country.cca2,
+      name: country.translations?.fra?.common || country.name.common,
+      dialCode: `${country.idd.root}${suffix}`,
+    }
+  })
+  .sort((a, b) => a.name.localeCompare(b.name)))
+
+const selectPhoneCountry = (countryCode) => {
+  const country = countryOptions.value.find((item) => item.code === countryCode)
+  participant.value.phone_country = country?.code || 'CI'
+  participant.value.phone_country_code = country?.dialCode || '+225'
+}
+
+const participantPayload = computed(() => ({
+  lastname: participant.value.lastname,
+  firstname: participant.value.firstname,
+  phone: {
+    country: participant.value.phone_country,
+    country_code: participant.value.phone_country_code,
+    number: participant.value.phone_number.replace(/\D/g, ''),
+    full_number: participant.value.phone_number ? `${participant.value.phone_country_code}${participant.value.phone_number.replace(/\D/g, '')}` : '',
+  },
+}))
+
+const isPhoneNumberValid = () => {
+  const number = participant.value.phone_number.replace(/\D/g, '')
+  if (!number) return false
+  const fullNumber = `${participant.value.phone_country_code}${number}`
+  return validator.isMobilePhone(fullNumber, 'any', { strictMode: false }) || (number.length >= 6 && number.length <= 15)
+}
 
 const compare = (a, operator, b) => {
   switch (operator) {
@@ -160,7 +204,28 @@ const validateForm = () => {
   formErrors.value = {}
   let isValid = true
 
+  if (formSurvey.value.response_mode === 'identified') {
+    if (!participant.value.lastname || !participant.value.firstname) {
+      formErrors.value.__participant = 'Le nom et le prénom sont requis.'
+      isValid = false
+    }
+    if (!participant.value.phone_number) {
+      formErrors.value.__participant = 'Le numéro de téléphone est requis.'
+      isValid = false
+    }
+    else if (!isPhoneNumberValid()) {
+      formErrors.value.__participant = 'Numéro de téléphone invalide.'
+      isValid = false
+    }
+  } else if (formSurvey.value.response_mode === 'semi_anonymous') {
+    if (participant.value.phone_number && !isPhoneNumberValid()) {
+      formErrors.value.__participant = 'Numéro de téléphone invalide.'
+      isValid = false
+    }
+  }
+
   for (const question of formSurvey.value.questions) {
+    if (question.type_field === 'email') continue
     // Si le champ est masqué par condition, on l'ignore
     if (!displayField(question.condition)) continue
 
@@ -183,6 +248,7 @@ const validateForm = () => {
           }
           break
         case "number":
+        case "range":
           if (answer === "" || answer === null || answer === undefined) {
             formErrors.value[question.question_id] = `La réponse est requise.`
             isValid = false
@@ -240,6 +306,7 @@ const validateForm = () => {
           }
           break
         case "number":
+        case "range":
           if (answer === "" || answer === null || answer === undefined) {
           }
           else if ((answer < question.field_params.min || answer > question.field_params.max)) {
@@ -263,6 +330,7 @@ const disabledBtn = ref(false)
 
 const saveForm = async () => {
   try {
+    if (disabledBtn.value) return
     const isValid = validateForm()
     if (isValid === true) {
       if (previewMode.value === true) {
@@ -271,7 +339,7 @@ const saveForm = async () => {
       else if (previewMode.value === false && publish.value === true) {
         infoNotify('Enregistrement en cours')
         disabledBtn.value = true
-        await saveSurveyResponse(answers.value, route.params.id)
+        await saveSurveyResponse(answers.value, route.params.id, participantPayload.value)
         if (surveySuccess.value === true) {
           if (formSurvey.value.multiple_submission === false) {
             setSurveyCookie(route.params.id)
@@ -322,6 +390,8 @@ const previewModeData = () => {
       }
       filesSize.value[q.question_id] = q.field_params.max_size
       filesAcceptInputAttributes.value[q.question_id] = filesAcceptTypes.value[q.question_id].map(type => correspondant[type]).filter(Boolean).join(',')
+    } else if ((q.type_field === 'range') && answers.value[q.question_id] === undefined) {
+      answers.value[q.question_id] = q.field_params?.min ?? 1
     }
   })
 }
@@ -350,10 +420,15 @@ watchEffect(async () => {
       publish.value = true
     }
     formSurvey.value = liveFormSurvey.value
+    formSurvey.value.capture_mail = false
+    formSurvey.value.questions = formSurvey.value.questions.filter((question) => question.type_field !== 'email')
     if (formSurvey.value?.theme) {
       themeProperties.value = formSurvey.value?.theme
     }
     previewModeData()
+    if (route.query.print === '1') {
+      setTimeout(() => window.print(), 800)
+    }
   }
 })
 
@@ -376,23 +451,88 @@ const canResponseToForm = computed(() => {
   return true
 })
 
+const formWidthMap = {
+  narrow: '42rem',
+  medium: '56rem',
+  wide: '72rem',
+  full: 'calc(100% - 2rem)',
+}
+
+const formShellStyle = computed(() => ({
+  maxWidth: formWidthMap[themeProperties.value?.form_width || 'medium'],
+  marginLeft: themeProperties.value?.form_alignment === 'left' ? '1rem' : 'auto',
+  marginRight: themeProperties.value?.form_alignment === 'left' ? 'auto' : 'auto',
+}))
+
+const questionSpacingClass = computed(() => {
+  if (themeProperties.value?.form_spacing === 'compact') return 'mb-4'
+  if (themeProperties.value?.form_spacing === 'comfortable') return 'mb-8'
+  return 'mb-6'
+})
+
+const hasFooterContact = computed(() => Boolean(
+  themeProperties.value?.show_footer_contact &&
+  (
+    themeProperties.value?.footer_contact_name ||
+    themeProperties.value?.footer_contact_email ||
+    themeProperties.value?.footer_contact_phone ||
+    themeProperties.value?.footer_contact_address ||
+    themeProperties.value?.footer_contact_hours
+  )
+))
+
+const submitButtonStyle = computed(() => ({
+  backgroundColor: themeProperties.value?.header_bg_color || '#dc2626',
+  color: themeProperties.value?.header_text_color || '#ffffff',
+  opacity: disabledBtn.value ? 0.75 : 1,
+  cursor: disabledBtn.value ? 'not-allowed' : 'pointer',
+}))
+
 </script>
 
 <template>
-  <div class="shadow pb-5" :style="{
-    backgroundColor: themeProperties?.container_bg_color
+  <div class="shadow pb-5 min-h-screen" :style="{
+    backgroundColor: themeProperties?.global_bg_color || themeProperties?.container_bg_color,
+    backgroundImage: themeProperties?.container_bg_img ? `url(${themeProperties.container_bg_img})` : 'none',
+    backgroundSize: 'cover',
+    backgroundPosition: 'center'
   }">
     <div class="mb-4">
       <SurveyFormHeader :preview-mode="previewMode" />
     </div>
-    <div class="max-w-3xl mx-auto p-6 bg-gray-50 rounded-xl shadow-md mt-5"
+    <div class="p-6 bg-gray-50 rounded-xl shadow-md mt-5"
+      :style="formShellStyle"
       v-if="(previewMode === true) || (previewMode === false && cookieExist === false && publish === true && canResponseToForm)">
       <!-- ✅ En-tête du formulaire -->
+      <img v-if="themeProperties?.banner_url" :src="themeProperties.banner_url"
+        class="mb-6 h-56 w-full rounded-xl object-cover" />
       <h1 class="text-2xl font-bold mb-2">{{ formSurvey.title }}</h1>
       <p class="text-gray-600 mb-6">{{ formSurvey.description }}</p>
 
+      <div v-if="formSurvey.response_mode === 'identified' || formSurvey.response_mode === 'semi_anonymous'"
+        class="mb-6 rounded-xl border border-gray-200 bg-white p-4">
+        <h2 class="mb-3 text-base font-semibold text-gray-800">Informations du répondant</h2>
+        <div class="grid gap-3 md:grid-cols-2">
+          <input v-if="formSurvey.response_mode === 'identified'" v-model="participant.lastname" type="text" class="w-full rounded-lg border p-2"
+            :placeholder="formSurvey.response_mode === 'identified' ? 'Nom *' : 'Nom'" />
+          <input v-if="formSurvey.response_mode === 'identified'" v-model="participant.firstname" type="text" class="w-full rounded-lg border p-2"
+            :placeholder="formSurvey.response_mode === 'identified' ? 'Prénom *' : 'Prénom'" />
+          <div class="flex overflow-hidden rounded-lg border bg-white md:col-span-2">
+            <select v-model="participant.phone_country" @change="selectPhoneCountry(participant.phone_country)"
+              class="w-44 border-0 border-r bg-white px-3 py-2 text-sm focus:outline-none">
+              <option v-for="country in countryOptions" :key="country.code" :value="country.code">
+                {{ country.name }} {{ country.dialCode }}
+              </option>
+            </select>
+            <input v-model="participant.phone_number" type="tel" class="min-w-0 flex-1 border-0 p-2 focus:outline-none"
+              :placeholder="formSurvey.response_mode === 'identified' ? 'Téléphone *' : 'Téléphone facultatif'" />
+          </div>
+        </div>
+        <p v-if="formErrors.__participant" class="mt-2 text-sm text-red-500">{{ formErrors.__participant }}</p>
+      </div>
+
       <!-- ✅ Liste des questions -->
-      <div v-for="question in formSurvey.questions" :key="question.question_id" class="mb-6">
+      <div v-for="question in formSurvey.questions.filter((item) => item.type_field !== 'email')" :key="question.question_id" :class="questionSpacingClass">
         <!-- Titre / label -->
 
         <label v-if="question.title && displayField(question.condition)" class="block font-semibold mb-2">
@@ -495,6 +635,22 @@ const canResponseToForm = computed(() => {
           v-model="answers[question.question_id]" :min="question.field_params?.min" :max="question.field_params?.max"
           class="border rounded-lg p-2" />
 
+        <div v-else-if="question.type_field === 'range' && displayField(question.condition)"
+          class="rounded-xl border border-gray-200 p-4">
+          <div class="mb-3 flex items-center justify-between text-sm text-gray-500">
+            <span>{{ question.field_params?.min_label || question.field_params?.min }}</span>
+            <span>{{ question.field_params?.max_label || question.field_params?.max }}</span>
+          </div>
+          <input type="range" v-model="answers[question.question_id]" :min="question.field_params?.min"
+            :max="question.field_params?.max" :step="question.field_params?.step || 1"
+            class="h-2 w-full cursor-pointer appearance-none rounded-lg bg-gray-200" />
+          <div class="mt-3 text-center">
+            <span class="rounded-full bg-red-50 px-4 py-1 text-sm font-semibold text-red-600">
+              {{ answers[question.question_id] ?? question.field_params?.min }}
+            </span>
+          </div>
+        </div>
+
         <!-- Avis / rating -->
         <div v-else-if="question.type_field === 'review' && displayField(question.condition)" class="flex space-x-2">
           <button v-for="n in parseInt(question.field_params?.rating)" :key="n" class="text-2xl"
@@ -522,12 +678,36 @@ const canResponseToForm = computed(() => {
       </div>
 
       <!-- ✅ Bouton de soumission -->
-      <button v-if="previewMode === false" @click="saveForm" :disabled="disabledBtn"
-        class="mt-6 bg-red-600 text-white px-6 py-2 rounded-lg disabled:bg-gray-400" :style="{
-          backgroundColor: themeProperties?.header_bg_color
-        }">
+      <button v-if="previewMode === false" @click="saveForm" :aria-disabled="disabledBtn"
+        class="mt-6 rounded-lg px-6 py-2 font-semibold shadow-sm transition hover:brightness-95" :style="submitButtonStyle">
         {{ disabledBtn == true ? 'En cours' : 'Soumettre' }}
       </button>
+
+      <footer v-if="themeProperties?.footer_text || hasFooterContact || themeProperties?.footer_links?.length"
+        class="mt-8 space-y-3 border-t border-gray-200 pt-4 text-center text-sm text-gray-500">
+        <p v-if="themeProperties?.footer_text">{{ themeProperties.footer_text }}</p>
+        <div v-if="hasFooterContact" class="mx-auto max-w-2xl rounded-xl bg-white/80 p-4 text-sm">
+          <div v-if="themeProperties?.footer_contact_name" class="font-semibold text-gray-700">
+            {{ themeProperties.footer_contact_name }}
+          </div>
+          <div class="mt-1 flex flex-wrap justify-center gap-x-4 gap-y-1">
+            <a v-if="themeProperties?.footer_contact_email" :href="`mailto:${themeProperties.footer_contact_email}`">
+              {{ themeProperties.footer_contact_email }}
+            </a>
+            <a v-if="themeProperties?.footer_contact_phone" :href="`tel:${themeProperties.footer_contact_phone}`">
+              {{ themeProperties.footer_contact_phone }}
+            </a>
+          </div>
+          <div v-if="themeProperties?.footer_contact_address" class="mt-1">{{ themeProperties.footer_contact_address }}</div>
+          <div v-if="themeProperties?.footer_contact_hours" class="mt-1">{{ themeProperties.footer_contact_hours }}</div>
+        </div>
+        <div v-if="themeProperties?.footer_links?.length" class="flex flex-wrap justify-center gap-3">
+          <a v-for="(link, index) in themeProperties.footer_links" :key="index" :href="link.url" target="_blank"
+            rel="noopener noreferrer" class="font-medium text-blue-600 hover:underline">
+            {{ link.label || link.url }}
+          </a>
+        </div>
+      </footer>
     </div>
 
     <div v-if="!canResponseToForm" class="py-5 text-center">

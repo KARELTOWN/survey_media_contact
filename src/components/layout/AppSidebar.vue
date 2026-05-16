@@ -213,7 +213,13 @@ const menuGroups = [
             account_type: 'any'
           },
           {
-            name: "Thématiques", path: "/thematiques", 
+            name: "Catégories", path: "/thematiques", 
+            pro: false,
+            require_account: 'any',
+            account_type: 'any'
+          },
+          {
+            name: "Dimensions analytiques", path: "/dimensions-analytiques",
             pro: false,
             require_account: 'any',
             account_type: 'any'

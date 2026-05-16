@@ -48,6 +48,10 @@
                     {{ response.response }} / 5
                 </p>
 
+                <p v-else-if="response.question_type_field == 'range'" class="text-gray-600 dark:text-gray-300 mt-1">
+                    {{ response.response }}
+                </p>
+
                 <p v-else class="text-gray-600 dark:text-gray-300 mt-1">
                     {{ response.response }}
                 </p>

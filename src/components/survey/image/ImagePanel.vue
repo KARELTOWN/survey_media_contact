@@ -2,38 +2,30 @@
     <input type="file" :name="`file_${question.question_id}`" accept="image/*" class="hidden"
         @change="handleImageOption($event)" />
 
-    <div class="font-bold mb-2 flex ">
+    <div class="mb-2 flex font-bold">
         <div class="me-5">Ajouter une image</div>
-        <svg @click="openFileSelector()" width="80px" height="80px" class="scale-150" viewBox="0 0 24 24" fill="none"
-            xmlns="http://www.w3.org/2000/svg" stroke="#2B7FFF">
-            <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-            <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
-            <g id="SVGRepo_iconCarrier">
-                <path
-                    d="M7 11C8.10457 11 9 10.1046 9 9C9 7.89543 8.10457 7 7 7C5.89543 7 5 7.89543 5 9C5 10.1046 5.89543 11 7 11Z"
-                    stroke="#2B7FFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                </path>
-                <path d="M5.56055 21C11.1305 11.1 15.7605 9.35991 21.0005 15.7899" stroke="#2B7FFF" stroke-width="1.5"
-                    stroke-linecap="round" stroke-linejoin="round"></path>
-                <path
-                    d="M14.35 3H5C3.93913 3 2.92172 3.42136 2.17157 4.17151C1.42142 4.92165 1 5.93913 1 7V17C1 18.0609 1.42142 19.0782 2.17157 19.8284C2.92172 20.5785 3.93913 21 5 21H17C18.0609 21 19.0783 20.5785 19.8284 19.8284C20.5786 19.0782 21 18.0609 21 17V9"
-                    stroke="#2B7FFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                </path>
-                <path
-                    d="M22.3098 3.16996L17.2098 8.26005C16.7098 8.77005 15.2098 8.99996 14.8698 8.66996C14.5298 8.33996 14.7598 6.82999 15.2698 6.31999L20.3599 1.23002C20.6171 0.964804 20.9692 0.812673 21.3386 0.807047C21.7081 0.80142 22.0646 0.942731 22.3298 1.19999C22.5951 1.45725 22.7472 1.8093 22.7529 2.17875C22.7585 2.5482 22.6171 2.90475 22.3599 3.16996H22.3098Z"
-                    stroke="#2B7FFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                </path>
-            </g>
+        <svg @click="openFileSelector()" width="80px" height="80px" class="scale-150 cursor-pointer"
+            viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="#2B7FFF">
+            <path
+                d="M7 11C8.10457 11 9 10.1046 9 9C9 7.89543 8.10457 7 7 7C5.89543 7 5 7.89543 5 9C5 10.1046 5.89543 11 7 11Z"
+                stroke="#2B7FFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+            <path d="M5.56055 21C11.1305 11.1 15.7605 9.35991 21.0005 15.7899" stroke="#2B7FFF"
+                stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+            <path
+                d="M14.35 3H5C3.93913 3 2.92172 3.42136 2.17157 4.17151C1.42142 4.92165 1 5.93913 1 7V17C1 18.0609 1.42142 19.0782 2.17157 19.8284C2.92172 20.5785 3.93913 21 5 21H17C18.0609 21 19.0783 20.5785 19.8284 19.8284C20.5786 19.0782 21 18.0609 21 17V9"
+                stroke="#2B7FFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+            <path
+                d="M22.3098 3.16996L17.2098 8.26005C16.7098 8.77005 15.2098 8.99996 14.8698 8.66996C14.5298 8.33996 14.7598 6.82999 15.2698 6.31999L20.3599 1.23002C20.6171 0.964804 20.9692 0.812673 21.3386 0.807047C21.7081 0.80142 22.0646 0.942731 22.3298 1.19999C22.5951 1.45725 22.7472 1.8093 22.7529 2.17875C22.7585 2.5482 22.6171 2.90475 22.3599 3.16996H22.3098Z"
+                stroke="#2B7FFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
         </svg>
-
     </div>
 
-    <div v-if="question.img" class="mt-4 w-50 h-50 relative">
-        <img :src="question.img" alt="Prévisualisation" class="w-48 h-48 object-cover rounded" />
+    <div v-if="question.img" class="relative mt-4 h-50 w-50">
+        <img :src="question.img" alt="Previsualisation" class="h-48 w-48 rounded object-cover" />
         <button @click="deleteImg()"
-            class="absolute top-2 right-2 bg-white rounded-full p-1 shadow-md hover:bg-red-100 transition">
+            class="absolute right-2 top-2 rounded-full bg-white p-1 shadow-md transition hover:bg-red-100">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 text-red-500">
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 text-red-500">
                 <line x1="18" y1="6" x2="6" y2="18"></line>
                 <line x1="6" y1="6" x2="18" y2="18"></line>
             </svg>
@@ -46,18 +38,14 @@
 </template>
 
 <script setup>
-
 import { surveyStore } from "@/stores/survey/surveyStore";
-import { convertToBase64, convertToTempURL } from "@/utils/file";
-import { onMounted, reactive, ref, watch, watchEffect } from "vue";
-const store = surveyStore()
-
-const { questionSelect } = storeToRefs(store)
-
-
-import ActionPanel from "@/components/survey/ActionPanel.vue";
+import { uploadSurveyImage } from "@/composables/request";
+import { errorNotify, infoNotify } from "@/utils/notification";
+import { onMounted, reactive, ref, watch } from "vue";
 import { storeToRefs } from "pinia";
+import ActionPanel from "@/components/survey/ActionPanel.vue";
 import ConditionPanel from "../question/condition/ConditionPanel.vue";
+
 const props = defineProps({
     question: {
         type: Object,
@@ -65,8 +53,14 @@ const props = defineProps({
     }
 })
 
-
-let question = reactive({})
+const emit = defineEmits(["data", "copy", "delete", "save"])
+const store = surveyStore()
+const { questionSelect } = storeToRefs(store)
+const question = reactive({})
+const imageUrl = ref("")
+const acceptedImageTypes = ["image/jpeg", "image/jpg", "image/png", "image/gif", "image/webp"]
+const openCondition = ref(false)
+const fieldHaveSetting = ref(false)
 
 onMounted(() => {
     if (props.question && props.question.question_id) {
@@ -76,64 +70,55 @@ onMounted(() => {
     }
 })
 
-const emit = defineEmits(["data", 'copy', 'delete', 'save'])
-
-const fileInput = ref(null)
-const imageUrl = ref('')
-
-// Ouvre le sélecteur de fichiers
 const openFileSelector = () => {
-    document.querySelector(`input[name='file_${question.question_id}']`).click()
+    document.querySelector(`input[name='file_${question.question_id}']`)?.click()
 }
 
-const acceptedImageTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif']
-
-
 const handleImageOption = async (event) => {
-    if (acceptedImageTypes.includes(event.target.files[0].type)) {
-        const file = event.target.files[0]
-        imageUrl.value = await convertToBase64(file)
+    const file = event.target.files?.[0]
+    event.target.value = ""
+    if (!file) return
+
+    if (!acceptedImageTypes.includes(file.type)) {
+        errorNotify("Type de fichier non supporte. Veuillez selectionner une image.")
+        return
+    }
+
+    try {
+        infoNotify("Televersement de l'image en cours")
+        imageUrl.value = await uploadSurveyImage(file)
         question.img = imageUrl.value
-    } else {
-        alert('Type de fichier non supporté. Veuillez sélectionner une image (jpg, jpeg, png, gif).')
+    } catch (error) {
+        errorNotify(error.message || "Impossible de televerser l'image")
     }
 }
 
 const deleteImg = () => {
-    question.img = ''
+    question.img = ""
 }
 
-const getQuestion = () => {
-    return {
-        question_id: question.question_id,
-        category: question.category,
-        img: question.img,
-        condition: question.condition
-    }
-}
+const getQuestion = () => ({
+    question_id: question.question_id,
+    category: question.category,
+    img: question.img,
+    condition: question.condition
+})
 
 const copyQuestion = () => {
-    let question = getQuestion()
-    emit('copy', question)
+    emit("copy", getQuestion())
 }
 
 const deleteQuestion = () => {
-    let question = getQuestion()
-    emit("delete", question)
+    emit("delete", getQuestion())
 }
 
-
-watch(question,
-    () => saveQuestion(),
-    { deep: true }
-)
+watch(question, () => saveQuestion(), { deep: true })
 
 const saveQuestion = () => {
-    let question = getQuestion()
-    emit("save", question)
+    emit("save", getQuestion())
 }
 
-const openCondition = ref(false)
+const editSetting = () => {}
 
 const setCondition = () => {
     openCondition.value = true
@@ -146,8 +131,4 @@ const saveCondition = () => {
     question.condition = questionSelect.value.condition
     openCondition.value = false
 }
-
-const fieldHaveSetting = ref(false
-)
-
 </script>

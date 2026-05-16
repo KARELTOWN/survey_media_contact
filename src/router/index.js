@@ -134,10 +134,19 @@ const router = createRouter({
     },
     {
       path: '/thematiques',
-      name: 'Thématiques',
+      name: 'Catégories',
       component: () => import('../views/Pages/Topic/Index.vue'),
       meta: {
-        title: 'Configurations',
+        title: 'Catégories',
+        requiredAuth: true,
+      },
+    },
+    {
+      path: '/dimensions-analytiques',
+      name: 'Dimensions analytiques',
+      component: () => import('../views/Pages/AnalyticsDimensions/Index.vue'),
+      meta: {
+        title: 'Dimensions analytiques',
         requiredAuth: true,
       },
     },

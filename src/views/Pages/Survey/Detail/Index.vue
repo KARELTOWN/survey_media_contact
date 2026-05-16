@@ -16,7 +16,6 @@
                         <button @click="activeTab = 'preview'" :class="tabClass('preview')">Prévisualisation</button>
                         <button @click="activeTab = 'responses'" :class="tabClass('responses')">Réponses </button>
                         <button @click="activeTab = 'statistics'" :class="tabClass('statistics')">Statistiques</button>
-                        <button @click="activeTab = 'qrcode'" :class="tabClass('qrcode')">QR CODE</button>
                     </div>
 
                     <div class="flex-1 h-auto p-4">
@@ -28,9 +27,6 @@
                         </div>
                         <div v-if="activeTab === 'statistics'" class="space-y-4">
                             <Statistics />
-                        </div>
-                        <div v-if="activeTab === 'qrcode'" class="space-y-4">
-                            <QrCode />
                         </div>
                     </div>
                 </div>
@@ -62,8 +58,6 @@ import Responses from './Responses.vue';
 import { copyInClipInBoard } from '@/utils/general';
 import Button from '@/components/ui/Button.vue';
 import Statistics from './Statistics.vue';
-import QrCode from './QrCode.vue';
-import FilterDate from '../../../../components/survey/detail/FilterDateResponses.vue';
 
 const route = useRoute()
 const store = surveyStore()

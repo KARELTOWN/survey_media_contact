@@ -11,12 +11,27 @@ export const configStore = defineStore('config-store', () => {
   let errors = ref({})
   const config = ref({})
   const configSuccess = ref(false)
-  const themeProperties = ref({
+  const defaultThemeProperties = {
     header_bg_color: '',
     container_bg_color: '',
     header_text_color: '',
     container_bg_img: '',
-  })
+    logo_url: '',
+    banner_url: '',
+    footer_text: '',
+    show_footer_contact: false,
+    footer_contact_name: '',
+    footer_contact_email: '',
+    footer_contact_phone: '',
+    footer_contact_address: '',
+    footer_contact_hours: '',
+    footer_links: [],
+    form_width: 'medium',
+    form_alignment: 'center',
+    form_spacing: 'normal',
+    global_bg_color: '',
+  }
+  const themeProperties = ref({ ...defaultThemeProperties })
   const storeHeaderConfig = async (form) => {
     try {
       configSuccess.value = false
@@ -99,9 +114,24 @@ export const configStore = defineStore('config-store', () => {
   const chooseTheme = (id) => {
     let theme = surveyDefaultThemes.find((e) => e.id === parseInt(id))
     if (theme !== undefined) {
-      themeProperties.value = { ...theme }
+      themeProperties.value = { ...defaultThemeProperties, ...theme }
     }
     return true
+  }
+
+  const setThemeProperties = (theme = {}) => {
+    themeProperties.value = {
+      ...defaultThemeProperties,
+      ...themeProperties.value,
+      ...theme,
+    }
+  }
+
+  const updateThemeProperty = (key, value) => {
+    themeProperties.value = {
+      ...themeProperties.value,
+      [key]: value,
+    }
   }
 
   return {
@@ -113,5 +143,7 @@ export const configStore = defineStore('config-store', () => {
     config,
     themeProperties,
     chooseTheme,
+    setThemeProperties,
+    updateThemeProperty,
   }
 })

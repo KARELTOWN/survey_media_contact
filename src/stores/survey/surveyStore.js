@@ -1,8 +1,8 @@
-import { fetchGet, fetchPost, fetchPut, get_account_id } from '@/composables/request'
+import { fetchDestroy, fetchGet, fetchPatch, fetchPost, fetchPut, get_account_id, uploadSurveyDataUrl } from '@/composables/request'
 import { handleAppError, handleCatchError } from '@/utils/handleAppError'
 import { successNotify } from '@/utils/notification'
 import { deleteIndexDBStorage, getLocalStorage, setIndexDBStorage } from '@/utils/storage'
-import { defaultQuestion } from '@/utils/survey'
+import { defaultQuestion, surveyDefaultFieldTypes } from '@/utils/survey'
 import { getUUID } from '@/utils/uuid'
 import { saveAs } from 'file-saver'
 import { defineStore, storeToRefs } from 'pinia'
@@ -13,7 +13,7 @@ const config_store = configStore()
 const { themeProperties } = storeToRefs(config_store)
 
 export const surveyStore = defineStore('survey-store', () => {
-  const questionsFieldType = ref([])
+  const questionsFieldType = ref([...surveyDefaultFieldTypes])
   const logicOperators = ref([])
   const surveySuccess = ref(false)
   const surveyID = ref('')
@@ -48,13 +48,22 @@ export const surveyStore = defineStore('survey-store', () => {
   function getInitialFormSurvey() {
     return {
       capture_mail: false,
+      response_mode: 'anonymous',
       form_id: '',
       title: '',
       description: '',
-      topic: null,
       category: null,
-      topic_id: '',
+      formation: null,
+      module: null,
+      chapter: null,
+      trainer: null,
+      session: null,
       category_id: '',
+      formation_id: '',
+      module_id: '',
+      chapter_id: '',
+      trainer_id: '',
+      session_id: '',
       lastEdit: 0,
       createdAt: Date.now(),
       questions: [
@@ -73,13 +82,22 @@ export const surveyStore = defineStore('survey-store', () => {
 
   const formSurvey = ref({
     capture_mail: false,
+    response_mode: 'anonymous',
     form_id: '',
     title: '',
     description: '',
-    topic: null,
     category: null,
-    topic_id: '',
+    formation: null,
+    module: null,
+    chapter: null,
+    trainer: null,
+    session: null,
     category_id: '',
+    formation_id: '',
+    module_id: '',
+    chapter_id: '',
+    trainer_id: '',
+    session_id: '',
     lastEdit: 0,
     createdAt: Date.now(),
     questions: [
@@ -99,11 +117,14 @@ export const surveyStore = defineStore('survey-store', () => {
       const response = await handleAppError(result)
       if (response.status === false) {
         if (response?.data) {
-          questionsFieldType.value = response.data.questions_field_types
+          questionsFieldType.value = response.data.questions_field_types?.length
+            ? response.data.questions_field_types
+            : [...surveyDefaultFieldTypes]
           logicOperators.value = response.data.logic_operators
         }
       }
     } catch (err) {
+      questionsFieldType.value = [...surveyDefaultFieldTypes]
       handleCatchError(err)
     }
   }
@@ -167,10 +188,34 @@ export const surveyStore = defineStore('survey-store', () => {
   const saveFormInstance = async () => {
     formSurvey.value.lastEdit = Date.now()
     formSurvey.value.theme = { ...themeProperties.value }
+    formSurvey.value.capture_mail = false
+    formSurvey.value.questions = formSurvey.value.questions.filter((question) => question.type_field !== 'email')
     await setIndexDBStorage(
       `survey_form_${formSurvey.value.form_id}@${get_account_id()}`,
       formSurvey.value,
     )
+  }
+
+  const uploadEmbeddedSurveyImages = async () => {
+    const themeImageKeys = ['logo_url', 'banner_url', 'container_bg_img']
+
+    for (const question of formSurvey.value.questions || []) {
+      if (question.category === 'image' && question.img?.startsWith?.('data:')) {
+        question.img = await uploadSurveyDataUrl(question.img, `question-${question.question_id || getUUID()}.png`)
+      }
+
+      for (const option of question.field_params?.options || []) {
+        if (option.img?.startsWith?.('data:')) {
+          option.img = await uploadSurveyDataUrl(option.img, `option-${question.question_id || getUUID()}.png`)
+        }
+      }
+    }
+
+    for (const key of themeImageKeys) {
+      if (formSurvey.value.theme?.[key]?.startsWith?.('data:')) {
+        formSurvey.value.theme[key] = await uploadSurveyDataUrl(formSurvey.value.theme[key], `${key}.png`)
+      }
+    }
   }
 
   const createSurvey = async (model = false) => {
@@ -179,6 +224,8 @@ export const surveyStore = defineStore('survey-store', () => {
       surveyID.value = ''
       surveySuccess.value = false
       errors.value = {}
+      formSurvey.value.capture_mail = false
+      formSurvey.value.questions = formSurvey.value.questions.filter((question) => question.type_field !== 'email')
       formSurvey.value.questions.forEach((question) => {
         question.question_id = getUUID()
         if (question.condition.display == '') {
@@ -186,12 +233,21 @@ export const surveyStore = defineStore('survey-store', () => {
         }
       })
       formSurvey.value.theme = { ...themeProperties.value }
+      await uploadEmbeddedSurveyImages()
       const data = {
         ...formSurvey.value,
-        topic: '',
         category: '',
-        topic_id: formSurvey.value.topic?._id,
+        formation: '',
+        module: '',
+        chapter: '',
+        trainer: '',
+        session: '',
         category_id: formSurvey.value.category?._id,
+        formation_id: formSurvey.value.formation?._id || '',
+        module_id: formSurvey.value.module?._id || '',
+        chapter_id: formSurvey.value.chapter?._id || '',
+        trainer_id: formSurvey.value.trainer?._id || '',
+        session_id: formSurvey.value.session?._id || '',
       }
       let result = null
       if (model === false) {
@@ -231,17 +287,29 @@ export const surveyStore = defineStore('survey-store', () => {
       surveyID.value = ''
       surveySuccess.value = false
       errors.value = {}
+      formSurvey.value.capture_mail = false
+      formSurvey.value.questions = formSurvey.value.questions.filter((question) => question.type_field !== 'email')
       formSurvey.value.questions.forEach((question) => {
         if (question.condition.display == '') {
           question.condition.display = 'show'
         }
       })
+      formSurvey.value.theme = { ...themeProperties.value }
+      await uploadEmbeddedSurveyImages()
       const data = {
         ...formSurvey.value,
-        topic: '',
         category: '',
-        topic_id: formSurvey.value.topic?._id,
+        formation: '',
+        module: '',
+        chapter: '',
+        trainer: '',
+        session: '',
         category_id: formSurvey.value.category?._id,
+        formation_id: formSurvey.value.formation?._id || '',
+        module_id: formSurvey.value.module?._id || '',
+        chapter_id: formSurvey.value.chapter?._id || '',
+        trainer_id: formSurvey.value.trainer?._id || '',
+        session_id: formSurvey.value.session?._id || '',
       }
       let result = null
       if (model === false) {
@@ -275,7 +343,7 @@ export const surveyStore = defineStore('survey-store', () => {
     }
   }
 
-  const saveSurveyResponse = async (answers, survey_id) => {
+  const saveSurveyResponse = async (answers, survey_id, participant = {}) => {
     try {
       surveySuccess.value = false
       errors.value = {}
@@ -287,6 +355,7 @@ export const surveyStore = defineStore('survey-store', () => {
 
       let metadata = {
         user_agent: navigator.userAgent,
+        participant,
       }
 
       const result = await fetchPut(`survey/responses/${survey_id}`, {
@@ -377,6 +446,58 @@ export const surveyStore = defineStore('survey-store', () => {
     }
   }
 
+  const duplicateSurvey = async (survey_id) => {
+    try {
+      const result = await fetchPost(`survey/duplicate/${survey_id}`, {})
+      const response = await handleAppError(result)
+      if (response.status === false) {
+        successNotify('Enquête dupliquée')
+        await getSurveys()
+      }
+    } catch (err) {
+      handleCatchError(err)
+    }
+  }
+
+  const togglePublishSurvey = async (survey_id, publish) => {
+    try {
+      const result = await fetchPatch(`survey/publish`, { survey_id, publish })
+      const response = await handleAppError(result)
+      if (response.status === false) {
+        successNotify(publish ? 'Enquête publiée' : 'Enquête dépubliée')
+        await getSurveys()
+      }
+    } catch (err) {
+      handleCatchError(err)
+    }
+  }
+
+  const archiveSurvey = async (survey_id) => {
+    try {
+      const result = await fetchPatch(`survey/archive/${survey_id}`, {})
+      const response = await handleAppError(result)
+      if (response.status === false) {
+        successNotify('Enquête archivée')
+        await getSurveys()
+      }
+    } catch (err) {
+      handleCatchError(err)
+    }
+  }
+
+  const deleteSurvey = async (survey_id) => {
+    try {
+      const result = await fetchDestroy(`survey/delete/${survey_id}`)
+      const response = await handleAppError(result)
+      if (response.status === false) {
+        successNotify('Enquete supprimee')
+        await getSurveys()
+      }
+    } catch (err) {
+      handleCatchError(err)
+    }
+  }
+
   return {
     surveyFormLink,
     getSurveyParams,
@@ -404,6 +525,10 @@ export const surveyStore = defineStore('survey-store', () => {
     getSurveysModels,
     surveyModels,
     filterDateResponses,
-    filterDateStatistics
+    filterDateStatistics,
+    duplicateSurvey,
+    togglePublishSurvey,
+    archiveSurvey,
+    deleteSurvey
   }
 })

@@ -2,57 +2,101 @@
     <Modal v-if="props.open === true">
         <template #body>
             <div
-                class="no-scrollbar relative w-3/3 md:w-2/3 max-w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11">
-                <!-- Overlay -->
-                <!-- Bouton de fermeture -->
-                <button @click="$emit('close')" class="absolute top-4 right-4 text-gray-500 hover:text-gray-700">
+                class="no-scrollbar relative mx-4 max-h-[calc(100vh-2rem)] w-[calc(100%-2rem)] max-w-4xl overflow-y-auto rounded-3xl bg-white shadow-2xl dark:bg-gray-900">
+                <button @click="$emit('close')"
+                    class="absolute right-4 top-4 z-10 flex h-10 w-10 items-center justify-center rounded-full text-gray-500 transition hover:bg-gray-100 hover:text-gray-700">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
                         stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M6 18L18 6M6 6l12 12" />
                     </svg>
                 </button>
-                <h1 class="text-xl md:text-xl font-bold text-center text-gray-800 mb-6 drop-shadow-lg">Condition d'affichage</h1>
-                <!-- AFFICHAGE -->
 
-                <div class="grid grid-cols-3 gap-3 my-4">
-
-                    <div>
-                        <SimpleSelect :data="displayOptions" label="Affichage" optionTextAttr="libelle"
-                            optionValueAttr="id" @change="getDisplayValue" :defaultValue="defaultDisplayValue" />
-
-                    </div>
-
-                    <!-- TARGET -->
-                    <div>
-                        <SimpleSelect :data="questions" label="SI" optionTextAttr="title" optionValueAttr="question_id"
-                            @change="getQuestion" :defaultValue="defaultQuestionValue" />
-                    </div>
-
-                    <div>
-                        <!-- OPERATEURS -->
-                        <SimpleSelect :data="operators" label="Condition" optionTextAttr="libelle"
-                            optionValueAttr="value" @change="getOperator" :defaultValue="defaultOperatorValue" />
-                    </div>
-                    <div>
-                        <!-- CAS LISTE DEROULANTE, CHOIX MULTIPLE,  -->
-                        <SimpleSelect v-if="compareToOptions.length > 0" :data="compareToOptions" :label="target.title"
-                            optionTextAttr="value" optionValueAttr="value" @change="getCompareToFromOption"
-                            :defaultValue="defaultCompareOptionValue" />
-                        <input v-if="compareToNumber === true" @change="getCompareTo" type="number" min="0"
-                            :defaultValue="defaultCompareNumberValue"
-                            class="text-gray-800 dark:text-white/90 dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 pr-11 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800" />
-                        <input v-if="compareToDate === true" @change="getCompareTo" type="date"
-                            :defaultValue="defaultCompareDateValue"
-                            class="text-gray-800 dark:text-white/90 dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 pr-11 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800" />
-                    </div>
-
+                <div class="border-b border-gray-100 px-6 py-5 text-center">
+                    <div class="text-xs font-semibold uppercase tracking-wide text-blue-600">Regle logique</div>
+                    <h1 class="mt-1 text-2xl font-bold text-gray-800">Condition d'affichage</h1>
+                    <p class="mx-auto mt-2 max-w-2xl text-sm text-gray-500">
+                        Definissez quand cette question doit etre affichee ou masquee selon une reponse precedente.
+                    </p>
                 </div>
-                <button @click="$emit('save')"
-                    class="bg-red-600 text-white px-4 py-2 rounded-lg shadow hover:bg-red-700">
-                    Enregistrer
-                </button>
 
+                <div class="px-6 py-6">
+                    <div v-if="questions.length === 0"
+                        class="rounded-2xl border border-dashed border-gray-300 bg-gray-50 p-6 text-center">
+                        <h2 class="text-base font-semibold text-gray-800">Aucune question compatible</h2>
+                        <p class="mt-2 text-sm text-gray-500">
+                            Ajoutez d'abord une question exploitable avant de creer une condition.
+                        </p>
+                    </div>
+
+                    <div v-else class="space-y-5">
+                        <div class="rounded-2xl border border-gray-200 bg-gray-50 p-5">
+                            <div class="mb-5">
+                                <h2 class="text-base font-semibold text-gray-800">Declencheur</h2>
+                                <p class="mt-1 text-sm text-gray-500">
+                                    Choisissez l'action, la question de reference et l'operateur de comparaison.
+                                </p>
+                            </div>
+
+                            <div class="grid grid-cols-1 gap-4 lg:grid-cols-3">
+                                <div class="condition-field">
+                                    <SimpleSelect :data="displayOptions" label="Action" optionTextAttr="libelle"
+                                        optionValueAttr="id" @change="getDisplayValue"
+                                        :defaultValue="defaultDisplayValue" />
+                                </div>
+
+                                <div class="condition-field">
+                                    <SimpleSelect :data="questions" label="Si la question" optionTextAttr="title"
+                                        optionValueAttr="question_id" @change="getQuestion"
+                                        :defaultValue="defaultQuestionValue" />
+                                </div>
+
+                                <div class="condition-field">
+                                    <SimpleSelect :data="operators" label="Condition" optionTextAttr="libelle"
+                                        optionValueAttr="value" @change="getOperator"
+                                        :defaultValue="defaultOperatorValue" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div v-if="compareToOptions.length > 0 || compareToNumber === true || compareToDate === true"
+                            class="rounded-2xl border border-gray-200 bg-white p-5">
+                            <div class="mb-4">
+                                <h2 class="text-base font-semibold text-gray-800">Valeur attendue</h2>
+                                <p class="mt-1 text-sm text-gray-500">
+                                    Completez la valeur qui servira a valider la condition.
+                                </p>
+                            </div>
+
+                            <SimpleSelect v-if="compareToOptions.length > 0" :data="compareToOptions"
+                                :label="target.title || 'Reponse attendue'" optionTextAttr="value"
+                                optionValueAttr="value" @change="getCompareToFromOption"
+                                :defaultValue="defaultCompareOptionValue" />
+
+                            <input v-if="compareToNumber === true" @change="getCompareTo" type="number" min="0"
+                                :defaultValue="defaultCompareNumberValue" class="condition-input" />
+
+                            <input v-if="compareToDate === true" @change="getCompareTo" type="date"
+                                :defaultValue="defaultCompareDateValue" class="condition-input" />
+                        </div>
+
+                        <div v-else
+                            class="rounded-2xl border border-blue-100 bg-blue-50 px-5 py-4 text-sm text-blue-800">
+                            Certaines conditions, comme "vide" ou "rempli", n'ont pas besoin de valeur attendue.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-3 border-t border-gray-100 px-6 py-4">
+                    <button type="button" @click="$emit('close')"
+                        class="rounded-xl border border-gray-200 bg-white px-5 py-3 text-sm font-semibold text-gray-700 transition hover:bg-gray-50">
+                        Annuler
+                    </button>
+                    <button @click="$emit('save')"
+                        class="rounded-xl bg-red-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-red-700">
+                        Enregistrer
+                    </button>
+                </div>
             </div>
         </template>
     </Modal>
@@ -178,7 +222,7 @@ const getQuestion = (value) => {
                     return (e.value === '=' || e.value === '!=')
                 })
             }
-            else if (q.type_field == 'number') {
+            else if (q.type_field == 'number' || q.type_field == 'range') {
                 compareToNumber.value = true
                 operators = logicOperators.value.filter((e) => {
                     return (e.value === '=' || e.value === '!=' || e.value === '<' || e.value === '>' || e.value === '<=' || e.value === '>=')
@@ -211,3 +255,29 @@ const getQuestion = (value) => {
 
 
 </script>
+
+<style scoped>
+.condition-field :deep(label) {
+    font-weight: 700;
+    color: #374151;
+}
+
+.condition-input {
+    height: 2.75rem;
+    width: 100%;
+    appearance: none;
+    border-radius: 0.75rem;
+    border: 1px solid #d1d5db;
+    background: #ffffff;
+    padding: 0.625rem 0.875rem;
+    font-size: 0.875rem;
+    color: #111827;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.condition-input:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+</style>

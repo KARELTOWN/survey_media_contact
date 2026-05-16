@@ -28,7 +28,6 @@ export const topicStore = defineStore('topic-store', () => {
     search: '',
   })
 
-  let selectTopic = ref(null)
   let selectCategory = ref(null)
 
   let openModal = ref(false)
@@ -233,10 +232,10 @@ export const topicStore = defineStore('topic-store', () => {
     }
   }
 
-  const getCategoryInTopic = async (topic) => {
+  const getCategoryInTopic = async () => {
     try {
       search_errors.value = {}
-      const result = await fetchGet(`topic/category/${topic}`)
+      const result = await fetchGet(`topic/category/all`)
       const response = await handleAppError(result)
       if (response.status === false) {
         if (response?.data) {
@@ -336,7 +335,6 @@ export const topicStore = defineStore('topic-store', () => {
     filterTopics,
     search_errors,
     search_form,
-    selectTopic,
     selectCategory,
     openModal,
     topicCategory,
