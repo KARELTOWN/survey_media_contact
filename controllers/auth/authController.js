@@ -92,8 +92,6 @@ export default function authController() {
             message: "Connexion réussie",
             data: {
               token: token,
-              // data: encrypt(user._id.toString()),
-              // refreshToken: refresh_token,
             },
           });
         } else {

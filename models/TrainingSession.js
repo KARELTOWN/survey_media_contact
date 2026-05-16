@@ -1,16 +1,25 @@
-import mongoose from "../config/mongodb.js";
 import { SchemaTypes } from "mongoose";
+import mongoose from "../config/mongodb.js";
 
-const CategorySchema = new mongoose.Schema(
+const TrainingSessionSchema = new mongoose.Schema(
   {
+    formation_id: {
+      type: SchemaTypes.ObjectId,
+      ref: "Formation",
+      required: true,
+    },
     libelle: {
       type: String,
       required: true,
+      trim: true,
     },
-    topic_id: {
-      type: SchemaTypes.ObjectId,
-      ref: "Topic",
-      required: false,
+    date_debut: {
+      type: Date,
+      required: true,
+    },
+    date_fin: {
+      type: Date,
+      required: true,
     },
     owner_id: {
       type: SchemaTypes.ObjectId,
@@ -33,6 +42,5 @@ const CategorySchema = new mongoose.Schema(
   }
 );
 
-CategorySchema.index({ libelle: 1, owner_id: 1, account_type_ref: 1 }, { unique: true });
-const Category = mongoose.model("Category", CategorySchema);
-export default Category;
+const TrainingSession = mongoose.model("TrainingSession", TrainingSessionSchema);
+export default TrainingSession;

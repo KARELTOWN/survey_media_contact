@@ -7,12 +7,22 @@ import fileService from "../file/fileService.js";
 const { getFileOnS3 } = fileService();
 import xlsx from "xlsx";
 import FileUpload from "../../models/FileUpload.js";
+import moment from "moment";
 export default function surveyService() {
-  const getAnswers = async (survey_id) => {
+  const getAnswers = async (survey_id, start, end) => {
+    let start_date = start ? moment(start).toDate() : new Date(0);
+    let end_date = end ? moment(end).toDate() : moment().toDate();
+          console.log('start_date', start_date)
+          console.log('end_date', end_date)
+
     const responses = await Answer.aggregate([
       {
         $match: {
           survey_id: new mongoose.Types.ObjectId(survey_id),
+          createdAt: {
+            $gte: start_date,
+            $lte: end_date,
+          },
         },
       },
       {
@@ -125,6 +135,15 @@ export default function surveyService() {
       }
     }
 
+    if (question.type_field == "range") {
+      const min = Number(question.field_params?.min ?? 0);
+      const max = Number(question.field_params?.max ?? 10);
+      const step = Number(question.field_params?.step ?? 1) || 1;
+      for (let option = min; option <= max; option += step) {
+        responsesOptions.push({ libelle: option, count: 0 });
+      }
+    }
+
     for (const answerPerUser of allAnswers) {
       let answers = answerPerUser;
       let answerToQuestion = answers.find(
@@ -160,21 +179,24 @@ export default function surveyService() {
               }
             }
           }
-        } else if (question.type_field == "review") {
+        } else if (question.type_field == "review" || question.type_field == "range") {
           const match = responsesOptions.find(
-            (el) => el.libelle === answerToQuestion.response
+            (el) => Number(el.libelle) === Number(answerToQuestion.response)
           );
           if (match && match !== undefined) {
             match.count = (match.count || 0) + 1;
           }
-          ratingResponses.push(answerToQuestion.response);
+          ratingResponses.push(Number(answerToQuestion.response));
         }
       }
     }
 
     let ratingMean = 0;
 
-    if (question.type_field == "review" && ratingResponses.length > 0) {
+    if (
+      (question.type_field == "review" || question.type_field == "range") &&
+      ratingResponses.length > 0
+    ) {
       ratingMean = mean(ratingResponses);
     }
 

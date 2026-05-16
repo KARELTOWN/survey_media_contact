@@ -27,7 +27,7 @@ export const mailingJob = async (mail_data) => {
 
 export const saveResponseFileJob = async (data) => {
   await saveResponseFileQueues.add(
-    `upload_${data.answer_id}_file_to_s3_at_${Date.now()}`,
+    `upload_${data.answer_id.toString()}_file_to_s3_at_${Date.now()}`,
     data
   );
 };

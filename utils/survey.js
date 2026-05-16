@@ -41,6 +41,7 @@ export const surveyFields = [
   { libelle: "Liste déroulante", field: "select" },
   { libelle: "Fichier", field: "file" },
   { libelle: "Avis", field: "review" },
+  { libelle: "Échelle de satisfaction", field: "range" },
   { libelle: "Chiffre", field: "number" },
   { libelle: "Date", field: "date" },
   { libelle: "Heure", field: "hour" },

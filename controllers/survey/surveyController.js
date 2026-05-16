@@ -51,14 +51,18 @@ export default function surveyController() {
           "title",
           "description",
           "publish",
+          "archived",
+          "start_date",
+          "end_date",
           "createdAt",
           "updatedAt",
+          "formation_id",
+          "module_id",
+          "chapter_id",
+          "trainer_id",
+          "session_id",
         ])
         .populate([
-          {
-            path: "topic_id",
-            select: "libelle",
-          },
           {
             path: "category_id",
             select: "libelle",
@@ -66,6 +70,26 @@ export default function surveyController() {
           {
             path: "created_by",
             select: "firstname lastname",
+          },
+          {
+            path: "formation_id",
+            select: "nom",
+          },
+          {
+            path: "module_id",
+            select: "nom",
+          },
+          {
+            path: "chapter_id",
+            select: "nom",
+          },
+          {
+            path: "trainer_id",
+            select: "nom email",
+          },
+          {
+            path: "session_id",
+            select: "libelle date_debut date_fin",
           },
         ])
         .sort({ createdAt: -1 })
@@ -101,15 +125,37 @@ export default function surveyController() {
           "multiple_submission",
           "theme",
           "capture_mail",
+          "response_mode",
+          "formation_id",
+          "module_id",
+          "chapter_id",
+          "trainer_id",
+          "session_id",
         ])
         .populate([
           {
-            path: "topic_id",
+            path: "category_id",
             select: "libelle",
           },
           {
-            path: "category_id",
-            select: "libelle",
+            path: "formation_id",
+            select: "nom description",
+          },
+          {
+            path: "module_id",
+            select: "nom formation_id",
+          },
+          {
+            path: "chapter_id",
+            select: "nom module_id",
+          },
+          {
+            path: "trainer_id",
+            select: "nom email",
+          },
+          {
+            path: "session_id",
+            select: "libelle formation_id date_debut date_fin",
           },
         ])
         .sort({ createdAt: -1 })
@@ -130,12 +176,28 @@ export default function surveyController() {
       let survey_template = await SurveyTemplate.findById(data.survey_id)
         .populate([
           {
-            path: "topic_id",
+            path: "category_id",
             select: "libelle",
           },
           {
-            path: "category_id",
-            select: "topic_id libelle",
+            path: "formation_id",
+            select: "nom description",
+          },
+          {
+            path: "module_id",
+            select: "nom formation_id",
+          },
+          {
+            path: "chapter_id",
+            select: "nom module_id",
+          },
+          {
+            path: "trainer_id",
+            select: "nom email",
+          },
+          {
+            path: "session_id",
+            select: "libelle formation_id date_debut date_fin",
           },
         ])
         .select([
@@ -255,6 +317,92 @@ export default function surveyController() {
     }
   };
 
+  const duplicateSurvey = async (req, res, next) => {
+    try {
+      const data = matchedData(req);
+      const source = await SurveyTemplate.findOne({
+        _id: data.survey_id,
+        owner_id: req.owner_id,
+      }).lean();
+      if (!source) {
+        return res.status(404).json({ message: "Enquête introuvable" });
+      }
+      const { _id, createdAt, updatedAt, questions = [], ...payload } = source;
+      payload.form_id = v4();
+      payload.title = `${source.title} - copie`;
+      payload.publish = false;
+      payload.archived = false;
+      payload.created_by = req.user._id;
+      payload.owner_id = req.owner_id;
+      payload.account_type_ref = req.account_type_ref;
+      payload.questions = questions.map((question) => ({
+        ...question,
+        question_id: v4(),
+      }));
+      const survey = await SurveyTemplate.create(payload);
+      await Question.insertMany(payload.questions.map((question) => ({
+        ...question,
+        _id: question.question_id,
+        survey_id: survey._id,
+      })));
+      return res.status(200).json({ data: survey._id, message: "Enquête dupliquée" });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  const togglePublishSurvey = async (req, res, next) => {
+    try {
+      const data = matchedData(req);
+      const survey = await SurveyTemplate.findOneAndUpdate(
+        { _id: data.survey_id, owner_id: req.owner_id },
+        { publish: data.publish },
+        { new: true }
+      );
+      return res.status(200).json({ data: survey, message: "Publication mise à jour" });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  const archiveSurvey = async (req, res, next) => {
+    try {
+      const data = matchedData(req);
+      const survey = await SurveyTemplate.findOneAndUpdate(
+        { _id: data.survey_id, owner_id: req.owner_id },
+        { archived: true, publish: false },
+        { new: true }
+      );
+      return res.status(200).json({ data: survey, message: "Enquête archivée" });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  const deleteSurvey = async (req, res, next) => {
+    try {
+      const data = matchedData(req);
+      const survey = await SurveyTemplate.findOneAndDelete({
+        _id: data.survey_id,
+        owner_id: req.owner_id,
+      });
+
+      if (!survey) {
+        return res.status(404).json({ message: "Enquete introuvable" });
+      }
+
+      await Question.deleteMany({ survey_id: data.survey_id });
+      await Answer.deleteMany({ survey_id: data.survey_id });
+
+      return res.status(200).json({
+        data: data.survey_id,
+        message: "Enquete supprimee",
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
   const getSurveyForm = async (req, res, next) => {
     try {
       const data = matchedData(req);
@@ -324,7 +472,7 @@ export default function surveyController() {
                   file_name,
                   answer_id: answer_save._id,
                 };
-                saveResponseFileJob(jobData)
+                saveResponseFileJob(jobData);
               }
             }
           }
@@ -367,8 +515,8 @@ export default function surveyController() {
   const surveyResponses = async (req, res, next) => {
     try {
       const data = matchedData(req);
-
-      const responses = await getAnswers(data.survey_id);
+      const { survey_id, start_date, end_date } = data;
+      const responses = await getAnswers(survey_id, start_date, end_date);
       return res.status(200).json({
         message: "Données récupérées",
         data: responses,
@@ -409,7 +557,9 @@ export default function surveyController() {
   const getSurveysStatistics = async (req, res, next) => {
     try {
       const data = matchedData(req);
-      const responses = await getAnswers(data.survey_id);
+      const { survey_id, start_date, end_date } = data;
+
+      const responses = await getAnswers(survey_id, start_date, end_date);
       const result = await getStatistics(responses, data.survey_id);
 
       return res.status(200).json({
@@ -434,6 +584,10 @@ export default function surveyController() {
     surveyResponses,
     getSurveysStatistics,
     updateSurvey,
+    duplicateSurvey,
+    togglePublishSurvey,
+    archiveSurvey,
+    deleteSurvey,
     createExcel,
     createSurveyModel,
     createSurveyModelAdmin,

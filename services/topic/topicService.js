@@ -63,11 +63,17 @@ export default function topicService() {
     }
   };
 
-  const topicCategory = async (topic_id) => {
+  const topicCategory = async (topic_id, req = null) => {
     try {
-      let category = await Category.find({ topic_id: topic_id })
-        .sort({ createdAt: -1 })
-        .exec();
+      let query = {};
+      if (topic_id) {
+        query.topic_id = topic_id;
+      }
+      if (req) {
+        query.owner_id = req.owner_id;
+        query.account_type_ref = req.account_type_ref;
+      }
+      let category = await Category.find(query).sort({ createdAt: -1 }).exec();
       return category;
     } catch (err) {
       throw new Error(err);
@@ -85,10 +91,6 @@ export default function topicService() {
     } else {
       category = await categ_finder
         .select(["-account_type_ref", "-created_by"])
-        .populate({
-          path: "topic_id",
-          select: "libelle",
-        })
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit)

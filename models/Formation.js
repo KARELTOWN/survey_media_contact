@@ -1,16 +1,17 @@
-import mongoose from "../config/mongodb.js";
 import { SchemaTypes } from "mongoose";
+import mongoose from "../config/mongodb.js";
 
-const CategorySchema = new mongoose.Schema(
+const FormationSchema = new mongoose.Schema(
   {
-    libelle: {
+    nom: {
       type: String,
       required: true,
+      trim: true,
     },
-    topic_id: {
-      type: SchemaTypes.ObjectId,
-      ref: "Topic",
-      required: false,
+    description: {
+      type: String,
+      default: "",
+      trim: true,
     },
     owner_id: {
       type: SchemaTypes.ObjectId,
@@ -33,6 +34,5 @@ const CategorySchema = new mongoose.Schema(
   }
 );
 
-CategorySchema.index({ libelle: 1, owner_id: 1, account_type_ref: 1 }, { unique: true });
-const Category = mongoose.model("Category", CategorySchema);
-export default Category;
+const Formation = mongoose.model("Formation", FormationSchema);
+export default Formation;

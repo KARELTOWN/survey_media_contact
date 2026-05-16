@@ -28,7 +28,6 @@ function logQueueEvents(queueName) {
 }
 
 // Usage
-const recordChunkEvents = logQueueEvents("recording_chunk_store");
+const saveResponseFileEvents = logQueueEvents("save_response_file_to_s3");
 const mailingEvents = logQueueEvents("mailing");
-const feedbackStore = logQueueEvents("feedback");
 

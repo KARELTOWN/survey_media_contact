@@ -19,6 +19,8 @@ html
             div= formatTO_DMY(val.response)
           else if question_field === 'review'
             div= `${val.response} / 5`
+          else if question_field === 'range'
+            div= val.response
           else if question_field === 'file'
             if Array.isArray(val.response) && val.response.length > 0
               div Fichiers #{val.response.length} fichier(s)

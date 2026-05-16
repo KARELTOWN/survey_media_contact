@@ -6,6 +6,9 @@ import {
   surveyModelValidator,
   validateSurveyId,
   surveyResponseValidator,
+  validateDateFilter,
+  validateSurveyIdInBody,
+  validatePublishSurvey,
 } from "../../validator/survey/surveyValidator.js";
 import surveyController from "../../controllers/survey/surveyController.js";
 
@@ -27,6 +30,10 @@ const {
   surveyResponses,
   getSurveysStatistics,
   createExcel,
+  duplicateSurvey,
+  togglePublishSurvey,
+  archiveSurvey,
+  deleteSurvey,
 } = surveyController();
 
 SurveyRouter.get(
@@ -68,6 +75,42 @@ SurveyRouter.put(
   validateSurveyId,
   surveyValidator,
   updateSurvey
+);
+
+SurveyRouter.post(
+  "/duplicate/:survey_id",
+  isauthentificate,
+  checkAccountHeaders,
+  blacklist,
+  validateSurveyId,
+  duplicateSurvey
+);
+
+SurveyRouter.patch(
+  "/publish",
+  isauthentificate,
+  checkAccountHeaders,
+  blacklist,
+  validatePublishSurvey,
+  togglePublishSurvey
+);
+
+SurveyRouter.patch(
+  "/archive/:survey_id",
+  isauthentificate,
+  checkAccountHeaders,
+  blacklist,
+  validateSurveyId,
+  archiveSurvey
+);
+
+SurveyRouter.delete(
+  "/delete/:survey_id",
+  isauthentificate,
+  checkAccountHeaders,
+  blacklist,
+  validateSurveyId,
+  deleteSurvey
 );
 
 SurveyRouter.get(
@@ -114,23 +157,25 @@ SurveyRouter.put(
   createResponseToSurvey
 );
 
-SurveyRouter.get(
-  "/detail/responses/:survey_id",
+SurveyRouter.post(
+  "/detail/responses",
   isauthentificate,
   checkAccountHeaders,
   blacklist,
   permissionCheck("RE"),
-  validateSurveyId,
+  validateSurveyIdInBody,
+  validateDateFilter,
   surveyResponses
 );
 
-SurveyRouter.get(
-  "/statistics/:survey_id",
+SurveyRouter.post(
+  "/statistics",
   isauthentificate,
   checkAccountHeaders,
   blacklist,
   permissionCheck("SE"),
-  validateSurveyId,
+  validateSurveyIdInBody,
+  validateDateFilter,
   getSurveysStatistics
 );
 

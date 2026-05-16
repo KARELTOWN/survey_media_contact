@@ -20,6 +20,7 @@ const mailingWorker = new Worker(
         subject: mailinfo.subject,
         html: mailinfo.html,
       });
+      console.log(mailinfo);
       // if (info) {
       //   await mongoose.model("Notification").insertOne({
       //     mail_to: mailinfo.user_id,
@@ -33,7 +34,7 @@ const mailingWorker = new Worker(
       throw new Error(error);
     }
   },
-  { connection: connectionRedis }
+  { connection: connectionRedis },
 );
 
 const uploadResponseFileToS3Worker = new Worker(
@@ -43,17 +44,17 @@ const uploadResponseFileToS3Worker = new Worker(
       let question = job.data;
       const uploadState = await uploadTempFileOnS3(
         question.file_name,
-        "survey_reveal/responses"
+        "survey_reveal/responses",
       );
       if (uploadState !== undefined && isValidObjectId(uploadState)) {
-        console.log(`Succès upload du fichier ${question.file_name}`)
+        console.log(`Succès upload du fichier ${question.file_name}`);
         await Answer.findByIdAndUpdate(question.answer_id, {
-          $addToSet: { response: uploadState }
+          $addToSet: { response: uploadState },
         });
       }
     } catch (error) {
       throw new Error(error);
     }
   },
-  { connection: connectionRedis }
+  { connection: connectionRedis },
 );

@@ -19,15 +19,30 @@ const SurveyTemplateSchema = new mongoose.Schema(
       type: String,
       required: false,
     },
-    topic_id: {
-      type: SchemaTypes.ObjectId,
-      ref: "Topic",
-      required: true,
-    },
     category_id: {
       type: SchemaTypes.ObjectId,
       ref: "Category",
       required: true,
+    },
+    formation_id: {
+      type: SchemaTypes.ObjectId,
+      ref: "Formation",
+    },
+    module_id: {
+      type: SchemaTypes.ObjectId,
+      ref: "TrainingModule",
+    },
+    chapter_id: {
+      type: SchemaTypes.ObjectId,
+      ref: "Chapter",
+    },
+    trainer_id: {
+      type: SchemaTypes.ObjectId,
+      ref: "Trainer",
+    },
+    session_id: {
+      type: SchemaTypes.ObjectId,
+      ref: "TrainingSession",
     },
     lastEdit: {
       type: Date,
@@ -38,6 +53,11 @@ const SurveyTemplateSchema = new mongoose.Schema(
       type: Boolean,
       required: true,
       default: true,
+    },
+    archived: {
+      type: Boolean,
+      required: true,
+      default: false,
     },
     owner_id: {
       type: SchemaTypes.ObjectId,
@@ -64,6 +84,11 @@ const SurveyTemplateSchema = new mongoose.Schema(
       type: Boolean,
       required: true,
       default: false,
+    },
+    response_mode: {
+      type: String,
+      enum: ["anonymous", "identified", "semi_anonymous"],
+      default: "anonymous",
     },
     start_date: {
       type: Date,

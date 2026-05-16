@@ -1,5 +1,4 @@
 import { body, check, param, validationResult } from "express-validator";
-import Topic from "../../models/Topic.js";
 import Category from "../../models/Category.js";
 import { surveyFields, surveyOperators } from "../../utils/survey.js";
 import SurveyTemplate from "../../models/SurveyTemplate.js";
@@ -10,7 +9,28 @@ import _ from "lodash";
 import SurveyThemeSchema from "../../models/SurveyElementSchema/SurveyTheme.js";
 import striptags from "striptags";
 import validator from "validator";
+import Formation from "../../models/Formation.js";
+import TrainingModule from "../../models/TrainingModule.js";
+import Chapter from "../../models/Chapter.js";
+import Trainer from "../../models/Trainer.js";
+import TrainingSession from "../../models/TrainingSession.js";
 let theme_attributes = SurveyThemeSchema.obj;
+const themeTextKeys = [
+  "container_bg_img",
+  "logo_url",
+  "banner_url",
+  "footer_text",
+  "footer_contact_name",
+  "footer_contact_email",
+  "footer_contact_phone",
+  "footer_contact_address",
+  "footer_contact_hours",
+  "form_width",
+  "form_alignment",
+  "form_spacing",
+];
+const themeBooleanKeys = ["show_footer_contact"];
+const themeArrayKeys = ["footer_links"];
 /**
  * Validator pour SurveyTemplate
  */
@@ -26,6 +46,32 @@ export const validateSurveyId = [
       }
       return true;
     }),
+  expressResultValidator,
+];
+
+export const validateSurveyIdInBody = [
+  body("survey_id")
+    .notEmpty()
+    .withMessage("L'identifiant du formulaire est obligatoire")
+    .custom(async (value) => {
+      const exist = await SurveyTemplate.exists({ _id: value });
+      if (!exist) {
+        throw new Error("Ce formulaire n'existe pas");
+      }
+      return true;
+    }),
+  expressResultValidator,
+];
+
+export const validatePublishSurvey = [
+  body("survey_id")
+    .notEmpty()
+    .withMessage("L'identifiant du formulaire est obligatoire")
+    .isMongoId()
+    .withMessage("survey_id invalide"),
+  body("publish")
+    .isBoolean()
+    .withMessage("publish doit être un booléen"),
   expressResultValidator,
 ];
 
@@ -57,16 +103,29 @@ export const surveyValidator = [
       }
       for (const key of Object.keys(theme_attributes)) {
         // Ignorer container_bg_img
-        if (key === "container_bg_img" && value[key]) {
-          if (!validator.isBase64(value[key])) {
-            throw new Error("Une image est base 64 est attendue");
+        if (themeBooleanKeys.includes(key)) {
+          if (value[key] !== undefined && !_.isBoolean(value[key])) {
+            throw new Error(`La clé ${key} a une valeur invalide`);
           }
+          continue;
+        }
+        if (themeArrayKeys.includes(key)) {
+          if (value[key] !== undefined && !_.isArray(value[key])) {
+            throw new Error(`La clé ${key} a une valeur invalide`);
+          }
+          continue;
+        }
+        if (themeTextKeys.includes(key)) {
+          if (value[key] && !_.isString(value[key])) {
+            throw new Error(`La clÃ© ${key} a une valeur invalide`);
+          }
+          continue;
         }
 
         // Vérifier que la clé existe et que la valeur est une couleur hex
         if (
           (!keys.includes(key) || !validator.isHexColor(value[key])) &&
-          key !== "container_bg_img" && value[key]
+          value[key]
         ) {
           throw new Error(`La clé ${key} a une valeur invalide`);
         }
@@ -113,32 +172,105 @@ export const surveyValidator = [
     .escape()
     .withMessage("description doit être une chaîne de caractères"),
 
-  body("topic_id")
-    .exists({ checkFalsy: true })
-    .withMessage("topic est requis")
-    .isMongoId()
-    .withMessage("topic doit être un ObjectId valide")
-    .custom(async (value) => {
-      let topic = await Topic.exists({ _id: value });
-      if (!topic) {
-        throw new Error("La thématique n'existe pas");
-      }
-      return true;
-    }),
-
   body("category_id")
     .exists({ checkFalsy: true })
     .withMessage("category est requis")
     .isMongoId()
     .withMessage("category doit être un ObjectId valide")
     .custom(async (value, { req }) => {
-      let topic = await Category.exists({
+      let category = await Category.exists({
         _id: value,
-        topic_id: req.body.topic_id,
+        owner_id: req.owner_id,
+        account_type_ref: req.account_type_ref,
       });
-      if (!topic) {
-        throw new Error("La thématique n'existe pas");
+      if (!category) {
+        throw new Error("La catégorie n'existe pas");
       }
+      if (value.form_width && !["narrow", "medium", "wide", "full"].includes(value.form_width)) {
+        throw new Error("Largeur du formulaire invalide");
+      }
+      if (value.form_alignment && !["left", "center"].includes(value.form_alignment)) {
+        throw new Error("Alignement du formulaire invalide");
+      }
+      if (value.form_spacing && !["compact", "normal", "comfortable"].includes(value.form_spacing)) {
+        throw new Error("Espacement du formulaire invalide");
+      }
+      return true;
+    }),
+
+  body("formation_id")
+    .optional({ checkFalsy: true })
+    .isMongoId()
+    .withMessage("formation_id invalide")
+    .custom(async (value, { req }) => {
+      const exist = await Formation.exists({
+        _id: value,
+        owner_id: req.owner_id,
+        account_type_ref: req.account_type_ref,
+      });
+      if (!exist) throw new Error("La formation n'existe pas");
+      return true;
+    }),
+
+  body("module_id")
+    .optional({ checkFalsy: true })
+    .isMongoId()
+    .withMessage("module_id invalide")
+    .custom(async (value, { req }) => {
+      const query = {
+        _id: value,
+        owner_id: req.owner_id,
+        account_type_ref: req.account_type_ref,
+      };
+      if (req.body.formation_id) query.formation_id = req.body.formation_id;
+      const exist = await TrainingModule.exists(query);
+      if (!exist) throw new Error("Le module n'existe pas");
+      return true;
+    }),
+
+  body("chapter_id")
+    .optional({ checkFalsy: true })
+    .isMongoId()
+    .withMessage("chapter_id invalide")
+    .custom(async (value, { req }) => {
+      const query = {
+        _id: value,
+        owner_id: req.owner_id,
+        account_type_ref: req.account_type_ref,
+      };
+      if (req.body.module_id) query.module_id = req.body.module_id;
+      const exist = await Chapter.exists(query);
+      if (!exist) throw new Error("Le chapitre n'existe pas");
+      return true;
+    }),
+
+  body("trainer_id")
+    .optional({ checkFalsy: true })
+    .isMongoId()
+    .withMessage("trainer_id invalide")
+    .custom(async (value, { req }) => {
+      const exist = await Trainer.exists({
+        _id: value,
+        owner_id: req.owner_id,
+        account_type_ref: req.account_type_ref,
+      });
+      if (!exist) throw new Error("Le formateur n'existe pas");
+      return true;
+    }),
+
+  body("session_id")
+    .optional({ checkFalsy: true })
+    .isMongoId()
+    .withMessage("session_id invalide")
+    .custom(async (value, { req }) => {
+      const query = {
+        _id: value,
+        owner_id: req.owner_id,
+        account_type_ref: req.account_type_ref,
+      };
+      if (req.body.formation_id) query.formation_id = req.body.formation_id;
+      const exist = await TrainingSession.exists(query);
+      if (!exist) throw new Error("La session n'existe pas");
       return true;
     }),
   body("multiple_submission")
@@ -152,6 +284,10 @@ export const surveyValidator = [
     .withMessage("Définissez si l'email doit être capturé")
     .isBoolean()
     .withMessage("Ce champ doit être un boolean"),
+  body("response_mode")
+    .optional()
+    .isIn(["anonymous", "identified", "semi_anonymous"])
+    .withMessage("Mode de réponse invalide"),
   body("lastEdit")
     .exists({ checkFalsy: true })
     .withMessage("lastEdit est requis")
@@ -318,14 +454,27 @@ export const surveyModelValidator = [
         throw new Error("Le thème ne peut pas être vide");
       }
       for (const key of Object.keys(theme_attributes)) {
-        if (key === "container_bg_img" && value[key]) {
-          if (!validator.isBase64(value[key])) {
-            throw new Error("Une image est base 64 est attendue");
+        if (themeBooleanKeys.includes(key)) {
+          if (value[key] !== undefined && !_.isBoolean(value[key])) {
+            throw new Error(`La clé ${key} a une valeur invalide`);
           }
+          continue;
+        }
+        if (themeArrayKeys.includes(key)) {
+          if (value[key] !== undefined && !_.isArray(value[key])) {
+            throw new Error(`La clé ${key} a une valeur invalide`);
+          }
+          continue;
+        }
+        if (themeTextKeys.includes(key)) {
+          if (value[key] && !_.isString(value[key])) {
+            throw new Error(`La clÃ© ${key} a une valeur invalide`);
+          }
+          continue;
         }
         if (
           (!keys.includes(key) || !validator.isHexColor(value[key])) &&
-          key !== "container_bg_img"
+          value[key]
         ) {
           throw new Error(`La clé ${key} a une valeur invalide`);
         }
@@ -348,34 +497,52 @@ export const surveyModelValidator = [
     .escape()
     .withMessage("description doit être une chaîne de caractères"),
 
-  body("topic_id")
-    .exists({ checkFalsy: true })
-    .withMessage("topic est requis")
-    .isMongoId()
-    .withMessage("topic doit être un ObjectId valide")
-    .custom(async (value) => {
-      let topic = await Topic.exists({ _id: value });
-      if (!topic) {
-        throw new Error("La thématique n'existe pas");
-      }
-      return true;
-    }),
-
   body("category_id")
     .exists({ checkFalsy: true })
     .withMessage("category est requis")
     .isMongoId()
     .withMessage("category doit être un ObjectId valide")
     .custom(async (value, { req }) => {
-      let topic = await Category.exists({
+      let category = await Category.exists({
         _id: value,
-        topic_id: req.body.topic_id,
+        owner_id: req.owner_id,
+        account_type_ref: req.account_type_ref,
       });
-      if (!topic) {
-        throw new Error("La thématique n'existe pas");
+      if (!category) {
+        throw new Error("La catégorie n'existe pas");
+      }
+      if (value.form_width && !["narrow", "medium", "wide", "full"].includes(value.form_width)) {
+        throw new Error("Largeur du formulaire invalide");
+      }
+      if (value.form_alignment && !["left", "center"].includes(value.form_alignment)) {
+        throw new Error("Alignement du formulaire invalide");
+      }
+      if (value.form_spacing && !["compact", "normal", "comfortable"].includes(value.form_spacing)) {
+        throw new Error("Espacement du formulaire invalide");
       }
       return true;
     }),
+
+  body("formation_id")
+    .optional({ checkFalsy: true })
+    .isMongoId()
+    .withMessage("formation_id invalide"),
+  body("module_id")
+    .optional({ checkFalsy: true })
+    .isMongoId()
+    .withMessage("module_id invalide"),
+  body("chapter_id")
+    .optional({ checkFalsy: true })
+    .isMongoId()
+    .withMessage("chapter_id invalide"),
+  body("trainer_id")
+    .optional({ checkFalsy: true })
+    .isMongoId()
+    .withMessage("trainer_id invalide"),
+  body("session_id")
+    .optional({ checkFalsy: true })
+    .isMongoId()
+    .withMessage("session_id invalide"),
   body("multiple_submission")
     .notEmpty()
     .withMessage("Le nombre de soumission est requis")
@@ -387,6 +554,10 @@ export const surveyModelValidator = [
     .withMessage("Définissez si l'email doit être capturé")
     .isBoolean()
     .withMessage("Ce champ doit être un boolean"),
+  body("response_mode")
+    .optional()
+    .isIn(["anonymous", "identified", "semi_anonymous"])
+    .withMessage("Mode de réponse invalide"),
   // Validation des questions imbriquées
   body("questions")
     .isArray({ min: 1 })
@@ -564,8 +735,34 @@ export const surveyResponseValidator = [
       ) {
         throw new Error("Les métadata sont attendus");
       }
-      return true
+      return true;
     }),
 
+  expressResultValidator,
+];
+
+export const validateDateFilter = [
+  body("start_date")
+    .optional()
+    .custom((value, { req }) => {
+      if (value && value !== undefined) {
+        if (!moment(value).isValid()) {
+          throw new Error("Date de début invalide");
+        }
+      }
+   
+      return true;
+    }),
+  body("end_date")
+    .optional()
+    .custom((value, { req }) => {
+      if (value && value !== undefined) {
+        if (!moment(value).isValid()) {
+          throw new Error("Date de fin invalide");
+        }
+      }
+     
+      return true;
+    }),
   expressResultValidator,
 ];

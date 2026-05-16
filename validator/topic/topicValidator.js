@@ -1,11 +1,11 @@
-import { body, param, validationResult } from "express-validator";
+import { body, param } from "express-validator";
 import Topic from "../../models/Topic.js";
-import _ from "lodash";
 import topicService from "../../services/topic/topicService.js";
 import Category from "../../models/Category.js";
 import { expressResultValidator } from "../requestValidator.js";
-const { checkTopicExist, checkCategoryExist } = topicService();
 import striptags from "striptags";
+
+const { checkTopicExist, checkCategoryExist } = topicService();
 
 export const validateStoreTopic = [
   body("libelle")
@@ -23,31 +23,22 @@ export const validateStoreTopic = [
 ];
 
 export const validateStoreCategory = [
-  body("topic_id")
-    .notEmpty()
-    .withMessage("La thématique est obligatoire")
-    .custom(async (value) => {
-      let exist = await checkTopicExist(value);
-      if (!exist) {
-        throw new Error("La thématique n'existe pas");
-      }
-      return true;
-    }),
-
   body("libelle")
     .notEmpty()
     .withMessage("Le libelle est obligatoire")
     .custom(async (value, { req }) => {
-      const topic = await Category.exists({
+      const category = await Category.exists({
         libelle: value,
-        topic_id: req.body.topic_id,
+        owner_id: req.owner_id,
+        account_type_ref: req.account_type_ref,
       });
-      if (topic) {
+      if (category) {
         throw new Error("Existe déjà");
       }
       return true;
     })
-    .trim().customSanitizer((value) => striptags(value)),
+    .trim()
+    .customSanitizer((value) => striptags(value)),
   expressResultValidator,
 ];
 
@@ -94,7 +85,8 @@ export const validateUpdateTopic = [
       }
       return true;
     })
-    .trim().customSanitizer((value) => striptags(value)),
+    .trim()
+    .customSanitizer((value) => striptags(value)),
   expressResultValidator,
 ];
 
@@ -104,11 +96,11 @@ export const validateUpdateCategory = [
     .withMessage("Le libelle est obligatoire")
     .trim()
     .custom(async (value, { req }) => {
-      const { topic_id } = req.params;
       const { category_id } = req.body;
       const categ = await Category.exists({
         libelle: value,
-        topic_id: topic_id,
+        owner_id: req.owner_id,
+        account_type_ref: req.account_type_ref,
         _id: { $nin: [category_id] },
       });
       if (categ) {
@@ -116,17 +108,8 @@ export const validateUpdateCategory = [
       }
       return true;
     })
-    .trim().customSanitizer((value) => striptags(value)),
-  body("topic_id")
-    .notEmpty()
-    .withMessage("La catégorie est obligatoire")
-    .custom(async (value) => {
-      let exist = await checkTopicExist(value);
-      if (!exist) {
-        throw new Error("La thématique n'existe pas");
-      }
-      return true;
-    }),
+    .trim()
+    .customSanitizer((value) => striptags(value)),
   expressResultValidator,
 ];
 
@@ -134,7 +117,9 @@ export const validateFilterTopic = [
   body("search")
     .optional()
     .isString()
-    .withMessage("Un chaine de caractère est attendu").trim().customSanitizer((value) => striptags(value)),
+    .withMessage("Une chaine de caractère est attendue")
+    .trim()
+    .customSanitizer((value) => striptags(value)),
   expressResultValidator,
 ];
 
@@ -142,6 +127,8 @@ export const validateFilterCategory = [
   body("search")
     .optional()
     .isString()
-    .withMessage("Un chaine de caractère est attendu").trim().customSanitizer((value) => striptags(value)),
+    .withMessage("Une chaine de caractère est attendue")
+    .trim()
+    .customSanitizer((value) => striptags(value)),
   expressResultValidator,
 ];

@@ -12,6 +12,15 @@ import fs from "fs";
 import path from "path";
 
 export default function fileService() {
+  const requiredS3Config = [
+    "AWS_DEFAULT_REGION",
+    "AWS_ACCESS_KEY_ID",
+    "AWS_SECRET_ACCESS_KEY",
+    "AWS_BUCKET",
+  ];
+  const missingS3Config = requiredS3Config.filter((key) => !process.env[key]);
+  const forcePathStyle = String(process.env.AWS_S3_FORCE_PATH_STYLE).toLowerCase() === "true";
+
   const clientS3 = new S3Client({
     region: process.env.AWS_DEFAULT_REGION,
     credentials: {
@@ -19,6 +28,7 @@ export default function fileService() {
       secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
     },
     endpoint: process.env.AWS_ENDPOINT || undefined, // utile pour Wazabi
+    forcePathStyle,
   });
 
   const uploadTempFileOnS3 = async (temp_filename, filePath) => {
@@ -47,12 +57,17 @@ export default function fileService() {
 
   const uploadFileOnS3 = async (file, filePath) => {
     try {
+      if (missingS3Config.length > 0) {
+        throw new Error(`Configuration S3 incomplete: ${missingS3Config.join(", ")}`);
+      }
+
       let extension = file.originalname.split(".").pop();
       let filename = `file_${Date.now() + v4()}.${extension}`;
       const params = {
         Bucket: process.env.AWS_BUCKET,
         Body: file.buffer,
         Key: `${filePath}/${filename}`,
+        ContentType: file.mimetype,
         Acl: "private",
       };
       const command = new PutObjectCommand(params);
@@ -61,7 +76,8 @@ export default function fileService() {
         return filename;
       }
     } catch (err) {
-      console.error("Erreur lors de l'upload JSON vers S3 :", err);
+      console.error("Erreur lors de l'upload vers S3 :", err);
+      throw err;
     }
   };
 
@@ -75,13 +91,12 @@ export default function fileService() {
     return url;
   };
 
-  // function getPublicFileUrl(key, zone) {
+  // function getPublicFileUrl(key) {
   //   return `https://${process.env.AWS_BUCKET}.s3.${process.env.AWS_DEFAULT_REGION}.amazonaws.com/${key}`;
   // }
 
   const getFileOnS3 = async (key) => {
-    // Get chuck from S3 Storage
-    let url_file = await presignedUpload(key);
+    let url_file = presignedUpload(key);
     return url_file;
   };
 

@@ -40,6 +40,11 @@ const FieldParamsTemplateSchema = new mongoose.Schema({
   value: { type: String, required: false },
   maxlength: { type: Number, required: false },
   placeholder: { type: String, required: false },
+  min: { type: Number, required: false },
+  max: { type: Number, required: false },
+  step: { type: Number, required: false },
+  min_label: { type: String, required: false },
+  max_label: { type: String, required: false },
 });
 
 export default FieldParamsTemplateSchema;

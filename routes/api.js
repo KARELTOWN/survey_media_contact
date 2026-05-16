@@ -12,6 +12,7 @@ import SurveyRouter from "./survey/surveyRouter.js";
 import checkAccountHeaders from "../middleware/checkAccountHeaders.js";
 import RoleRouter from "./user/roleRouter.js";
 import fileRouter from './file/fileRouter.js'
+import AnalyticsDimensionRouter from "./analyticsDimension/analyticsDimensionRouter.js";
 
 router.use("/auth/", AuthRouter);
 router.use("/file/", fileRouter);
@@ -44,6 +45,14 @@ router.use(
   checkAccountHeaders,
   blacklist,
   RoleRouter
+);
+
+router.use(
+  "/analytics-dimensions/",
+  isauthentificate,
+  checkAccountHeaders,
+  blacklist,
+  AnalyticsDimensionRouter
 );
 
 router.use("/survey/", SurveyRouter);
